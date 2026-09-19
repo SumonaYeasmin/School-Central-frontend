@@ -1,18 +1,28 @@
 import { Card, CardContent } from "@/src/components/ui/card";
 import { School, Layers } from "lucide-react";
 
-export function ClassesStats() {
+interface ClassesStatsProps {
+  classes?: any[];
+}
+
+export function ClassesStats({ classes = [] }: ClassesStatsProps) {
+  const totalClasses = classes.length;
+  const totalSections = classes.reduce(
+    (acc, curr) => acc + (curr.sections?.length || 0),
+    0
+  );
+
   const stats = [
     {
       title: "Total Classes",
-      value: "5",
-      subtext: "Grade 6 to Grade 10",
+      value: totalClasses.toString(),
+      subtext: totalClasses > 0 ? "Grade 6 to Grade 10" : "No classes found",
       icon: School,
       iconBg: "bg-blue-50 text-blue-600",
     },
     {
       title: "Total Sections",
-      value: "10",
+      value: totalSections.toString(),
       subtext: "Active Sections (Section A & B)",
       icon: Layers,
       iconBg: "bg-indigo-50 text-indigo-600",
@@ -38,7 +48,9 @@ export function ClassesStats() {
                 </div>
                 <p className="text-xs text-slate-500">{stat.subtext}</p>
               </div>
-              <div className={`flex h-12 w-12 items-center justify-center rounded-xl ${stat.iconBg} shadow-xs shrink-0`}>
+              <div
+                className={`flex h-12 w-12 items-center justify-center rounded-xl ${stat.iconBg} shadow-xs shrink-0`}
+              >
                 <Icon className="h-6 w-6" />
               </div>
             </CardContent>
