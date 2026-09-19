@@ -4,7 +4,8 @@ import { DashboardNavbarContent } from "./DashboardNavbarContent";
 
 export async function DashboardNavbar() {
   const user = await getUserInfo();
-  const navItems = getNavItemsByRole(user.role);
+  const userRole = user?.role || "ADMIN";
+  const navItems = getNavItemsByRole(userRole);
 
   return <DashboardNavbarContent user={user} navItems={navItems} />;
 }

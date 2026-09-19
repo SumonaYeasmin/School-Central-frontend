@@ -1,7 +1,7 @@
 import { UserInfo, UserRole } from "@/src/types/user.interface";
 
 // 🛠️ MANUAL ROLE SWITCHER: "ADMIN" | "TEACHER" | "PARENT"
-const ACTIVE_DEV_ROLE: UserRole = "TEACHER";
+const ACTIVE_DEV_ROLE: UserRole = "ADMIN";
 
 const mockUsers: Record<UserRole, UserInfo> = {
   ADMIN: {
@@ -29,7 +29,8 @@ const mockUsers: Record<UserRole, UserInfo> = {
 
 /**
  * Static mock function to get current user info for UI development
+ * Always provides fallback to prevent undefined errors
  */
 export async function getUserInfo(): Promise<UserInfo> {
-  return mockUsers[ACTIVE_DEV_ROLE];
+  return mockUsers[ACTIVE_DEV_ROLE] || mockUsers.ADMIN;
 }

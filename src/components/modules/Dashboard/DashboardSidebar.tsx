@@ -4,7 +4,8 @@ import { DashboardSidebarContent } from "./DashboardSidebarContent";
 
 export async function DashboardSidebar() {
   const user = await getUserInfo();
-  const navItems = getNavItemsByRole(user.role);
+  const userRole = user?.role || "ADMIN";
+  const navItems = getNavItemsByRole(userRole);
 
   return (
     <aside className="hidden lg:block w-64 shrink-0 h-screen sticky top-0 z-40">
