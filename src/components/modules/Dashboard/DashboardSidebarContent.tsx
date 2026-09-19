@@ -33,6 +33,18 @@ export function DashboardSidebarContent({
     }
   };
 
+  // Group items by category preserving config order
+  const categories: { name: string; items: NavItem[] }[] = [];
+  navItems.forEach((item) => {
+    const categoryName = item.category || "MAIN MENU";
+    let existing = categories.find((c) => c.name === categoryName);
+    if (!existing) {
+      existing = { name: categoryName, items: [] };
+      categories.push(existing);
+    }
+    existing.items.push(item);
+  });
+
   return (
     <div className="flex flex-col h-full bg-white text-slate-700 border-r border-slate-200">
       {/* Brand Header */}
@@ -49,47 +61,64 @@ export function DashboardSidebarContent({
         </div>
       </div>
 
-      {/* Navigation List */}
-      <div className="flex-1 px-3.5 py-5 overflow-y-auto space-y-1.5">
-        <p className="text-xs font-bold text-slate-400 uppercase tracking-wider px-3 mb-3">
-          Main Menu
-        </p>
+      {/* Categorized Navigation List */}
+      <div className="flex-1 px-3.5 py-4 overflow-y-auto space-y-5">
+        {categories.map((category) => (
+          <div key={category.name} className="space-y-1">
+            <p className="px-3 text-[11px] font-bold tracking-wider text-slate-400 uppercase">
+              {category.name}
+            </p>
+            <div className="space-y-1 pt-1">
+              {category.items.map((item) => {
+                const Icon = getIconComponent(item.icon);
+                const isActive =
+                  pathname === item.href ||
+                  (item.href !== "/admin/dashboard" &&
+                    item.href !== "/teacher/dashboard" &&
+                    item.href !== "/dashboard/overview" &&
+                    pathname.startsWith(item.href));
 
-        {navItems.map((item) => {
-          const Icon = getIconComponent(item.icon);
-          const isActive = pathname === item.href || (item.href !== "/admin/dashboard" && item.href !== "/teacher/dashboard" && item.href !== "/dashboard/overview" && pathname.startsWith(item.href));
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    onClick={onItemClick}
+                    className={cn(
+                      "group flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all duration-200",
+                      isActive
+                        ? "bg-blue-600 text-white shadow-sm shadow-blue-600/25 font-semibold"
+                        : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+                    )}
+                  >
+                    <div className="flex items-center gap-3 truncate">
+                      <Icon
+                        className={cn(
+                          "h-4.5 w-4.5 shrink-0 transition-transform group-hover:scale-110",
+                          isActive ? "text-white" : "text-slate-400 group-hover:text-blue-600"
+                        )}
+                      />
+                      <span className="truncate">{item.title}</span>
+                    </div>
 
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              onClick={onItemClick}
-              className={cn(
-                "group flex items-center justify-between px-3.5 py-3 rounded-xl text-sm font-medium transition-all duration-200",
-                isActive
-                  ? "bg-blue-600 text-white shadow-sm shadow-blue-600/25 font-semibold"
-                  : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
-              )}
-            >
-              <div className="flex items-center gap-3.5 truncate">
-                <Icon className={cn("h-5 w-5 shrink-0 transition-transform group-hover:scale-110", isActive ? "text-white" : "text-slate-400 group-hover:text-blue-600")} />
-                <span className="truncate">{item.title}</span>
-              </div>
-
-              {item.badge && (
-                <Badge 
-                  variant="outline" 
-                  className={cn(
-                    "text-xs px-2 py-0.5 border-none font-bold",
-                    isActive ? "bg-white/20 text-white" : "bg-slate-100 text-slate-600 group-hover:bg-blue-50 group-hover:text-blue-600"
-                  )}
-                >
-                  {item.badge}
-                </Badge>
-              )}
-            </Link>
-          );
-        })}
+                    {item.badge && (
+                      <Badge
+                        variant="outline"
+                        className={cn(
+                          "text-xs px-2 py-0.5 border-none font-bold",
+                          isActive
+                            ? "bg-white/20 text-white"
+                            : "bg-slate-100 text-slate-600 group-hover:bg-blue-50 group-hover:text-blue-600"
+                        )}
+                      >
+                        {item.badge}
+                      </Badge>
+                    )}
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        ))}
       </div>
 
       {/* View Public Website Link */}
