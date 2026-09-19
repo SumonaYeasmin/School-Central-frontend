@@ -1,48 +1,35 @@
-"use server";
-
-import { cookies } from "next/headers";
-import { jwtDecode } from "jwt-decode";
 import { UserInfo, UserRole } from "@/src/types/user.interface";
 
-interface DecodedJwt {
-  id?: string;
-  sub?: string;
-  name?: string;
-  email?: string;
-  role?: UserRole;
-  exp?: number;
-}
+// 🛠️ MANUAL ROLE SWITCHER: "ADMIN" | "TEACHER" | "PARENT"
+const ACTIVE_DEV_ROLE: UserRole = "TEACHER";
 
-/**
- * Server Action to retrieve the current user's profile info from secure cookies.
- * Provides fallback mock data for development testing when no token is present.
- */
-export async function getUserInfo(): Promise<UserInfo> {
-  try {
-    const cookieStore = await cookies();
-    const token = cookieStore.get("accessToken")?.value;
-
-    if (token) {
-      const decoded = jwtDecode<DecodedJwt>(token);
-      if (decoded && (decoded.id || decoded.sub)) {
-        return {
-          id: decoded.id || decoded.sub || "user-1",
-          name: decoded.name || "School Administrator",
-          email: decoded.email || "admin@schoolcentral.com",
-          role: decoded.role || "ADMIN",
-        };
-      }
-    }
-  } catch {
-    // If decoding fails, fall through to fallback
-  }
-
-  // Development Fallback: Return Admin profile so UI is immediately visible
-  return {
-    id: "admin-dev-01",
-    name: "Dr. Sarah Jenkins",
+const mockUsers: Record<UserRole, UserInfo> = {
+  ADMIN: {
+    id: "admin-01",
+    name: "Sarah Jenkins",
     email: "sarah.jenkins@schoolcentral.edu",
     role: "ADMIN",
     avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=200",
-  };
+  },
+  TEACHER: {
+    id: "teacher-01",
+    name: "Rafiqul Islam",
+    email: "rafiqul.islam@schoolcentral.edu",
+    role: "TEACHER",
+    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=200",
+  },
+  PARENT: {
+    id: "parent-01",
+    name: "Kamal Hossain",
+    email: "kamal.hossain@gmail.com",
+    role: "PARENT",
+    avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=200",
+  },
+};
+
+/**
+ * Static mock function to get current user info for UI development
+ */
+export async function getUserInfo(): Promise<UserInfo> {
+  return mockUsers[ACTIVE_DEV_ROLE];
 }

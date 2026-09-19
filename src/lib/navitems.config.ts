@@ -11,7 +11,7 @@ export interface NavItem {
 export const navItemsConfig: NavItem[] = [
   // --- Admin Navigation Items ---
   {
-    title: "Dashboard",
+    title: "Overview",
     href: "/admin/dashboard",
     icon: "LayoutDashboard",
     roles: ["ADMIN"],
@@ -58,7 +58,7 @@ export const navItemsConfig: NavItem[] = [
 
   // --- Teacher Navigation Items ---
   {
-    title: "Dashboard",
+    title: "Overview",
     href: "/teacher/dashboard",
     icon: "LayoutDashboard",
     roles: ["TEACHER"],

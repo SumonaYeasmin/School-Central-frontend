@@ -6,10 +6,8 @@ import { NavItem } from "@/src/lib/navitems.config";
 import { UserInfo } from "@/src/types/user.interface";
 import { getIconComponent } from "@/src/lib/icon-mapper";
 import { Badge } from "@/src/components/ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "@/src/components/ui/avatar";
-import { School, LogOut, Sparkles } from "lucide-react";
+import { School, Sparkles, ExternalLink } from "lucide-react";
 import { cn } from "@/src/lib/utils";
-import toast from "react-hot-toast";
 
 interface DashboardSidebarContentProps {
   navItems: NavItem[];
@@ -23,14 +21,6 @@ export function DashboardSidebarContent({
   onItemClick 
 }: DashboardSidebarContentProps) {
   const pathname = usePathname();
-
-  const handleLogout = () => {
-    document.cookie = "accessToken=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;";
-    localStorage.removeItem("userRole");
-    toast.success("Logged out successfully");
-    // eslint-disable-next-line @next/next/no-location-assign-relative-destination
-    window.location.href = "/login";
-  };
 
   const getPortalLabel = (role: string) => {
     switch (role) {
@@ -102,30 +92,18 @@ export function DashboardSidebarContent({
         })}
       </div>
 
-      {/* User Footer Profile Card */}
-      <div className="p-3 border-t border-slate-100 bg-slate-50/60">
-        <div className="flex items-center justify-between p-2 rounded-xl bg-white border border-slate-200/80 shadow-xs">
-          <div className="flex items-center gap-2.5 truncate">
-            <Avatar className="h-8 w-8 ring-1 ring-slate-200">
-              <AvatarImage src={user.avatar} alt={user.name} />
-              <AvatarFallback className="bg-blue-600 text-white font-semibold text-xs">
-                {user.name.charAt(0)}
-              </AvatarFallback>
-            </Avatar>
-            <div className="flex flex-col truncate text-left">
-              <span className="text-xs font-semibold text-slate-900 truncate">{user.name}</span>
-              <span className="text-[10px] text-slate-500 truncate">{user.email}</span>
-            </div>
+      {/* View Public Website Link */}
+      <div className="p-3 border-t border-slate-100">
+        <Link 
+          href="/" 
+          className="flex items-center justify-between px-3 py-2 text-xs font-medium text-slate-500 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition-colors"
+        >
+          <div className="flex items-center gap-2.5">
+            <ExternalLink className="h-4 w-4 text-slate-400" />
+            <span>Visit Website</span>
           </div>
-
-          <button
-            onClick={handleLogout}
-            title="Sign out"
-            className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
-          >
-            <LogOut className="h-4 w-4" />
-          </button>
-        </div>
+          <span className="text-[10px] text-slate-400">Home</span>
+        </Link>
       </div>
     </div>
   );
