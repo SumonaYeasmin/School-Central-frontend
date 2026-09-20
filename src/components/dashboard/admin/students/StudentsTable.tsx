@@ -4,13 +4,13 @@ import { useState } from "react";
 import { Search, GraduationCap } from "lucide-react";
 import { Input } from "@/src/components/ui/input";
 import { StudentTableActions } from "./StudentTableActions";
-import { MockStudent, MOCK_STUDENTS } from "./mockStudents";
+import { Student } from "@/src/types/student";
 
 interface StudentsTableProps {
-  students?: MockStudent[];
+  students?: Student[];
 }
 
-// Avatar color palettes matching the screenshot
+// Avatar color palettes matching the design
 const AVATAR_COLORS = [
   { bg: "bg-blue-100", text: "text-blue-700" },
   { bg: "bg-amber-100", text: "text-amber-700" },
@@ -20,8 +20,32 @@ const AVATAR_COLORS = [
   { bg: "bg-cyan-100", text: "text-cyan-700" },
 ];
 
-export function StudentsTable({ students = MOCK_STUDENTS }: StudentsTableProps) {
+export function StudentsTable({ students = [] }: StudentsTableProps) {
   const [searchQuery, setSearchQuery] = useState("");
+
+  // Helper: Initials generator
+  const getInitials = (name: string) => {
+    if (!name) return "ST";
+    return name
+      .split(" ")
+      .map((part) => part[0])
+      .filter(Boolean)
+      .join("")
+      .slice(0, 2)
+      .toUpperCase();
+  };
+
+  // Helper: Guardian Name extractor
+  const getGuardianName = (student: Student) => {
+    if (student.parents && student.parents.length > 0) {
+      const primary = student.parents.find((p) => p.isPrimary) || student.parents[0];
+      const rel = primary.relation
+        ? ` (${primary.relation.charAt(0).toUpperCase() + primary.relation.slice(1).toLowerCase()})`
+        : "";
+      return `${primary.parent?.name || "Not Assigned"}${rel}`;
+    }
+    return "Not Assigned";
+  };
 
   // Filter students by search query
   const filteredStudents = students.filter((student) => {
@@ -29,9 +53,10 @@ export function StudentsTable({ students = MOCK_STUDENTS }: StudentsTableProps) 
     if (!query) return true;
     const nameMatch = student.name?.toLowerCase().includes(query);
     const idMatch = student.studentId?.toLowerCase().includes(query);
-    const classMatch = student.class?.toLowerCase().includes(query);
-    const guardianMatch = student.guardian?.toLowerCase().includes(query);
-    return nameMatch || idMatch || classMatch || guardianMatch;
+    const rollMatch = student.roll?.toLowerCase().includes(query);
+    const classMatch = student.class?.name?.toLowerCase().includes(query);
+    const guardianMatch = getGuardianName(student).toLowerCase().includes(query);
+    return nameMatch || idMatch || rollMatch || classMatch || guardianMatch;
   });
 
   return (
@@ -52,7 +77,7 @@ export function StudentsTable({ students = MOCK_STUDENTS }: StudentsTableProps) 
           <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
           <Input
             type="text"
-            placeholder="Search by name or ID..."
+            placeholder="Search by name, ID or class..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-10 pr-4 py-2 text-sm rounded-xl border border-slate-200 bg-slate-50/50 focus:bg-white focus:border-blue-500 transition-all placeholder:text-slate-400"
@@ -70,7 +95,7 @@ export function StudentsTable({ students = MOCK_STUDENTS }: StudentsTableProps) 
           <p className="text-xs text-slate-500 max-w-sm mx-auto">
             {searchQuery
               ? `No students matching "${searchQuery}". Try a different keyword.`
-              : "No student records available."}
+              : "No students are currently enrolled in the database."}
           </p>
         </div>
       ) : (
@@ -79,8 +104,8 @@ export function StudentsTable({ students = MOCK_STUDENTS }: StudentsTableProps) 
             <thead>
               <tr className="border-b border-slate-100 text-xs font-bold text-slate-400 uppercase tracking-wider">
                 <th className="py-3.5 px-4">Student</th>
-                <th className="py-3.5 px-4">ID</th>
-                <th className="py-3.5 px-4">Class</th>
+                <th className="py-3.5 px-4">Student ID / Roll</th>
+                <th className="py-3.5 px-4">Class & Section</th>
                 <th className="py-3.5 px-4">Guardian</th>
                 <th className="py-3.5 px-4 text-right">Actions</th>
               </tr>
@@ -88,6 +113,9 @@ export function StudentsTable({ students = MOCK_STUDENTS }: StudentsTableProps) 
             <tbody className="divide-y divide-slate-100 text-sm">
               {filteredStudents.map((student, index) => {
                 const avatar = AVATAR_COLORS[index % AVATAR_COLORS.length];
+                const className = student.class?.name || "N/A";
+                const sectionName = student.section?.name ? ` · ${student.section.name}` : "";
+                const guardian = getGuardianName(student);
 
                 return (
                   <tr
@@ -100,38 +128,48 @@ export function StudentsTable({ students = MOCK_STUDENTS }: StudentsTableProps) 
                         <div
                           className={`flex h-10 w-10 items-center justify-center rounded-full ${avatar.bg} ${avatar.text} font-bold text-xs shrink-0`}
                         >
-                          {student.initials}
+                          {getInitials(student.name)}
                         </div>
-                        <span className="font-bold text-slate-900 text-sm">
-                          {student.name}
+                        <div>
+                          <span className="font-bold text-slate-900 text-sm block">
+                            {student.name}
+                          </span>
+                          <span className="text-[11px] text-slate-400 capitalize">
+                            {student.gender?.toLowerCase() || "student"}
+                          </span>
+                        </div>
+                      </div>
+                    </td>
+
+                    {/* 2. ID & Roll */}
+                    <td className="py-4 px-4">
+                      <div className="flex flex-col">
+                        <span className="text-xs font-medium text-slate-700 font-mono">
+                          {student.studentId}
+                        </span>
+                        <span className="text-[11px] text-slate-400">
+                          Roll: {student.roll}
                         </span>
                       </div>
                     </td>
 
-                    {/* 2. ID */}
-                    <td className="py-4 px-4">
-                      <span className="text-xs font-medium text-slate-500 font-mono">
-                        {student.studentId}
-                      </span>
-                    </td>
-
-                    {/* 3. Class */}
+                    {/* 3. Class & Section */}
                     <td className="py-4 px-4">
                       <span className="text-xs font-semibold text-slate-700">
-                        {student.class}
+                        {className}{sectionName}
                       </span>
                     </td>
 
                     {/* 4. Guardian */}
                     <td className="py-4 px-4">
                       <span className="text-xs font-medium text-slate-600">
-                        {student.guardian}
+                        {guardian}
                       </span>
                     </td>
 
-                    {/* 5. Actions (with Details Button replacing Attend.) */}
+                    {/* 5. Actions (with Details Button linking to dynamic details page) */}
                     <td className="py-4 px-4 text-right">
-                      <StudentTableActions />
+                      <StudentTableActions studentId={student.id} />
                     </td>
                   </tr>
                 );
