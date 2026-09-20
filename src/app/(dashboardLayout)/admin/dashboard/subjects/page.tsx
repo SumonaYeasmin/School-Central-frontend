@@ -37,9 +37,13 @@ export default function SubjectsPage() {
   const handleAddSubject = async (subjectData: {
     name: string;
     code?: string;
-    classId: string;
+    classIds: string[];
   }) => {
-    await createSubject(subjectData);
+    await createSubject({
+      name: subjectData.name,
+      code: subjectData.code,
+      classIds: subjectData.classIds,
+    });
     await fetchData();
   };
 

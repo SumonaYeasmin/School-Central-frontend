@@ -19,7 +19,7 @@ interface AddSubjectModalProps {
   onAdd: (subjectData: {
     name: string;
     code?: string;
-    classId: string;
+    classIds: string[];
   }) => Promise<void>;
 }
 
@@ -31,15 +31,31 @@ export function AddSubjectModal({
 }: AddSubjectModalProps) {
   const [name, setName] = useState("");
   const [code, setCode] = useState("");
-  const [selectedClassId, setSelectedClassId] = useState<string>("");
+  const [selectedClassIds, setSelectedClassIds] = useState<string[]>([]);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const resetForm = () => {
     setName("");
     setCode("");
-    setSelectedClassId(availableClasses[0]?.id || "");
+    setSelectedClassIds(availableClasses.map((c) => c.id));
     setError(null);
+  };
+
+  const handleToggleClass = (classId: string) => {
+    setSelectedClassIds((prev) =>
+      prev.includes(classId)
+        ? prev.filter((id) => id !== classId)
+        : [...prev, classId]
+    );
+  };
+
+  const handleSelectAllClasses = () => {
+    if (selectedClassIds.length === availableClasses.length) {
+      setSelectedClassIds([]);
+    } else {
+      setSelectedClassIds(availableClasses.map((c) => c.id));
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -49,8 +65,7 @@ export function AddSubjectModal({
       return;
     }
 
-    const classIdToUse = selectedClassId || availableClasses[0]?.id;
-    if (!classIdToUse) {
+    if (selectedClassIds.length === 0) {
       setError("Please select at least one class.");
       return;
     }
@@ -61,7 +76,7 @@ export function AddSubjectModal({
       await onAdd({
         name: name.trim(),
         code: code.trim() || undefined,
-        classId: classIdToUse,
+        classIds: selectedClassIds,
       });
       resetForm();
       onClose();
@@ -75,7 +90,7 @@ export function AddSubjectModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && !isSaving && onClose()}>
-      <DialogContent className="max-w-md p-0 overflow-hidden rounded-3xl border border-slate-200/90 shadow-2xl bg-white flex flex-col">
+      <DialogContent className="max-w-lg p-0 overflow-hidden rounded-3xl border border-slate-200/90 shadow-2xl bg-white flex flex-col">
         {/* Header */}
         <div className="bg-slate-50/80 border-b border-slate-200/80 p-6 space-y-1">
           <div className="flex items-center gap-3">
@@ -87,14 +102,14 @@ export function AddSubjectModal({
                 Add New Subject
               </DialogTitle>
               <p className="text-xs text-slate-500">
-                Create a new curriculum subject in the database
+                Create a new curriculum subject and link to academic classes
               </p>
             </div>
           </div>
         </div>
 
         {/* Form Body */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+        <form onSubmit={handleSubmit} className="p-6 space-y-5">
           {error && (
             <div className="p-3 text-xs bg-rose-50 border border-rose-200 text-rose-700 rounded-xl">
               {error}
@@ -134,27 +149,56 @@ export function AddSubjectModal({
                 className="pl-10 text-sm font-mono rounded-xl border-slate-200 focus:border-blue-500"
               />
             </div>
+            <p className="text-[11px] text-slate-400">
+              Official NCTB / SSC subject code for reporting and exams.
+            </p>
           </div>
 
-          {/* 3. Class Selection */}
+          {/* 3. Multi-Class Selection */}
           {availableClasses.length > 0 && (
-            <div className="space-y-1.5">
-              <label htmlFor="addSubjectClass" className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
-                <Layers className="h-3.5 w-3.5 text-blue-600" />
-                <span>Primary Class</span>
-              </label>
-              <select
-                id="addSubjectClass"
-                value={selectedClassId || availableClasses[0]?.id}
-                onChange={(e) => setSelectedClassId(e.target.value)}
-                className="w-full px-3.5 py-2 text-sm rounded-xl border border-slate-200 bg-slate-50/50 focus:bg-white focus:border-blue-500 transition-all font-medium text-slate-700"
-              >
-                {availableClasses.map((cls) => (
-                  <option key={cls.id} value={cls.id}>
-                    {cls.name}
-                  </option>
-                ))}
-              </select>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                  <Layers className="h-3.5 w-3.5 text-blue-600" />
+                  <span>Assign to Classes ({selectedClassIds.length} selected)</span>
+                </label>
+                <button
+                  type="button"
+                  onClick={handleSelectAllClasses}
+                  className="text-[11px] text-blue-600 hover:text-blue-700 font-semibold cursor-pointer"
+                >
+                  {selectedClassIds.length === availableClasses.length
+                    ? "Deselect All"
+                    : "Select All"}
+                </button>
+              </div>
+
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-36 overflow-y-auto p-1.5 bg-slate-50/70 border border-slate-200/80 rounded-2xl">
+                {availableClasses.map((cls) => {
+                  const isChecked = selectedClassIds.includes(cls.id);
+                  return (
+                    <button
+                      key={cls.id}
+                      type="button"
+                      onClick={() => handleToggleClass(cls.id)}
+                      className={`px-3 py-2 rounded-xl text-xs font-semibold text-left border transition-all flex items-center justify-between cursor-pointer ${
+                        isChecked
+                          ? "bg-blue-600 text-white border-blue-600 shadow-2xs"
+                          : "bg-white text-slate-700 border-slate-200 hover:border-slate-300"
+                      }`}
+                    >
+                      <span className="truncate">{cls.name}</span>
+                      <span
+                        className={`h-4 w-4 rounded-md flex items-center justify-center text-[10px] ${
+                          isChecked ? "bg-white text-blue-600 font-bold" : "border border-slate-300"
+                        }`}
+                      >
+                        {isChecked ? "✓" : ""}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           )}
 

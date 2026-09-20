@@ -30,12 +30,20 @@ export const getSubjects = async () => {
   return response.data;
 };
 
-export const createSubject = async (subjectData: { name: string; code?: string; classId: string }) => {
+export const createSubject = async (subjectData: {
+  name: string;
+  code?: string;
+  classId?: string;
+  classIds?: string[];
+}) => {
   const response = await api.post("/academic/subjects", subjectData);
   return response.data;
 };
 
-export const updateSubject = async (id: string, subjectData: { name?: string; code?: string; classIds?: string[]; groupId?: string | null }) => {
+export const updateSubject = async (
+  id: string,
+  subjectData: { name?: string; code?: string; classIds?: string[]; groupId?: string | null }
+) => {
   const response = await api.patch(`/academic/subjects/${id}`, subjectData);
   return response.data;
 };
