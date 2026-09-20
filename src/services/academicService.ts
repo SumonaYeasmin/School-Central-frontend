@@ -77,3 +77,7 @@ export const createStudent = async (studentData: any) => {
 // Re-export parent service functions
 export * from "./parentService";
 
+// Re-export teacher service functions
+export * from "./teacherService";
+
+

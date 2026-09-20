@@ -1,43 +1,46 @@
 "use client";
 
-import { MOCK_TEACHERS_STATS } from "./mockTeachers";
-
 interface TeachersStatsProps {
   totalStaff?: number;
-  fullTime?: number;
-  onLeave?: number;
+  assignedTeachers?: number;
   subjectsCovered?: number;
+  activeDepartments?: number;
 }
 
 export function TeachersStats({
-  totalStaff = MOCK_TEACHERS_STATS.totalStaff,
-  fullTime = MOCK_TEACHERS_STATS.fullTime,
-  onLeave = MOCK_TEACHERS_STATS.onLeave,
-  subjectsCovered = MOCK_TEACHERS_STATS.subjectsCovered,
+  totalStaff = 0,
+  assignedTeachers = 0,
+  subjectsCovered = 0,
+  activeDepartments = 0,
 }: TeachersStatsProps) {
+  const assignmentRate =
+    totalStaff > 0
+      ? `${Math.round((assignedTeachers / totalStaff) * 100)}% allocated`
+      : "0% allocated";
+
   const statCards = [
     {
       title: "Teaching staff",
       value: totalStaff,
-      subtext: "+4 this year",
-      subtextColor: "text-emerald-600 font-medium",
+      subtext: totalStaff > 0 ? "Registered faculty" : "No records",
+      subtextColor: "text-blue-600 font-semibold",
     },
     {
-      title: "Full-time",
-      value: fullTime,
-      subtext: "81% of staff",
+      title: "Active in classes",
+      value: assignedTeachers,
+      subtext: assignmentRate,
       subtextColor: "text-emerald-600 font-semibold",
-    },
-    {
-      title: "On leave today",
-      value: onLeave,
-      subtext: "2 substitutions",
-      subtextColor: "text-emerald-600 font-medium",
     },
     {
       title: "Subjects covered",
       value: subjectsCovered,
-      subtext: "All grades",
+      subtext: "Across all classes",
+      subtextColor: "text-emerald-600 font-medium",
+    },
+    {
+      title: "Departments",
+      value: activeDepartments,
+      subtext: "Academic wings",
       subtextColor: "text-amber-700 font-medium",
     },
   ];
