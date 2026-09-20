@@ -73,3 +73,7 @@ export const createStudent = async (studentData: any) => {
   const response = await api.post("/students", studentData);
   return response.data;
 };
+
+// Re-export parent service functions
+export * from "./parentService";
+

@@ -1,44 +1,47 @@
 "use client";
 
-import { MOCK_PARENTS_STATS } from "./mockParents";
-
 interface ParentsStatsProps {
   parentAccounts?: number;
   guardiansLinked?: number;
-  newThisTerm?: number;
-  pendingInvites?: number;
+  withEmail?: number;
+  unlinked?: number;
 }
 
 export function ParentsStats({
-  parentAccounts = MOCK_PARENTS_STATS.parentAccounts,
-  guardiansLinked = MOCK_PARENTS_STATS.guardiansLinked,
-  newThisTerm = MOCK_PARENTS_STATS.newThisTerm,
-  pendingInvites = MOCK_PARENTS_STATS.pendingInvites,
+  parentAccounts = 0,
+  guardiansLinked = 0,
+  withEmail = 0,
+  unlinked = 0,
 }: ParentsStatsProps) {
+  const emailRate =
+    parentAccounts > 0
+      ? `${Math.round((withEmail / parentAccounts) * 100)}% email active`
+      : "0% active";
+
   const statCards = [
     {
       title: "Parent accounts",
       value: parentAccounts,
-      subtext: "87% connected",
-      subtextColor: "text-emerald-600 font-semibold",
+      subtext: parentAccounts > 0 ? "Live database" : "No records",
+      subtextColor: "text-blue-600 font-semibold",
     },
     {
       title: "Guardians linked",
       value: guardiansLinked,
-      subtext: "All students",
+      subtext: "Total student connections",
       subtextColor: "text-emerald-600 font-medium",
     },
     {
-      title: "New this term",
-      value: newThisTerm,
-      subtext: "+8 this month",
-      subtextColor: "text-emerald-600 font-medium",
+      title: "Email & portal active",
+      value: withEmail,
+      subtext: emailRate,
+      subtextColor: "text-emerald-600 font-semibold",
     },
     {
-      title: "Pending invites",
-      value: pendingInvites,
-      subtext: "Need follow-up",
-      subtextColor: "text-amber-700 font-medium",
+      title: "Unlinked parents",
+      value: unlinked,
+      subtext: unlinked > 0 ? "Need student assignment" : "All linked",
+      subtextColor: unlinked > 0 ? "text-amber-700 font-medium" : "text-emerald-600 font-medium",
     },
   ];
 
