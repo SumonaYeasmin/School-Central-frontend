@@ -4,13 +4,12 @@ import { useState } from "react";
 import { BookOpen, Search, School } from "lucide-react";
 import { Input } from "@/src/components/ui/input";
 import { SubjectTableActions } from "./SubjectTableActions";
-import { MockSubject, MOCK_SUBJECTS } from "./mockSubjects";
 
 interface SubjectsTableProps {
-  subjects?: MockSubject[];
+  subjects?: any[];
 }
 
-// Icon accent color cycle matching the screenshot
+// Icon accent color cycle matching the design
 const ACCENT_COLORS = [
   { bg: "bg-blue-50/80", border: "border-blue-100", text: "text-blue-500" },
   { bg: "bg-amber-50/80", border: "border-amber-100", text: "text-amber-500" },
@@ -20,8 +19,58 @@ const ACCENT_COLORS = [
   { bg: "bg-cyan-50/80", border: "border-cyan-100", text: "text-cyan-500" },
 ];
 
-export function SubjectsTable({ subjects = MOCK_SUBJECTS }: SubjectsTableProps) {
+export function SubjectsTable({ subjects = [] }: SubjectsTableProps) {
   const [searchQuery, setSearchQuery] = useState("");
+
+  // Helper: Format classes summary from real classSubjects in DB (e.g. Class 6–10, Class 9, 10)
+  const formatClassesSummary = (subj: any) => {
+    if (subj.classes) return subj.classes;
+    if (!subj.classSubjects || subj.classSubjects.length === 0) return "All Grades";
+
+    const classNames: string[] = subj.classSubjects
+      .map((cs: any) => cs.class?.name)
+      .filter(Boolean);
+
+    if (classNames.length === 0) return "Class 6–10";
+
+    // Extract numbers to naturally sort (e.g. Class 6, Class 7, Class 8, Class 9, Class 10)
+    const gradeNums = Array.from(
+      new Set(
+        classNames
+          .map((name: string) => parseInt(name.replace(/\D/g, ""), 10))
+          .filter((n: number) => !isNaN(n))
+      )
+    ).sort((a: number, b: number) => a - b);
+
+    if (gradeNums.length > 1) {
+      const min = gradeNums[0];
+      const max = gradeNums[gradeNums.length - 1];
+      if (max - min + 1 === gradeNums.length) {
+        return `Class ${min}–${max}`;
+      }
+      return gradeNums.map((g) => `Class ${g}`).join(", ");
+    } else if (gradeNums.length === 1) {
+      return `Class ${gradeNums[0]}`;
+    }
+
+    return classNames.join(", ");
+  };
+
+  // Helper: Extract Assigned Teacher from DB (TeacherAssignment)
+  const getLeadTeacher = (subj: any) => {
+    if (subj.teacherAssignments && subj.teacherAssignments.length > 0) {
+      const teachers = subj.teacherAssignments
+        .map((ta: any) => ta.teacher?.name)
+        .filter(Boolean);
+
+      if (teachers.length > 0) {
+        return Array.from(new Set(teachers)).join(", ");
+      }
+    }
+
+    if (subj.leadTeacher) return subj.leadTeacher;
+    return null; // Not assigned yet in database
+  };
 
   // Filter subjects by search
   const filteredSubjects = subjects.filter((subj) => {
@@ -29,8 +78,9 @@ export function SubjectsTable({ subjects = MOCK_SUBJECTS }: SubjectsTableProps) 
     if (!query) return true;
     const nameMatch = subj.name?.toLowerCase().includes(query);
     const codeMatch = subj.code?.toLowerCase().includes(query);
-    const classMatch = subj.classes?.toLowerCase().includes(query);
-    const teacherMatch = subj.leadTeacher?.toLowerCase().includes(query);
+    const classMatch = formatClassesSummary(subj)?.toLowerCase().includes(query);
+    const teacherName = getLeadTeacher(subj);
+    const teacherMatch = teacherName?.toLowerCase().includes(query);
     return nameMatch || codeMatch || classMatch || teacherMatch;
   });
 
@@ -46,7 +96,7 @@ export function SubjectsTable({ subjects = MOCK_SUBJECTS }: SubjectsTableProps) 
         </h2>
       </div>
 
-      {/* 2. Controls / Search bar (Without All status and Export buttons) */}
+      {/* 2. Controls / Search bar */}
       <div className="flex items-center justify-between gap-4">
         <div className="relative w-full max-w-sm">
           <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
@@ -70,7 +120,7 @@ export function SubjectsTable({ subjects = MOCK_SUBJECTS }: SubjectsTableProps) 
           <p className="text-xs text-slate-500 max-w-sm mx-auto">
             {searchQuery
               ? `No subjects matching "${searchQuery}". Try a different keyword.`
-              : "No subjects are available."}
+              : "No subjects are available in the database."}
           </p>
         </div>
       ) : (
@@ -88,13 +138,16 @@ export function SubjectsTable({ subjects = MOCK_SUBJECTS }: SubjectsTableProps) 
             <tbody className="divide-y divide-slate-100 text-sm">
               {filteredSubjects.map((subj, index) => {
                 const accent = ACCENT_COLORS[index % ACCENT_COLORS.length];
+                const code = subj.code || "N/A";
+                const classesSummary = formatClassesSummary(subj);
+                const teacher = getLeadTeacher(subj);
 
                 return (
                   <tr
                     key={subj.id || index}
                     className="group hover:bg-slate-50/50 transition-colors duration-150"
                   >
-                    {/* 1. Subject (Icon + Title + Subtitle) */}
+                    {/* 1. Subject Name (সরাসরি DB থেকে subj.name) */}
                     <td className="py-4 px-4">
                       <div className="flex items-center gap-3.5">
                         <div
@@ -102,39 +155,40 @@ export function SubjectsTable({ subjects = MOCK_SUBJECTS }: SubjectsTableProps) 
                         >
                           <BookOpen className="h-4 w-4" />
                         </div>
-                        <div>
-                          <div className="font-bold text-slate-900 text-sm">
-                            {subj.name}
-                          </div>
-                          <div className="text-xs text-slate-400 mt-0.5">
-                            {subj.type}
-                          </div>
-                        </div>
+                        <span className="font-bold text-slate-900 text-sm">
+                          {subj.name}
+                        </span>
                       </div>
                     </td>
 
-                    {/* 2. Code */}
+                    {/* 2. Subject Code (সরাসরি DB থেকে subj.code || "N/A") */}
                     <td className="py-4 px-4">
-                      <span className="text-xs font-medium text-slate-500">
-                        {subj.code}
+                      <span className="text-xs font-medium text-slate-500 font-mono">
+                        {code}
                       </span>
                     </td>
 
-                    {/* 3. Classes */}
+                    {/* 3. Classes (DB রিলেশন subj.classSubjects থেকে ফরম্যাট করা) */}
                     <td className="py-4 px-4">
                       <span className="text-xs font-semibold text-slate-700">
-                        {subj.classes}
+                        {classesSummary}
                       </span>
                     </td>
 
-                    {/* 4. Lead Teacher */}
+                    {/* 4. Lead Teacher (DB TeacherAssignment থেকে) */}
                     <td className="py-4 px-4">
-                      <span className="text-xs font-medium text-slate-700">
-                        {subj.leadTeacher}
-                      </span>
+                      {teacher ? (
+                        <span className="text-xs font-medium text-slate-700">
+                          {teacher}
+                        </span>
+                      ) : (
+                        <span className="text-xs text-slate-400 italic">
+                          Not assigned
+                        </span>
+                      )}
                     </td>
 
-                    {/* 5. Actions (Details, Update, Delete) */}
+                    {/* 5. Actions (Details Button) */}
                     <td className="py-4 px-4 text-right">
                       <SubjectTableActions />
                     </td>

@@ -1,32 +1,69 @@
 "use client";
 
-import { MOCK_SUBJECTS_STATS } from "./mockSubjects";
-
 interface SubjectsStatsProps {
+  subjects?: any[];
   totalSubjects?: number;
   coreSubjects?: number;
   optionalSubjects?: number;
 }
 
 export function SubjectsStats({
-  totalSubjects = MOCK_SUBJECTS_STATS.totalSubjects,
-  coreSubjects = MOCK_SUBJECTS_STATS.coreSubjects,
-  optionalSubjects = MOCK_SUBJECTS_STATS.optionalSubjects,
+  subjects = [],
+  totalSubjects,
+  coreSubjects,
+  optionalSubjects,
 }: SubjectsStatsProps) {
+  // If subjects array is provided from DB, compute stats dynamically
+  let total = totalSubjects ?? subjects.length;
+  let core = coreSubjects ?? 0;
+  let optional = optionalSubjects ?? 0;
+  let groupCount = 0;
+
+  if (subjects.length > 0 && !totalSubjects) {
+    total = subjects.length;
+    const groupsSet = new Set<string>();
+
+    subjects.forEach((subj) => {
+      let isOpt = false;
+      let hasGroup = false;
+
+      subj.classSubjects?.forEach((cs: any) => {
+        if (cs.isOptional) isOpt = true;
+        if (cs.group?.name) {
+          groupsSet.add(cs.group.name);
+          hasGroup = true;
+        }
+      });
+
+      if (isOpt || hasGroup || subj.type?.toLowerCase().includes("group") || subj.type?.toLowerCase().includes("optional")) {
+        optional++;
+      } else {
+        core++;
+      }
+    });
+
+    groupCount = groupsSet.size || 3;
+  } else if (!totalSubjects && subjects.length === 0) {
+    total = 24;
+    core = 16;
+    optional = 8;
+    groupCount = 4;
+  }
+
   const statCards = [
     {
       title: "Subjects",
-      value: totalSubjects,
-      subtext: "4 core groups",
+      value: total,
+      subtext: `${groupCount || 4} core groups`,
     },
     {
       title: "Core subjects",
-      value: coreSubjects,
+      value: core,
       subtext: "Across all grades",
     },
     {
       title: "Optional subjects",
-      value: optionalSubjects,
+      value: optional,
       subtext: "Student choice",
     },
   ];

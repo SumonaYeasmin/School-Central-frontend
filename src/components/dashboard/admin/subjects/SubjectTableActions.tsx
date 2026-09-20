@@ -1,51 +1,25 @@
 "use client";
 
 import { Button } from "@/src/components/ui/button";
-import { Eye, Edit2, Trash2 } from "lucide-react";
+import { Eye } from "lucide-react";
 
 interface SubjectTableActionsProps {
   onView?: () => void;
-  onEdit?: () => void;
-  onDelete?: () => void;
 }
 
-export function SubjectTableActions({ onView, onEdit, onDelete }: SubjectTableActionsProps) {
+export function SubjectTableActions({ onView }: SubjectTableActionsProps) {
   return (
-    <div className="flex items-center justify-end gap-1.5">
-      {/* 1. View Details (Eye icon) */}
+    <div className="flex items-center justify-end">
+      {/* View Details Button */}
       <Button
         type="button"
-        size="icon"
+        size="sm"
         variant="ghost"
-        title="View Details"
         onClick={onView}
-        className="h-8 w-8 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 hover:text-blue-700 border border-blue-200/60 cursor-pointer transition-colors"
+        className="h-8 px-3 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 hover:text-blue-700 border border-blue-200/60 font-medium text-xs flex items-center gap-1.5 cursor-pointer transition-colors"
       >
-        <Eye className="h-4 w-4" />
-      </Button>
-
-      {/* 2. Update / Edit Subject (Edit2 icon) */}
-      <Button
-        type="button"
-        size="icon"
-        variant="ghost"
-        title="Edit Subject"
-        onClick={onEdit}
-        className="h-8 w-8 rounded-lg bg-amber-50 text-amber-600 hover:bg-amber-100 hover:text-amber-700 border border-amber-200/60 cursor-pointer transition-colors"
-      >
-        <Edit2 className="h-4 w-4" />
-      </Button>
-
-      {/* 3. Delete Subject (Trash2 icon) */}
-      <Button
-        type="button"
-        size="icon"
-        variant="ghost"
-        title="Delete Subject"
-        onClick={onDelete}
-        className="h-8 w-8 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700 border border-red-200/60 cursor-pointer transition-colors"
-      >
-        <Trash2 className="h-4 w-4" />
+        <Eye className="h-3.5 w-3.5" />
+        <span>Details</span>
       </Button>
     </div>
   );
