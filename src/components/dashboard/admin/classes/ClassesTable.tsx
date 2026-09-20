@@ -1,14 +1,18 @@
 "use client";
 
+import { useState } from "react";
 import { Badge } from "@/src/components/ui/badge";
-import { BookOpen, School } from "lucide-react";
+import { BookOpen, School, ChevronRight } from "lucide-react";
 import { ClassTableActions } from "./ClassTableActions";
+import { ClassCurriculumModal } from "./ClassCurriculumModal";
 
 interface ClassesTableProps {
   classes: any[];
 }
 
 export function ClassesTable({ classes = [] }: ClassesTableProps) {
+  const [selectedClass, setSelectedClass] = useState<any | null>(null);
+
   if (classes.length === 0) {
     return (
       <div className="bg-white border border-slate-200 rounded-2xl p-12 text-center space-y-3 shadow-xs">
@@ -32,78 +36,90 @@ export function ClassesTable({ classes = [] }: ClassesTableProps) {
   });
 
   return (
-    <div className="bg-white border border-slate-200/90 rounded-2xl shadow-xs overflow-hidden">
-      <div className="overflow-x-auto">
-        <table className="w-full text-left border-collapse">
-          <thead>
-            <tr className="bg-slate-50/80 border-b border-slate-200/80 text-xs font-bold text-slate-500 uppercase tracking-wider">
-              <th className="py-4 px-6">Class Name</th>
-              <th className="py-4 px-6">Sections</th>
-              <th className="py-4 px-6">Curriculum</th>
-              <th className="py-4 px-6 text-right">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-100 text-sm">
-            {sortedClasses.map((classItem) => {
-              const gradeNumber =
-                classItem.name.replace(/[^0-9]/g, "") || classItem.name.charAt(0);
-              const subjectsCount =
-                classItem.classSubjects?.length || classItem.totalSubjects || 0;
+    <>
+      <div className="bg-white border border-slate-200/90 rounded-2xl shadow-xs overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="bg-slate-50/80 border-b border-slate-200/80 text-xs font-bold text-slate-500 uppercase tracking-wider">
+                <th className="py-4 px-6">Class Name</th>
+                <th className="py-4 px-6">Sections</th>
+                <th className="py-4 px-6">Curriculum / Subjects</th>
+                <th className="py-4 px-6 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100 text-sm">
+              {sortedClasses.map((classItem) => {
+                const gradeNumber =
+                  classItem.name.replace(/[^0-9]/g, "") || classItem.name.charAt(0);
+                const classSubjects: any[] = classItem.classSubjects || [];
+                const subjectsCount = classSubjects.length || classItem.totalSubjects || 0;
 
-              return (
-                <tr
-                  key={classItem.id}
-                  className="group hover:bg-blue-50/30 transition-colors duration-150"
-                >
-                  {/* 1. Class Name */}
-                  <td className="py-4 px-6">
-                    <div className="flex items-center gap-3.5">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 text-white font-bold text-sm shadow-xs shrink-0">
-                        {gradeNumber}
+                return (
+                  <tr
+                    key={classItem.id}
+                    className="group hover:bg-blue-50/30 transition-colors duration-150"
+                  >
+                    {/* 1. Class Name */}
+                    <td className="py-4 px-6">
+                      <div className="flex items-center gap-3.5">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 text-white font-bold text-sm shadow-xs shrink-0">
+                          {gradeNumber}
+                        </div>
+                        <span className="font-bold text-slate-900 text-base">
+                          {classItem.name}
+                        </span>
                       </div>
-                      <span className="font-bold text-slate-900 text-base">
-                        {classItem.name}
-                      </span>
-                    </div>
-                  </td>
+                    </td>
 
-                  {/* 2. Sections (From Database) */}
-                  <td className="py-4 px-6">
-                    <div className="flex flex-wrap items-center gap-2">
-                      {!classItem.sections || classItem.sections.length === 0 ? (
-                        <span className="text-xs text-slate-400 italic">No sections</span>
-                      ) : (
-                        classItem.sections.map((sec: any) => (
-                          <Badge
-                            key={sec.id}
-                            variant="outline"
-                            className="bg-slate-50 border-slate-200/90 text-slate-800 text-xs font-semibold py-1 px-3 rounded-lg flex items-center gap-1.5"
-                          >
-                            <span>{sec.name}</span>
-                          </Badge>
-                        ))
-                      )}
-                    </div>
-                  </td>
+                    {/* 2. Sections (From Database) */}
+                    <td className="py-4 px-6">
+                      <div className="flex flex-wrap items-center gap-2">
+                        {!classItem.sections || classItem.sections.length === 0 ? (
+                          <span className="text-xs text-slate-400 italic">No sections</span>
+                        ) : (
+                          classItem.sections.map((sec: any) => (
+                            <Badge
+                              key={sec.id}
+                              variant="outline"
+                              className="bg-slate-50 border-slate-200/90 text-slate-800 text-xs font-semibold py-1 px-3 rounded-lg flex items-center gap-1.5"
+                            >
+                              <span>{sec.name}</span>
+                            </Badge>
+                          ))
+                        )}
+                      </div>
+                    </td>
 
-                  {/* 3. Curriculum / Subjects Count */}
-                  <td className="py-4 px-6">
-                    <div className="flex items-center gap-2 text-xs font-semibold text-slate-700 bg-slate-50/80 border border-slate-200/60 py-1 px-2.5 rounded-lg w-fit">
-                      <BookOpen className="h-3.5 w-3.5 text-blue-500" />
-                      <span>{subjectsCount} Subjects</span>
-                    </div>
-                  </td>
+                    {/* 3. Curriculum / Database Subjects Count Only */}
+                    <td className="py-4 px-6">
+                      <div className="flex items-center gap-2 text-xs font-semibold text-slate-700 bg-slate-50/80 border border-slate-200/60 py-1.5 px-3 rounded-lg w-fit">
+                        <BookOpen className="h-3.5 w-3.5 text-blue-500" />
+                        <span>{subjectsCount} Subjects</span>
+                      </div>
+                    </td>
 
-                  {/* 4. Action Buttons (Details, Update, Delete) */}
-                  <td className="py-4 px-6 text-right">
-                    <ClassTableActions />
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
+                    {/* 4. Action Buttons (Details, Update, Delete) */}
+                    <td className="py-4 px-6 text-right">
+                      <ClassTableActions
+                        onViewDetails={() => setSelectedClass(classItem)}
+                      />
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
       </div>
-    </div>
+
+      {/* Class Curriculum Modal */}
+      <ClassCurriculumModal
+        isOpen={Boolean(selectedClass)}
+        onClose={() => setSelectedClass(null)}
+        classItem={selectedClass}
+      />
+    </>
   );
 }
+

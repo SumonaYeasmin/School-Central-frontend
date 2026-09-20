@@ -3,7 +3,11 @@
 import { Button } from "@/src/components/ui/button";
 import { Eye, Edit2, Trash2 } from "lucide-react";
 
-export function ClassTableActions() {
+interface ClassTableActionsProps {
+  onViewDetails?: () => void;
+}
+
+export function ClassTableActions({ onViewDetails }: ClassTableActionsProps) {
   return (
     <div className="flex items-center justify-end gap-1.5">
       {/* 1. View Details (Eye icon) */}
@@ -11,7 +15,8 @@ export function ClassTableActions() {
         type="button"
         size="icon"
         variant="ghost"
-        title="View Details"
+        title="View Curriculum & Details"
+        onClick={onViewDetails}
         className="h-8 w-8 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 hover:text-blue-700 border border-blue-200/60 cursor-pointer transition-colors"
       >
         <Eye className="h-4 w-4" />
