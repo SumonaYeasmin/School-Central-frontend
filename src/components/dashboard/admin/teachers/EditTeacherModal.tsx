@@ -115,7 +115,7 @@ export function EditTeacherModal({
         designation: designation.trim(),
         department: department.trim() || undefined,
         email: email.trim() ? email.trim() : undefined,
-        joiningDate: joiningDate ? new Date(joiningDate).toISOString() : undefined,
+        joiningDate: joiningDate.trim() ? joiningDate.trim() : undefined,
       };
 
       await onUpdate(teacher.id, payload);
