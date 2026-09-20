@@ -2,16 +2,20 @@
 
 import { useState } from "react";
 import { Badge } from "@/src/components/ui/badge";
-import { BookOpen, School, ChevronRight } from "lucide-react";
+import { School, BookOpen } from "lucide-react";
 import { ClassTableActions } from "./ClassTableActions";
-import { ClassCurriculumModal } from "./ClassCurriculumModal";
+import { EditClassModal } from "./EditClassModal";
+import { DeleteClassDialog } from "./DeleteClassDialog";
+import { updateClass, deleteClass } from "@/src/services/academicService";
 
 interface ClassesTableProps {
   classes: any[];
+  onRefresh?: () => Promise<void> | void;
 }
 
-export function ClassesTable({ classes = [] }: ClassesTableProps) {
-  const [selectedClass, setSelectedClass] = useState<any | null>(null);
+export function ClassesTable({ classes = [], onRefresh }: ClassesTableProps) {
+  const [selectedClassForEdit, setSelectedClassForEdit] = useState<any | null>(null);
+  const [selectedClassForDelete, setSelectedClassForDelete] = useState<any | null>(null);
 
   if (classes.length === 0) {
     return (
@@ -35,6 +39,23 @@ export function ClassesTable({ classes = [] }: ClassesTableProps) {
     return a.name.localeCompare(b.name, undefined, { numeric: true });
   });
 
+  const handleSaveEdit = async (updatedData: {
+    id: string;
+    name: string;
+    sections: string[];
+  }) => {
+    await updateClass(updatedData.id, {
+      name: updatedData.name,
+      sections: updatedData.sections,
+    });
+    await onRefresh?.();
+  };
+
+  const handleConfirmDelete = async (classId: string) => {
+    await deleteClass(classId);
+    await onRefresh?.();
+  };
+
   return (
     <>
       <div className="bg-white border border-slate-200/90 rounded-2xl shadow-xs overflow-hidden">
@@ -43,7 +64,7 @@ export function ClassesTable({ classes = [] }: ClassesTableProps) {
             <thead>
               <tr className="bg-slate-50/80 border-b border-slate-200/80 text-xs font-bold text-slate-500 uppercase tracking-wider">
                 <th className="py-4 px-6">Class Name</th>
-                <th className="py-4 px-6">Sections</th>
+                <th className="py-4 px-6">Active Sections</th>
                 <th className="py-4 px-6">Curriculum / Subjects</th>
                 <th className="py-4 px-6 text-right">Actions</th>
               </tr>
@@ -58,7 +79,7 @@ export function ClassesTable({ classes = [] }: ClassesTableProps) {
                 return (
                   <tr
                     key={classItem.id}
-                    className="group hover:bg-blue-50/30 transition-colors duration-150"
+                    className="group hover:bg-slate-50/80 transition-colors duration-150"
                   >
                     {/* 1. Class Name */}
                     <td className="py-4 px-6">
@@ -84,25 +105,26 @@ export function ClassesTable({ classes = [] }: ClassesTableProps) {
                               variant="outline"
                               className="bg-slate-50 border-slate-200/90 text-slate-800 text-xs font-semibold py-1 px-3 rounded-lg flex items-center gap-1.5"
                             >
-                              <span>{sec.name}</span>
+                              <span>Section {sec.name}</span>
                             </Badge>
                           ))
                         )}
                       </div>
                     </td>
 
-                    {/* 3. Curriculum / Database Subjects Count Only */}
+                    {/* 3. Curriculum / Subjects Count */}
                     <td className="py-4 px-6">
                       <div className="flex items-center gap-2 text-xs font-semibold text-slate-700 bg-slate-50/80 border border-slate-200/60 py-1.5 px-3 rounded-lg w-fit">
-                        <BookOpen className="h-3.5 w-3.5 text-blue-500" />
+                        <BookOpen className="h-3.5 w-3.5 text-blue-600" />
                         <span>{subjectsCount} Subjects</span>
                       </div>
                     </td>
 
-                    {/* 4. Action Buttons (Details, Update, Delete) */}
+                    {/* 4. Action Buttons (Update, Delete) */}
                     <td className="py-4 px-6 text-right">
                       <ClassTableActions
-                        onViewDetails={() => setSelectedClass(classItem)}
+                        onEdit={() => setSelectedClassForEdit(classItem)}
+                        onDelete={() => setSelectedClassForDelete(classItem)}
                       />
                     </td>
                   </tr>
@@ -113,13 +135,21 @@ export function ClassesTable({ classes = [] }: ClassesTableProps) {
         </div>
       </div>
 
-      {/* Class Curriculum Modal */}
-      <ClassCurriculumModal
-        isOpen={Boolean(selectedClass)}
-        onClose={() => setSelectedClass(null)}
-        classItem={selectedClass}
+      {/* Edit Class Modal */}
+      <EditClassModal
+        isOpen={Boolean(selectedClassForEdit)}
+        onClose={() => setSelectedClassForEdit(null)}
+        classItem={selectedClassForEdit}
+        onSave={handleSaveEdit}
+      />
+
+      {/* Delete Class Dialog */}
+      <DeleteClassDialog
+        isOpen={Boolean(selectedClassForDelete)}
+        onClose={() => setSelectedClassForDelete(null)}
+        classItem={selectedClassForDelete}
+        onConfirm={handleConfirmDelete}
       />
     </>
   );
 }
-

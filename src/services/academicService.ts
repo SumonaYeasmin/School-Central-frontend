@@ -5,6 +5,26 @@ export const getClasses = async () => {
   return response.data;
 };
 
+export const createClass = async (classData: { name: string }) => {
+  const response = await api.post("/academic/classes", classData);
+  return response.data;
+};
+
+export const updateClass = async (id: string, classData: { name?: string; sections?: string[] }) => {
+  const response = await api.patch(`/academic/classes/${id}`, classData);
+  return response.data;
+};
+
+export const deleteClass = async (id: string) => {
+  const response = await api.delete(`/academic/classes/${id}`);
+  return response.data;
+};
+
+export const createSection = async (sectionData: { name: string; classId: string }) => {
+  const response = await api.post("/academic/sections", sectionData);
+  return response.data;
+};
+
 export const getSubjects = async () => {
   const response = await api.get("/academic/subjects");
   return response.data;
