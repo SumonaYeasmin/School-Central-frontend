@@ -10,6 +10,21 @@ export const getSubjects = async () => {
   return response.data;
 };
 
+export const createSubject = async (subjectData: { name: string; code?: string; classId: string }) => {
+  const response = await api.post("/academic/subjects", subjectData);
+  return response.data;
+};
+
+export const updateSubject = async (id: string, subjectData: { name?: string; code?: string; classIds?: string[]; groupId?: string | null }) => {
+  const response = await api.patch(`/academic/subjects/${id}`, subjectData);
+  return response.data;
+};
+
+export const deleteSubject = async (id: string) => {
+  const response = await api.delete(`/academic/subjects/${id}`);
+  return response.data;
+};
+
 // সব স্টুডেন্ট নিয়ে আসার ফাংশন
 export const getStudents = async (classId?: string, sectionId?: string) => {
   const params: Record<string, string> = {};

@@ -1,12 +1,28 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { BookOpen, Search, School, X, Layers, Sparkles } from "lucide-react";
+import {
+  BookOpen,
+  Search,
+  School,
+  X,
+  Layers,
+  Sparkles,
+  FlaskConical,
+  Scroll,
+  Briefcase,
+  BookCheck,
+} from "lucide-react";
 import { Input } from "@/src/components/ui/input";
 import { SubjectTableActions } from "./SubjectTableActions";
+import { EditSubjectModal } from "./EditSubjectModal";
+import { DeleteSubjectDialog } from "./DeleteSubjectDialog";
+import { updateSubject, deleteSubject } from "@/src/services/academicService";
 
 interface SubjectsTableProps {
   subjects?: any[];
+  availableClasses?: any[];
+  onRefresh?: () => Promise<void> | void;
 }
 
 // Icon accent color cycle matching the design
@@ -19,13 +35,26 @@ const ACCENT_COLORS = [
   { bg: "bg-cyan-50/80", border: "border-cyan-100", text: "text-cyan-500" },
 ];
 
-export function SubjectsTable({ subjects = [] }: SubjectsTableProps) {
+export function SubjectsTable({
+  subjects = [],
+  availableClasses = [],
+  onRefresh,
+}: SubjectsTableProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedClassKey, setSelectedClassKey] = useState<string>("ALL");
   const [selectedGroup, setSelectedGroup] = useState<string>("ALL");
+  
+  // Modal states for Edit and Delete
+  const [selectedSubjectForEdit, setSelectedSubjectForEdit] = useState<any | null>(null);
+  const [selectedSubjectForDelete, setSelectedSubjectForDelete] = useState<any | null>(null);
 
-  // Helper: Format classes summary from real classSubjects in DB (e.g. Class 6–10, Class 9, 10)
+  // Helper: Format classes summary from real classSubjects in DB
   const formatClassesSummary = (subj: any) => {
+    // If a specific class filter is active, display only that class (e.g. "Class 6")
+    if (selectedClassKey !== "ALL") {
+      return selectedClassKey;
+    }
+
     if (subj.classes) return subj.classes;
     if (!subj.classSubjects || subj.classSubjects.length === 0) return "All Grades";
 
@@ -58,20 +87,64 @@ export function SubjectsTable({ subjects = [] }: SubjectsTableProps) {
     return classNames.join(", ");
   };
 
-  // Helper: Extract Assigned Teacher from DB (TeacherAssignment)
-  const getLeadTeacher = (subj: any) => {
-    if (subj.teacherAssignments && subj.teacherAssignments.length > 0) {
-      const teachers = subj.teacherAssignments
-        .map((ta: any) => ta.teacher?.name)
-        .filter(Boolean);
+  // Helper: Categorize Subject (Core, Science, Humanities, Business, Optional)
+  const getSubjectCategory = (subj: any) => {
+    const classSubjects: any[] = subj.classSubjects || [];
+    const groupNames = classSubjects.map((cs: any) => cs.group?.name).filter(Boolean);
 
-      if (teachers.length > 0) {
-        return Array.from(new Set(teachers)).join(", ");
-      }
+    if (groupNames.some((g: string) => g.toLowerCase().includes("science") || g.includes("বিজ্ঞান"))) {
+      return {
+        type: "science",
+        label: "Science Group",
+        bg: "bg-emerald-50/80",
+        text: "text-emerald-700",
+        border: "border-emerald-200/80",
+      };
     }
 
-    if (subj.leadTeacher) return subj.leadTeacher;
-    return null; // Not assigned yet in database
+    if (groupNames.some((g: string) => g.toLowerCase().includes("humanities") || g.includes("মানবিক") || g.toLowerCase().includes("arts"))) {
+      return {
+        type: "humanities",
+        label: "Humanities Group",
+        bg: "bg-amber-50/80",
+        text: "text-amber-700",
+        border: "border-amber-200/80",
+      };
+    }
+
+    if (groupNames.some((g: string) => g.toLowerCase().includes("business") || g.includes("ব্যবসায়") || g.toLowerCase().includes("commerce"))) {
+      return {
+        type: "business",
+        label: "Business Studies",
+        bg: "bg-purple-50/80",
+        text: "text-purple-700",
+        border: "border-purple-200/80",
+      };
+    }
+
+    const isOptional =
+      classSubjects.some((cs: any) => cs.isOptional) ||
+      ["কৃষিশিক্ষা", "গার্হস্থ্যবিজ্ঞান", "চারু ও কারুকলা", "আরবি", "সংস্কৃত", "পালি", "সংগীত"].some((k) =>
+        subj.name?.includes(k)
+      );
+
+    if (isOptional) {
+      return {
+        type: "optional",
+        label: "Optional / Elective",
+        bg: "bg-rose-50/80",
+        text: "text-rose-700",
+        border: "border-rose-200/80",
+      };
+    }
+
+    return {
+      type: "core",
+      label: "Compulsory Core",
+      bg: "bg-blue-50/80",
+      text: "text-blue-700",
+      border: "border-blue-200/80",
+    };
   };
 
   // 1. Build list of unique classes present in subjects with count
@@ -136,9 +209,62 @@ export function SubjectsTable({ subjects = [] }: SubjectsTableProps) {
     setSearchQuery("");
   };
 
+  // NCTB Sequence Priority Weights
+  const SUBJECT_ORDER_WEIGHTS: Record<string, number> = {
+    'চারুপাঠ': 10,
+    'সপ্তবর্ণা': 11,
+    'সাহিত্য-কণিকা': 12,
+    'আনন্দপাঠ': 13,
+    'বাংলা সাহিত্য': 14,
+    'বাংলা সহপাঠ': 15,
+    'বাংলা ব্যাকরণ ও নির্মিতি': 16,
+    'বাংলা ভাষার ব্যাকরণ ও নির্মিতি': 17,
+    'English For Today': 20,
+    'English Grammar and Composition': 21,
+    'গণিত': 30,
+    'সাধারণ গণিত': 31,
+    'বিজ্ঞান': 40,
+    'সাধারণ বিজ্ঞান': 41,
+    'বাংলাদেশ ও বিশ্বপরিচয়': 50,
+    'তথ্য ও যোগাযোগ প্রযুক্তি': 60,
+    'ধর্ম ও নৈতিক শিক্ষা': 70,
+    'শারীরিক শিক্ষা ও স্বাস্থ্য': 80,
+    'শারীরিক শিক্ষা, স্বাস্থ্যবিজ্ঞান ও খেলাধুলা': 81,
+    'কর্ম ও জীবনমুখী শিক্ষা': 90,
+    'ক্যারিয়ার শিক্ষা': 91,
+    'কৃষিশিক্ষা': 100,
+    'গার্হস্থ্যবিজ্ঞান': 101,
+    'চারু ও কারুকলা': 102,
+    'পদার্থবিজ্ঞান': 120,
+    'রসায়ন': 121,
+    'জীববিজ্ঞান': 122,
+    'উচ্চতর গণিত': 123,
+    'বাংলাদেশের ইতিহাস ও বিশ্বসভ্যতা': 140,
+    'ভূগোল ও পরিবেশ': 141,
+    'পৌরনীতি ও নাগরিকতা': 142,
+    'অর্থনীতি': 143,
+    'হিসাববিজ্ঞান': 160,
+    'ফিন্যান্স ও ব্যাংকিং': 161,
+    'ব্যবসায় উদ্যোগ': 162,
+    'আরবি': 180,
+    'সংস্কৃত': 181,
+    'পালি': 182,
+    'সংগীত': 183,
+  };
+
+  function getSubjectWeight(name?: string, code?: string | null): number {
+    if (!name) return 999;
+    if (SUBJECT_ORDER_WEIGHTS[name] !== undefined) return SUBJECT_ORDER_WEIGHTS[name];
+    for (const [key, weight] of Object.entries(SUBJECT_ORDER_WEIGHTS)) {
+      if (name.includes(key)) return weight;
+    }
+    if (code && !isNaN(Number(code))) return 200 + Number(code);
+    return 999;
+  }
+
   // 3. Multi-condition Filtered Subjects
   const filteredSubjects = useMemo(() => {
-    return subjects.filter((subj) => {
+    const list = subjects.filter((subj) => {
       const classSubjects: any[] = subj.classSubjects || [];
 
       // Class filter
@@ -174,12 +300,19 @@ export function SubjectsTable({ subjects = [] }: SubjectsTableProps) {
         const nameMatch = subj.name?.toLowerCase().includes(query);
         const codeMatch = subj.code?.toLowerCase().includes(query);
         const classMatch = formatClassesSummary(subj)?.toLowerCase().includes(query);
-        const teacherName = getLeadTeacher(subj);
-        const teacherMatch = teacherName?.toLowerCase().includes(query);
-        return nameMatch || codeMatch || classMatch || teacherMatch;
+        const category = getSubjectCategory(subj);
+        const categoryMatch = category.label.toLowerCase().includes(query);
+        return nameMatch || codeMatch || classMatch || categoryMatch;
       }
 
       return true;
+    });
+
+    return list.sort((a, b) => {
+      const wA = getSubjectWeight(a.name, a.code);
+      const wB = getSubjectWeight(b.name, b.code);
+      if (wA !== wB) return wA - wB;
+      return a.name.localeCompare(b.name, "bn");
     });
   }, [subjects, selectedClassKey, selectedGroup, searchQuery]);
 
@@ -187,6 +320,26 @@ export function SubjectsTable({ subjects = [] }: SubjectsTableProps) {
     selectedClassKey !== "ALL" ||
     selectedGroup !== "ALL" ||
     searchQuery.trim().length > 0;
+
+  // Handlers for Save Edit & Delete
+  const handleSaveEdit = async (updatedData: {
+    id: string;
+    name: string;
+    code: string;
+    classIds: string[];
+  }) => {
+    await updateSubject(updatedData.id, {
+      name: updatedData.name,
+      code: updatedData.code,
+      classIds: updatedData.classIds,
+    });
+    await onRefresh?.();
+  };
+
+  const handleConfirmDelete = async (subjectId: string) => {
+    await deleteSubject(subjectId);
+    await onRefresh?.();
+  };
 
   return (
     <div className="bg-white border border-slate-200/90 rounded-3xl p-6 shadow-xs space-y-6">
@@ -209,7 +362,7 @@ export function SubjectsTable({ subjects = [] }: SubjectsTableProps) {
           {hasActiveFilters && (
             <button
               onClick={handleResetFilters}
-              className="text-xs font-medium text-slate-500 hover:text-rose-600 flex items-center gap-1 transition-colors px-2 py-1 rounded-lg hover:bg-rose-50"
+              className="text-xs font-medium text-slate-500 hover:text-rose-600 flex items-center gap-1 transition-colors px-2 py-1 rounded-lg hover:bg-rose-50 cursor-pointer"
             >
               <X className="h-3.5 w-3.5" />
               Reset
@@ -230,7 +383,7 @@ export function SubjectsTable({ subjects = [] }: SubjectsTableProps) {
           <button
             type="button"
             onClick={() => handleSelectClass("ALL")}
-            className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all duration-150 flex items-center gap-1.5 ${
+            className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all duration-150 flex items-center gap-1.5 cursor-pointer ${
               selectedClassKey === "ALL"
                 ? "bg-blue-600 text-white shadow-xs shadow-blue-500/20"
                 : "bg-slate-100/90 text-slate-600 hover:bg-slate-200/80 hover:text-slate-900"
@@ -256,7 +409,7 @@ export function SubjectsTable({ subjects = [] }: SubjectsTableProps) {
                 key={cls.key}
                 type="button"
                 onClick={() => handleSelectClass(cls.key)}
-                className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all duration-150 flex items-center gap-1.5 ${
+                className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all duration-150 flex items-center gap-1.5 cursor-pointer ${
                   isSelected
                     ? "bg-blue-600 text-white shadow-xs shadow-blue-500/20"
                     : "bg-slate-100/90 text-slate-600 hover:bg-slate-200/80 hover:text-slate-900"
@@ -285,7 +438,7 @@ export function SubjectsTable({ subjects = [] }: SubjectsTableProps) {
           <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
           <Input
             type="text"
-            placeholder="Search subjects by name, code, or teacher..."
+            placeholder="Search subjects by name, code, or category..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-10 pr-9 py-2 text-sm rounded-xl border border-slate-200 bg-slate-50/50 focus:bg-white focus:border-blue-500 transition-all placeholder:text-slate-400"
@@ -310,7 +463,7 @@ export function SubjectsTable({ subjects = [] }: SubjectsTableProps) {
             <button
               type="button"
               onClick={() => setSelectedGroup("ALL")}
-              className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-all ${
+              className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                 selectedGroup === "ALL"
                   ? "bg-white text-blue-700 shadow-xs border border-slate-200/80"
                   : "text-slate-600 hover:text-slate-900"
@@ -321,7 +474,7 @@ export function SubjectsTable({ subjects = [] }: SubjectsTableProps) {
             <button
               type="button"
               onClick={() => setSelectedGroup("CORE")}
-              className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-all ${
+              className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                 selectedGroup === "CORE"
                   ? "bg-white text-blue-700 shadow-xs border border-slate-200/80"
                   : "text-slate-600 hover:text-slate-900"
@@ -336,7 +489,7 @@ export function SubjectsTable({ subjects = [] }: SubjectsTableProps) {
                   key={gName}
                   type="button"
                   onClick={() => setSelectedGroup(gName)}
-                  className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-all ${
+                  className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                     isSelected
                       ? "bg-white text-purple-700 shadow-xs border border-purple-200"
                       : "text-slate-600 hover:text-slate-900"
@@ -371,7 +524,7 @@ export function SubjectsTable({ subjects = [] }: SubjectsTableProps) {
           {hasActiveFilters && (
             <button
               onClick={handleResetFilters}
-              className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-xl transition-colors mt-2"
+              className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-xl transition-colors mt-2 cursor-pointer"
             >
               <X className="h-3.5 w-3.5" />
               Clear all filters
@@ -386,7 +539,7 @@ export function SubjectsTable({ subjects = [] }: SubjectsTableProps) {
                 <th className="py-3.5 px-4">Subject</th>
                 <th className="py-3.5 px-4">Code</th>
                 <th className="py-3.5 px-4">Classes</th>
-                <th className="py-3.5 px-4">Lead Teacher</th>
+                <th className="py-3.5 px-4">Type / Category</th>
                 <th className="py-3.5 px-4 text-right">Actions</th>
               </tr>
             </thead>
@@ -395,14 +548,14 @@ export function SubjectsTable({ subjects = [] }: SubjectsTableProps) {
                 const accent = ACCENT_COLORS[index % ACCENT_COLORS.length];
                 const code = subj.code || "N/A";
                 const classesSummary = formatClassesSummary(subj);
-                const teacher = getLeadTeacher(subj);
+                const category = getSubjectCategory(subj);
 
                 return (
                   <tr
                     key={subj.id || index}
                     className="group hover:bg-slate-50/70 transition-colors duration-150"
                   >
-                    {/* 1. Subject Name (সরাসরি DB থেকে subj.name) */}
+                    {/* 1. Subject Name */}
                     <td className="py-4 px-4">
                       <div className="flex items-center gap-3.5">
                         <div
@@ -414,48 +567,47 @@ export function SubjectsTable({ subjects = [] }: SubjectsTableProps) {
                           <span className="font-bold text-slate-900 text-sm block">
                             {subj.name}
                           </span>
-                          {subj.classSubjects?.some((cs: any) => cs.group?.name) && (
-                            <span className="text-[10px] text-purple-600 font-semibold">
-                              {subj.classSubjects
-                                .map((cs: any) => cs.group?.name)
-                                .filter(Boolean)
-                                .join(", ")}
-                            </span>
-                          )}
+                          <span className="text-[11px] text-slate-400 font-medium">
+                            NCTB Curriculum
+                          </span>
                         </div>
                       </div>
                     </td>
 
                     {/* 2. Subject Code */}
                     <td className="py-4 px-4">
-                      <span className="text-xs font-semibold text-slate-600 font-mono bg-slate-100 px-2 py-0.5 rounded-md">
+                      <span className="text-xs font-semibold text-slate-600 font-mono bg-slate-100 px-2.5 py-1 rounded-md border border-slate-200/60">
                         {code}
                       </span>
                     </td>
 
                     {/* 3. Classes */}
                     <td className="py-4 px-4">
-                      <span className="text-xs font-semibold text-slate-700">
+                      <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-semibold bg-slate-100 text-slate-800 border border-slate-200/60">
                         {classesSummary}
                       </span>
                     </td>
 
-                    {/* 4. Lead Teacher */}
+                    {/* 4. Type / Category */}
                     <td className="py-4 px-4">
-                      {teacher ? (
-                        <span className="text-xs font-medium text-slate-800">
-                          {teacher}
-                        </span>
-                      ) : (
-                        <span className="text-xs text-slate-400 italic">
-                          Not assigned
-                        </span>
-                      )}
+                      <span
+                        className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold border ${category.bg} ${category.text} ${category.border}`}
+                      >
+                        {category.type === "science" && <FlaskConical className="h-3 w-3" />}
+                        {category.type === "humanities" && <Scroll className="h-3 w-3" />}
+                        {category.type === "business" && <Briefcase className="h-3 w-3" />}
+                        {category.type === "optional" && <Sparkles className="h-3 w-3" />}
+                        {category.type === "core" && <BookCheck className="h-3 w-3" />}
+                        <span>{category.label}</span>
+                      </span>
                     </td>
 
-                    {/* 5. Actions */}
+                    {/* 5. Actions (Dropdown Menu: Edit & Delete) */}
                     <td className="py-4 px-4 text-right">
-                      <SubjectTableActions />
+                      <SubjectTableActions
+                        onEdit={() => setSelectedSubjectForEdit(subj)}
+                        onDelete={() => setSelectedSubjectForDelete(subj)}
+                      />
                     </td>
                   </tr>
                 );
@@ -464,7 +616,23 @@ export function SubjectsTable({ subjects = [] }: SubjectsTableProps) {
           </table>
         </div>
       )}
+
+      {/* Edit Subject Modal */}
+      <EditSubjectModal
+        isOpen={Boolean(selectedSubjectForEdit)}
+        onClose={() => setSelectedSubjectForEdit(null)}
+        subject={selectedSubjectForEdit}
+        availableClasses={availableClasses}
+        onSave={handleSaveEdit}
+      />
+
+      {/* Delete Subject Confirmation Dialog */}
+      <DeleteSubjectDialog
+        isOpen={Boolean(selectedSubjectForDelete)}
+        onClose={() => setSelectedSubjectForDelete(null)}
+        subject={selectedSubjectForDelete}
+        onConfirm={handleConfirmDelete}
+      />
     </div>
   );
 }
-

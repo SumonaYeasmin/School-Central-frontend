@@ -17,6 +17,59 @@ interface ClassCurriculumModalProps {
   classItem: any;
 }
 
+// NCTB Sequence Priority Weights
+const SUBJECT_ORDER_WEIGHTS: Record<string, number> = {
+  'চারুপাঠ': 10,
+  'সপ্তবর্ণা': 11,
+  'সাহিত্য-কণিকা': 12,
+  'আনন্দপাঠ': 13,
+  'বাংলা সাহিত্য': 14,
+  'বাংলা সহপাঠ': 15,
+  'বাংলা ব্যাকরণ ও নির্মিতি': 16,
+  'বাংলা ভাষার ব্যাকরণ ও নির্মিতি': 17,
+  'English For Today': 20,
+  'English Grammar and Composition': 21,
+  'গণিত': 30,
+  'সাধারণ গণিত': 31,
+  'বিজ্ঞান': 40,
+  'সাধারণ বিজ্ঞান': 41,
+  'বাংলাদেশ ও বিশ্বপরিচয়': 50,
+  'তথ্য ও যোগাযোগ প্রযুক্তি': 60,
+  'ধর্ম ও নৈতিক শিক্ষা': 70,
+  'শারীরিক শিক্ষা ও স্বাস্থ্য': 80,
+  'শারীরিক শিক্ষা, স্বাস্থ্যবিজ্ঞান ও খেলাধুলা': 81,
+  'কর্ম ও জীবনমুখী শিক্ষা': 90,
+  'ক্যারিয়ার শিক্ষা': 91,
+  'কৃষিশিক্ষা': 100,
+  'গার্হস্থ্যবিজ্ঞান': 101,
+  'চারু ও কারুকলা': 102,
+  'পদার্থবিজ্ঞান': 120,
+  'রসায়ন': 121,
+  'জীববিজ্ঞান': 122,
+  'উচ্চতর গণিত': 123,
+  'বাংলাদেশের ইতিহাস ও বিশ্বসভ্যতা': 140,
+  'ভূগোল ও পরিবেশ': 141,
+  'পৌরনীতি ও নাগরিকতা': 142,
+  'অর্থনীতি': 143,
+  'হিসাববিজ্ঞান': 160,
+  'ফিন্যান্স ও ব্যাংকিং': 161,
+  'ব্যবসায় উদ্যোগ': 162,
+  'আরবি': 180,
+  'সংস্কৃত': 181,
+  'পালি': 182,
+  'সংগীত': 183,
+};
+
+function getSubjectWeight(name?: string, code?: string | null): number {
+  if (!name) return 999;
+  if (SUBJECT_ORDER_WEIGHTS[name] !== undefined) return SUBJECT_ORDER_WEIGHTS[name];
+  for (const [key, weight] of Object.entries(SUBJECT_ORDER_WEIGHTS)) {
+    if (name.includes(key)) return weight;
+  }
+  if (code && !isNaN(Number(code))) return 200 + Number(code);
+  return 999;
+}
+
 export function ClassCurriculumModal({
   isOpen,
   onClose,
@@ -36,6 +89,14 @@ export function ClassCurriculumModal({
     const codeMatch = cs.subject?.code?.toLowerCase().includes(q);
     const groupMatch = cs.group?.name?.toLowerCase().includes(q);
     return nameMatch || codeMatch || groupMatch;
+  });
+
+  // Sort by pedagogical NCTB order
+  filteredSubjects.sort((a, b) => {
+    const wA = getSubjectWeight(a.subject?.name, a.subject?.code);
+    const wB = getSubjectWeight(b.subject?.name, b.subject?.code);
+    if (wA !== wB) return wA - wB;
+    return (a.subject?.name || "").localeCompare(b.subject?.name || "", "bn");
   });
 
   // Group into Common/Compulsory vs Group-specific (Science/Arts/Commerce)
