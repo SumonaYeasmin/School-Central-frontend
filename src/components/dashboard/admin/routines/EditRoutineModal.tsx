@@ -134,7 +134,7 @@ export function EditRoutineModal({
                         handlePeriodChange(pKey, "subject", e.target.value)
                       }
                       className="bg-white rounded-xl text-xs h-8"
-                      placeholder="e.g. Mathematics"
+                      placeholder="Enter subject name"
                     />
                   </div>
 
@@ -149,7 +149,7 @@ export function EditRoutineModal({
                         handlePeriodChange(pKey, "teacher", e.target.value)
                       }
                       className="bg-white rounded-xl text-xs h-8"
-                      placeholder="e.g. Maya Chen"
+                      placeholder="Enter teacher name"
                     />
                   </div>
 
@@ -164,7 +164,7 @@ export function EditRoutineModal({
                         handlePeriodChange(pKey, "room", e.target.value)
                       }
                       className="bg-white rounded-xl text-xs h-8"
-                      placeholder="e.g. Room 12"
+                      placeholder="Enter room or lab number"
                     />
                   </div>
                 </div>

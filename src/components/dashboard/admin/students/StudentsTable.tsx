@@ -54,6 +54,18 @@ export function StudentsTable({
     return "Not Assigned";
   };
 
+  // Helper: Section Name formatter (e.g., "Section A" instead of "Sec Section A" or "Sec A")
+  const formatSectionName = (name?: string) => {
+    if (!name) return "";
+    let clean = name.trim();
+    // Strip redundant "Sec Section" or "Sec " if present
+    clean = clean.replace(/^sec\s+(section\s+)?/i, "$1");
+    if (/^section\s+/i.test(clean)) {
+      return clean;
+    }
+    return `Section ${clean}`;
+  };
+
   // 1. Build sorted unique class options from backend list and students
   const classOptions = useMemo(() => {
     const map = new Map<string, { id: string; name: string; count: number }>();
@@ -315,7 +327,7 @@ export function StudentsTable({
                       : "text-slate-600 hover:text-slate-900"
                   }`}
                 >
-                  <span>Sec {sec.name}</span>
+                  <span>{formatSectionName(sec.name)}</span>
                   <span className="text-[10px] text-slate-400">({sec.count})</span>
                 </button>
               );
@@ -369,7 +381,7 @@ export function StudentsTable({
                 const avatar = AVATAR_COLORS[index % AVATAR_COLORS.length];
                 const className = student.class?.name || "N/A";
                 const sectionName = student.section?.name
-                  ? ` · Sec ${student.section.name}`
+                  ? ` · ${formatSectionName(student.section.name)}`
                   : "";
                 const guardian = getGuardianName(student);
 

@@ -95,7 +95,7 @@ export function EditPeriodModal({
             <Input
               type="text"
               required
-              placeholder="e.g. Mathematics, Science, English"
+              placeholder="Enter subject name"
               value={subject}
               onChange={(e) => setSubject(e.target.value)}
               className="rounded-xl border border-slate-200 text-sm focus:border-blue-500"
@@ -109,7 +109,7 @@ export function EditPeriodModal({
             </label>
             <Input
               type="text"
-              placeholder="e.g. Maya Chen, Jon Bell"
+              placeholder="Enter teacher name"
               value={teacher}
               onChange={(e) => setTeacher(e.target.value)}
               className="rounded-xl border border-slate-200 text-sm focus:border-blue-500"
@@ -123,7 +123,7 @@ export function EditPeriodModal({
             </label>
             <Input
               type="text"
-              placeholder="e.g. Room 12, Lab 02, Studio 01"
+              placeholder="Enter room or lab number"
               value={room}
               onChange={(e) => setRoom(e.target.value)}
               className="rounded-xl border border-slate-200 text-sm focus:border-blue-500"

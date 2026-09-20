@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { StudentsHeader } from "@/src/components/dashboard/admin/students/StudentsHeader";
 import { StudentsStats } from "@/src/components/dashboard/admin/students/StudentsStats";
 import { StudentsTable } from "@/src/components/dashboard/admin/students/StudentsTable";
-import { getStudents, getClasses } from "@/src/services/academicService";
+import { AddStudentModal } from "@/src/components/dashboard/admin/students/AddStudentModal";
+import { getStudents, getClasses, createStudent } from "@/src/services/academicService";
 import { Student } from "@/src/types/student";
 import { Loader2 } from "lucide-react";
 
@@ -12,26 +13,42 @@ export default function StudentsPage() {
   const [students, setStudents] = useState<Student[]>([]);
   const [classes, setClasses] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+
+  const fetchData = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      const [studentsData, classesData] = await Promise.all([
+        getStudents(),
+        getClasses().catch(() => []),
+      ]);
+      setStudents(studentsData || []);
+      setClasses(classesData || []);
+    } catch (error) {
+      console.error("Failed to fetch students/classes:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setIsLoading(true);
-        const [studentsData, classesData] = await Promise.all([
-          getStudents(),
-          getClasses().catch(() => []),
-        ]);
-        setStudents(studentsData || []);
-        setClasses(classesData || []);
-      } catch (error) {
-        console.error("Failed to fetch students/classes:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
     fetchData();
-  }, []);
+  }, [fetchData]);
+
+  const handleAddStudent = async (studentData: {
+    name: string;
+    studentId: string;
+    classId: string;
+    sectionId: string;
+    roll: string;
+    gender?: "MALE" | "FEMALE" | "OTHER";
+    dateOfBirth?: string;
+    admissionDate?: string;
+    status?: "ACTIVE" | "INACTIVE";
+  }) => {
+    await createStudent(studentData);
+    await fetchData();
+  };
 
   // Calculate live dynamic counts for stats
   const totalSections = classes.reduce(
@@ -42,7 +59,7 @@ export default function StudentsPage() {
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
       {/* 1. Header with Breadcrumb and Add Student Button */}
-      <StudentsHeader />
+      <StudentsHeader onAddStudent={() => setIsAddModalOpen(true)} />
 
       {/* 2. Top Summary KPI Stats */}
       <StudentsStats
@@ -59,7 +76,14 @@ export default function StudentsPage() {
       ) : (
         <StudentsTable students={students} classesList={classes} />
       )}
+
+      {/* 4. Add Student Modal */}
+      <AddStudentModal
+        isOpen={isAddModalOpen}
+        onClose={() => setIsAddModalOpen(false)}
+        availableClasses={classes}
+        onAdd={handleAddStudent}
+      />
     </div>
   );
 }
-

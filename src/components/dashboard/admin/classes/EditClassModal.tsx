@@ -132,7 +132,7 @@ export function EditClassModal({
                 id="className"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="e.g. Class 6"
+                placeholder="Enter class name"
                 className="pl-10 text-sm rounded-xl border-slate-200 focus:border-blue-500"
                 required
               />
@@ -170,7 +170,7 @@ export function EditClassModal({
             <div className="flex items-center gap-2 pt-1">
               <Input
                 type="text"
-                placeholder="New section name (e.g. D or Rose)"
+                placeholder="Enter new section name (A, B, C...)"
                 value={newSectionInput}
                 onChange={(e) => setNewSectionInput(e.target.value)}
                 onKeyDown={(e) => {

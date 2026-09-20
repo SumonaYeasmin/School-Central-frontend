@@ -127,7 +127,7 @@ export function AddSubjectModal({
                 id="addSubjectName"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="e.g. উচ্চতর গণিত or Biology"
+                placeholder="Enter subject name (Bangla / English)"
                 className="pl-10 text-sm rounded-xl border-slate-200 focus:border-blue-500"
                 required
               />
@@ -145,7 +145,7 @@ export function AddSubjectModal({
                 id="addSubjectCode"
                 value={code}
                 onChange={(e) => setCode(e.target.value)}
-                placeholder="e.g. 126"
+                placeholder="Enter SSC board code"
                 className="pl-10 text-sm font-mono rounded-xl border-slate-200 focus:border-blue-500"
               />
             </div>

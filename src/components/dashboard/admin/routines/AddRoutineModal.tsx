@@ -125,7 +125,7 @@ export function AddRoutineModal({
             <Input
               type="text"
               required
-              placeholder="e.g. Higher Mathematics, Chemistry, ICT"
+              placeholder="Enter subject name"
               value={subject}
               onChange={(e) => setSubject(e.target.value)}
               className="rounded-xl border border-slate-200 text-sm focus:border-blue-500"
@@ -135,10 +135,10 @@ export function AddRoutineModal({
           {/* Teacher & Room */}
           <div className="grid grid-cols-2 gap-3 text-left">
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-slate-700">Teacher</label>
+              <label className="text-xs font-semibold text-slate-700">Assigned Teacher</label>
               <Input
                 type="text"
-                placeholder="e.g. Maya Chen"
+                placeholder="Enter teacher name"
                 value={teacher}
                 onChange={(e) => setTeacher(e.target.value)}
                 className="rounded-xl border border-slate-200 text-sm"
@@ -148,7 +148,7 @@ export function AddRoutineModal({
               <label className="text-xs font-semibold text-slate-700">Room / Lab</label>
               <Input
                 type="text"
-                placeholder="e.g. Room 12"
+                placeholder="Enter room or lab number"
                 value={room}
                 onChange={(e) => setRoom(e.target.value)}
                 className="rounded-xl border border-slate-200 text-sm"
