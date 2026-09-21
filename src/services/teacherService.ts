@@ -71,3 +71,11 @@ export const getTeacherAssignmentStudents = async (
   const response = await api.get(`/teachers/assignments/${assignmentId}/students`);
   return response.data;
 };
+
+// 9. Get logged-in teacher assignments (with class, section & subject)
+export const getMyAssignments = async (email?: string): Promise<any[]> => {
+  const params: Record<string, string> = {};
+  if (email) params.email = email;
+  const response = await api.get("/teachers/my-assignments", { params });
+  return response.data;
+};
