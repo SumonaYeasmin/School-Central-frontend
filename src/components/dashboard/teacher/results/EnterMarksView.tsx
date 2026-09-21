@@ -64,7 +64,6 @@ export function EnterMarksView() {
   const initializeData = useCallback(async () => {
     setIsFetchingFilters(true);
     try {
-      // Determine logged-in teacher email
       let emailToUse = mockUsers.TEACHER.email;
       if (typeof window !== "undefined") {
         const storedUser = localStorage.getItem("user") || localStorage.getItem("currentUser");
@@ -78,18 +77,15 @@ export function EnterMarksView() {
       }
       setActiveTeacherEmail(emailToUse);
 
-      // Fetch exams and assignments in parallel
       const [examsData, assignmentsData] = await Promise.allSettled([
         getExams(),
         getMyAssignments(emailToUse),
       ]);
 
-      // Set exams
       let loadedExams: ExamItem[] = [];
       if (examsData.status === "fulfilled" && Array.isArray(examsData.value) && examsData.value.length > 0) {
         loadedExams = examsData.value;
       } else {
-        // Fallback default exam if none found
         loadedExams = [
           { id: "exam-term-1", name: "Half Yearly Examination", year: 2026, status: "DRAFT" },
           { id: "exam-final", name: "Final Term Examination", year: 2026, status: "DRAFT" },
@@ -100,12 +96,10 @@ export function EnterMarksView() {
         setSelectedExamId(loadedExams[0].id);
       }
 
-      // Set assignments
       let validAssignments: AssignmentItem[] = [];
       if (assignmentsData.status === "fulfilled" && Array.isArray(assignmentsData.value) && assignmentsData.value.length > 0) {
         validAssignments = assignmentsData.value;
       } else {
-        // If no assignments found for specific email, fallback to first available teacher from DB to ensure seamless UX
         try {
           const allTeachers = await getTeachers();
           if (allTeachers && allTeachers.length > 0) {
@@ -123,7 +117,6 @@ export function EnterMarksView() {
 
       setAssignments(validAssignments);
 
-      // Set default cascading selections if assignments exist
       if (validAssignments.length > 0) {
         const firstAssign = validAssignments[0];
         const initialClassId = firstAssign.class.id;
@@ -133,15 +126,6 @@ export function EnterMarksView() {
         setSelectedClassId(initialClassId);
         setSelectedSectionId(initialSectionId);
         setSelectedSubjectId(initialSubjectId);
-
-        // Immediately fetch students for this initial assignment
-        fetchStudentsForSelection(
-          loadedExams[0]?.id || "",
-          initialClassId,
-          initialSectionId,
-          initialSubjectId,
-          validAssignments
-        );
       }
     } catch (err: any) {
       console.error("Initialization error:", err);
@@ -204,14 +188,12 @@ export function EnterMarksView() {
   const handleClassChange = (newClassId: string) => {
     setSelectedClassId(newClassId);
 
-    // Find first available section for this new class
     const matchingSections = assignments
       .filter((a) => a.class?.id === newClassId)
       .map((a) => a.section);
     const newSectionId = matchingSections[0]?.id || "";
     setSelectedSectionId(newSectionId);
 
-    // Find first available subject for new class & new section
     const matchingSubjects = assignments
       .filter((a) => a.class?.id === newClassId && a.section?.id === newSectionId)
       .map((a) => a.subject);
@@ -222,7 +204,6 @@ export function EnterMarksView() {
   const handleSectionChange = (newSectionId: string) => {
     setSelectedSectionId(newSectionId);
 
-    // Find first available subject for current class & new section
     const matchingSubjects = assignments
       .filter((a) => a.class?.id === selectedClassId && a.section?.id === newSectionId)
       .map((a) => a.subject);
@@ -234,112 +215,111 @@ export function EnterMarksView() {
     setSelectedSubjectId(newSubjectId);
   };
 
-  // 4. Fetch Students & Existing Marks
-  const fetchStudentsForSelection = async (
-    examId: string,
-    classId: string,
-    sectionId: string,
-    subjectId: string,
-    currentAssignments = assignments
-  ) => {
-    if (!classId || !sectionId) return;
+  // 4. Fetch Students & Existing Marks automatically
+  const fetchStudentsForSelection = useCallback(
+    async (
+      examId: string,
+      classId: string,
+      sectionId: string,
+      subjectId: string,
+      currentAssignments = assignments
+    ) => {
+      if (!classId || !sectionId) return;
 
-    setIsLoadingStudents(true);
-    try {
-      // Find matching assignment
-      const matchedAssign = currentAssignments.find(
-        (a) => a.class?.id === classId && a.section?.id === sectionId && a.subject?.id === subjectId
-      );
+      setIsLoadingStudents(true);
+      try {
+        const matchedAssign = currentAssignments.find(
+          (a) => a.class?.id === classId && a.section?.id === sectionId && a.subject?.id === subjectId
+        );
 
-      let fetchedStudentList: any[] = [];
+        let fetchedStudentList: any[] = [];
 
-      // Try fetching via assignmentId
-      if (matchedAssign?.id) {
-        try {
-          const assignData = await getTeacherAssignmentStudents(matchedAssign.id);
-          if (assignData?.students && Array.isArray(assignData.students)) {
-            fetchedStudentList = assignData.students;
+        if (matchedAssign?.id) {
+          try {
+            const assignData = await getTeacherAssignmentStudents(matchedAssign.id);
+            if (assignData?.students && Array.isArray(assignData.students)) {
+              fetchedStudentList = assignData.students;
+            }
+          } catch (e) {
+            console.warn("Assignment student fetch fallback", e);
           }
-        } catch (e) {
-          console.warn("Assignment student fetch fallback to general student fetch", e);
         }
-      }
 
-      // Fallback: fetch directly by class & section
-      if (fetchedStudentList.length === 0) {
-        const directStudents = await getStudents(classId, sectionId);
-        if (Array.isArray(directStudents)) {
-          fetchedStudentList = directStudents;
+        if (fetchedStudentList.length === 0) {
+          const directStudents = await getStudents(classId, sectionId);
+          if (Array.isArray(directStudents)) {
+            fetchedStudentList = directStudents;
+          }
         }
-      }
 
-      // Fetch existing results for this exam & subject
-      let existingResults: any[] = [];
-      if (examId && subjectId) {
-        try {
-          existingResults = await getResults({
-            examId,
-            subjectId,
-            classId,
-            sectionId,
+        let existingResults: any[] = [];
+        if (examId && subjectId) {
+          try {
+            existingResults = await getResults({
+              examId,
+              subjectId,
+              classId,
+              sectionId,
+            });
+          } catch (e) {
+            console.warn("Could not fetch existing results:", e);
+          }
+        }
+
+        const resultsMap = new Map<string, { marks: number; fullMarks: number }>();
+        if (Array.isArray(existingResults)) {
+          existingResults.forEach((r) => {
+            if (r.student?.id) {
+              resultsMap.set(r.student.id, { marks: r.marks, fullMarks: r.fullMarks || 100 });
+            }
+            if (r.student?.studentId) {
+              resultsMap.set(r.student.studentId, { marks: r.marks, fullMarks: r.fullMarks || 100 });
+            }
+            if (r.studentId) {
+              resultsMap.set(r.studentId, { marks: r.marks, fullMarks: r.fullMarks || 100 });
+            }
           });
-        } catch (e) {
-          console.warn("Could not fetch existing results:", e);
         }
-      }
 
-      // Build Map for fast result lookup
-      const resultsMap = new Map<string, { marks: number; fullMarks: number }>();
-      if (Array.isArray(existingResults)) {
-        existingResults.forEach((r) => {
-          if (r.student?.id) {
-            resultsMap.set(r.student.id, { marks: r.marks, fullMarks: r.fullMarks || 100 });
-          }
-          if (r.student?.studentId) {
-            resultsMap.set(r.student.studentId, { marks: r.marks, fullMarks: r.fullMarks || 100 });
-          }
-          if (r.studentId) {
-            resultsMap.set(r.studentId, { marks: r.marks, fullMarks: r.fullMarks || 100 });
-          }
+        const mappedRows: StudentRowItem[] = fetchedStudentList.map((s, index) => {
+          const studentIdentifier = s.id || s.studentId || String(index + 1);
+          const existing = resultsMap.get(s.id) || resultsMap.get(s.studentId);
+          const fullMarks = existing?.fullMarks || 100;
+          const marksStr = existing !== undefined ? String(existing.marks) : "";
+          const grade = marksStr !== "" ? calculateGrade(Number(marksStr), fullMarks) : "";
+
+          return {
+            id: studentIdentifier,
+            studentDbId: s.id,
+            roll: s.roll ? String(s.roll).padStart(2, "0") : String(index + 1).padStart(2, "0"),
+            name: s.name || `Student ${index + 1}`,
+            fullMarks,
+            marks: marksStr,
+            grade,
+          };
         });
+
+        setStudents(mappedRows);
+      } catch (err: any) {
+        console.error("Error fetching students:", err);
+        setNotification({
+          type: "error",
+          message: "Failed to load students",
+          description: err?.message || "Please verify class and section records",
+        });
+      } finally {
+        setIsLoadingStudents(false);
       }
+    },
+    [assignments]
+  );
 
-      // Map students into table rows
-      const mappedRows: StudentRowItem[] = fetchedStudentList.map((s, index) => {
-        const studentIdentifier = s.id || s.studentId || String(index + 1);
-        const existing = resultsMap.get(s.id) || resultsMap.get(s.studentId);
-        const fullMarks = existing?.fullMarks || 100;
-        const marksStr = existing !== undefined ? String(existing.marks) : "";
-        const grade = marksStr !== "" ? calculateGrade(Number(marksStr), fullMarks) : "";
-
-        return {
-          id: studentIdentifier,
-          studentDbId: s.id,
-          roll: s.roll ? String(s.roll).padStart(2, "0") : String(index + 1).padStart(2, "0"),
-          name: s.name || `Student ${index + 1}`,
-          fullMarks,
-          marks: marksStr,
-          grade,
-        };
-      });
-
-      setStudents(mappedRows);
-    } catch (err: any) {
-      console.error("Error fetching students:", err);
-      setNotification({
-        type: "error",
-        message: "Failed to load students",
-        description: err?.message || "Please verify class and section records",
-      });
-    } finally {
-      setIsLoadingStudents(false);
+  // Auto-fetch whenever filters change (No Load Button needed!)
+  useEffect(() => {
+    if (selectedClassId && selectedSectionId && selectedSubjectId) {
+      fetchStudentsForSelection(selectedExamId, selectedClassId, selectedSectionId, selectedSubjectId);
     }
-  };
-
-  // Manual Trigger on Click "Load Students"
-  const handleLoadClick = () => {
-    fetchStudentsForSelection(selectedExamId, selectedClassId, selectedSectionId, selectedSubjectId);
-  };
+  }, [selectedExamId, selectedClassId, selectedSectionId, selectedSubjectId, fetchStudentsForSelection]);
 
   // 5. Marks Editing
   const handleMarksChange = (id: string, newMarks: string) => {
@@ -390,7 +370,6 @@ export function EnterMarksView() {
       return;
     }
 
-    // Filter students with non-empty marks
     const marksToSubmit = students.filter((s) => s.marks.trim() !== "");
     if (marksToSubmit.length === 0) {
       setNotification({
@@ -424,7 +403,6 @@ export function EnterMarksView() {
         description: `Successfully recorded marks for ${savedCount} student(s).`,
       });
 
-      // Auto dismiss success toast after 4s
       setTimeout(() => {
         setNotification((prev) => (prev?.type === "success" ? null : prev));
       }, 4000);
@@ -512,7 +490,7 @@ export function EnterMarksView() {
         </div>
       )}
 
-      {/* No Assignment Notice (if teacher has 0 assigned subjects) */}
+      {/* No Assignment Notice */}
       {!isFetchingFilters && assignments.length === 0 && (
         <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -534,7 +512,7 @@ export function EnterMarksView() {
         </div>
       )}
 
-      {/* 2. Filter Bar Card */}
+      {/* 2. Filter Bar Card (No Load Button, Clean 4-Cols) */}
       <MarksFilterCard
         exams={exams.map((e) => ({ id: e.id, name: e.name, year: e.year }))}
         selectedExamId={selectedExamId}
@@ -548,8 +526,6 @@ export function EnterMarksView() {
         subjects={availableSubjects}
         selectedSubjectId={selectedSubjectId}
         onSubjectChange={handleSubjectChange}
-        onLoad={handleLoadClick}
-        isLoading={isLoadingStudents}
         isFetchingFilters={isFetchingFilters}
       />
 

@@ -1,8 +1,7 @@
 "use client";
 
-import { Search } from "lucide-react";
+import { Calendar, GraduationCap, Layers, BookOpen } from "lucide-react";
 import { Card, CardContent } from "@/src/components/ui/card";
-import { Button } from "@/src/components/ui/button";
 import {
   Select,
   SelectContent,
@@ -31,8 +30,6 @@ interface MyResultsFilterCardProps {
   subjects: FilterOption[];
   selectedSubjectId: string;
   onSubjectChange: (id: string) => void;
-  onSearch: () => void;
-  isLoading?: boolean;
   isFetchingFilters?: boolean;
 }
 
@@ -49,17 +46,18 @@ export function MyResultsFilterCard({
   subjects,
   selectedSubjectId,
   onSubjectChange,
-  onSearch,
-  isLoading = false,
   isFetchingFilters = false,
 }: MyResultsFilterCardProps) {
   return (
     <Card className="bg-white border-slate-200/90 rounded-2xl shadow-xs">
       <CardContent className="p-4 sm:p-5">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5 sm:gap-4 items-end">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4 items-end">
           {/* 1. Exam Selector */}
           <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-slate-700">Exam</label>
+            <label className="text-xs font-semibold text-slate-700 flex items-center gap-1.5">
+              <Calendar className="h-3.5 w-3.5 text-blue-600" />
+              <span>Exam</span>
+            </label>
             <Select
               value={selectedExamId}
               onValueChange={onExamChange}
@@ -80,7 +78,10 @@ export function MyResultsFilterCard({
 
           {/* 2. Class Selector (Assigned Classes Only) */}
           <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-slate-700">Class</label>
+            <label className="text-xs font-semibold text-slate-700 flex items-center gap-1.5">
+              <GraduationCap className="h-3.5 w-3.5 text-blue-600" />
+              <span>Class</span>
+            </label>
             <Select
               value={selectedClassId}
               onValueChange={onClassChange}
@@ -101,7 +102,10 @@ export function MyResultsFilterCard({
 
           {/* 3. Section Selector (Assigned Sections Only) */}
           <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-slate-700">Section</label>
+            <label className="text-xs font-semibold text-slate-700 flex items-center gap-1.5">
+              <Layers className="h-3.5 w-3.5 text-blue-600" />
+              <span>Section</span>
+            </label>
             <Select
               value={selectedSectionId}
               onValueChange={onSectionChange}
@@ -122,7 +126,10 @@ export function MyResultsFilterCard({
 
           {/* 4. Subject Selector (Assigned Subjects Only) */}
           <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-slate-700">Subject</label>
+            <label className="text-xs font-semibold text-slate-700 flex items-center gap-1.5">
+              <BookOpen className="h-3.5 w-3.5 text-blue-600" />
+              <span>Subject</span>
+            </label>
             <Select
               value={selectedSubjectId}
               onValueChange={onSubjectChange}
@@ -139,18 +146,6 @@ export function MyResultsFilterCard({
                 ))}
               </SelectContent>
             </Select>
-          </div>
-
-          {/* 5. Search Button */}
-          <div>
-            <Button
-              onClick={onSearch}
-              disabled={isLoading || !selectedClassId || !selectedSubjectId || isFetchingFilters}
-              className="w-full h-10 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl text-xs sm:text-sm gap-2 shadow-sm shadow-blue-600/25 transition-all cursor-pointer disabled:opacity-50"
-            >
-              <Search className="h-4 w-4" />
-              <span>{isLoading ? "Searching..." : "Search"}</span>
-            </Button>
           </div>
         </div>
       </CardContent>

@@ -302,11 +302,15 @@ export function MyEnteredMarksTable({
                 Obtained Marks (out of {editingStudent?.totalMarks || 100})
               </label>
               <Input
-                type="number"
-                min={0}
-                max={editingStudent?.totalMarks || 100}
+                type="text"
+                inputMode="numeric"
                 value={inputMarks}
-                onChange={(e) => setInputMarks(e.target.value)}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  if (val === "" || /^\d*$/.test(val)) {
+                    setInputMarks(val);
+                  }
+                }}
                 placeholder="Enter marks e.g. 85"
                 className="h-10 rounded-xl border-slate-200 text-slate-900 font-bold text-sm focus:ring-2 focus:ring-blue-500/20"
                 autoFocus

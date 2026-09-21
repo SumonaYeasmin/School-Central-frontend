@@ -1,8 +1,7 @@
 "use client";
 
-import { Search, BookOpen, Layers, GraduationCap, Calendar } from "lucide-react";
+import { BookOpen, Layers, GraduationCap, Calendar } from "lucide-react";
 import { Card, CardContent } from "@/src/components/ui/card";
-import { Button } from "@/src/components/ui/button";
 import {
   Select,
   SelectContent,
@@ -31,8 +30,6 @@ interface MarksFilterCardProps {
   subjects: FilterOption[];
   selectedSubjectId: string;
   onSubjectChange: (id: string) => void;
-  onLoad: () => void;
-  isLoading?: boolean;
   isFetchingFilters?: boolean;
 }
 
@@ -49,14 +46,12 @@ export function MarksFilterCard({
   subjects,
   selectedSubjectId,
   onSubjectChange,
-  onLoad,
-  isLoading = false,
   isFetchingFilters = false,
 }: MarksFilterCardProps) {
   return (
     <Card className="bg-white border-slate-200/90 rounded-2xl shadow-xs">
       <CardContent className="p-4 sm:p-5">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5 sm:gap-4 items-end">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4 items-end">
           {/* 1. Exam Selector */}
           <div className="space-y-1.5">
             <label className="text-xs font-semibold text-slate-700 flex items-center gap-1.5">
@@ -151,18 +146,6 @@ export function MarksFilterCard({
                 ))}
               </SelectContent>
             </Select>
-          </div>
-
-          {/* 5. Load Students Button */}
-          <div>
-            <Button
-              onClick={onLoad}
-              disabled={isLoading || !selectedClassId || !selectedSubjectId || isFetchingFilters}
-              className="w-full h-10 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl text-xs sm:text-sm gap-2 shadow-sm shadow-blue-600/25 transition-all cursor-pointer disabled:opacity-50"
-            >
-              <Search className="h-4 w-4" />
-              <span>{isLoading ? "Loading..." : "Load Students"}</span>
-            </Button>
           </div>
         </div>
       </CardContent>

@@ -20,7 +20,7 @@ interface AssignmentItem {
   subject: { id: string; name: string; code?: string };
 }
 
-// Initial demo students matching the screenshot mockup
+// Initial demo students matching the mockup
 const INITIAL_DEMO_STUDENTS: StudentResultRow[] = [
   { id: "1", roll: "01", name: "Rahim Ahmed", totalMarks: 100, obtainedMarks: 85, percentage: 85.0, grade: "A+", status: "Entered" },
   { id: "2", roll: "02", name: "Karim Hossain", totalMarks: 100, obtainedMarks: 72, percentage: 72.0, grade: "A", status: "Entered" },
@@ -89,7 +89,6 @@ export function MyResultsView() {
         getMyAssignments(emailToUse),
       ]);
 
-      // Set exams
       let loadedExams: ExamItem[] = [];
       if (examsData.status === "fulfilled" && Array.isArray(examsData.value) && examsData.value.length > 0) {
         loadedExams = examsData.value;
@@ -104,7 +103,6 @@ export function MyResultsView() {
         setSelectedExamId(loadedExams[0].id);
       }
 
-      // Set assignments
       let validAssignments: AssignmentItem[] = [];
       if (assignmentsData.status === "fulfilled" && Array.isArray(assignmentsData.value) && assignmentsData.value.length > 0) {
         validAssignments = assignmentsData.value;
@@ -133,15 +131,6 @@ export function MyResultsView() {
         setSelectedClassId(initialClassId);
         setSelectedSectionId(initialSectionId);
         setSelectedSubjectId(initialSubjectId);
-
-        // Fetch students & marks for this assignment
-        fetchStudentsForSelection(
-          loadedExams[0]?.id || "",
-          initialClassId,
-          initialSectionId,
-          initialSubjectId,
-          validAssignments
-        );
       }
     } catch (err: any) {
       console.error("Error initializing teacher results:", err);
@@ -226,100 +215,105 @@ export function MyResultsView() {
     setSelectedSubjectId(newSubjectId);
   };
 
-  // 4. Fetch Students & Results
-  const fetchStudentsForSelection = async (
-    examId: string,
-    classId: string,
-    sectionId: string,
-    subjectId: string,
-    currentAssignments = assignments
-  ) => {
-    if (!classId || !sectionId) return;
+  // 4. Fetch Students & Results automatically
+  const fetchStudentsForSelection = useCallback(
+    async (
+      examId: string,
+      classId: string,
+      sectionId: string,
+      subjectId: string,
+      currentAssignments = assignments
+    ) => {
+      if (!classId || !sectionId) return;
 
-    setIsLoadingStudents(true);
-    try {
-      const matchedAssign = currentAssignments.find(
-        (a) => a.class?.id === classId && a.section?.id === sectionId && a.subject?.id === subjectId
-      );
+      setIsLoadingStudents(true);
+      try {
+        const matchedAssign = currentAssignments.find(
+          (a) => a.class?.id === classId && a.section?.id === sectionId && a.subject?.id === subjectId
+        );
 
-      let fetchedStudents: any[] = [];
-      if (matchedAssign?.id) {
-        try {
-          const assignData = await getTeacherAssignmentStudents(matchedAssign.id);
-          if (assignData?.students && Array.isArray(assignData.students)) {
-            fetchedStudents = assignData.students;
+        let fetchedStudents: any[] = [];
+        if (matchedAssign?.id) {
+          try {
+            const assignData = await getTeacherAssignmentStudents(matchedAssign.id);
+            if (assignData?.students && Array.isArray(assignData.students)) {
+              fetchedStudents = assignData.students;
+            }
+          } catch (e) {
+            console.warn("Assignment student fetch error", e);
           }
-        } catch (e) {
-          console.warn("Assignment student fetch error, fallback to getStudents", e);
         }
-      }
 
-      if (fetchedStudents.length === 0) {
-        const directStudents = await getStudents(classId, sectionId);
-        if (Array.isArray(directStudents)) {
-          fetchedStudents = directStudents;
+        if (fetchedStudents.length === 0) {
+          const directStudents = await getStudents(classId, sectionId);
+          if (Array.isArray(directStudents)) {
+            fetchedStudents = directStudents;
+          }
         }
-      }
 
-      // Fetch existing results
-      let existingResults: any[] = [];
-      if (examId && subjectId) {
-        try {
-          existingResults = await getResults({
-            examId,
-            subjectId,
-            classId,
-            sectionId,
+        // Fetch existing results
+        let existingResults: any[] = [];
+        if (examId && subjectId) {
+          try {
+            existingResults = await getResults({
+              examId,
+              subjectId,
+              classId,
+              sectionId,
+            });
+          } catch (e) {
+            console.warn("Could not fetch results", e);
+          }
+        }
+
+        const resultsMap = new Map<string, { marks: number; fullMarks: number }>();
+        if (Array.isArray(existingResults)) {
+          existingResults.forEach((r) => {
+            if (r.student?.id) resultsMap.set(r.student.id, { marks: r.marks, fullMarks: r.fullMarks || 100 });
+            if (r.student?.studentId) resultsMap.set(r.student.studentId, { marks: r.marks, fullMarks: r.fullMarks || 100 });
+            if (r.studentId) resultsMap.set(r.studentId, { marks: r.marks, fullMarks: r.fullMarks || 100 });
           });
-        } catch (e) {
-          console.warn("Could not fetch results", e);
         }
+
+        if (fetchedStudents.length > 0) {
+          const mappedRows: StudentResultRow[] = fetchedStudents.map((s, index) => {
+            const existing = resultsMap.get(s.id) || resultsMap.get(s.studentId);
+            const totalMarks = existing?.fullMarks || 100;
+            const obtainedMarks = existing !== undefined ? existing.marks : null;
+            const percentage = obtainedMarks !== null ? (obtainedMarks / totalMarks) * 100 : null;
+            const grade = percentage !== null ? calculateGrade(percentage) : "-";
+            const status = obtainedMarks !== null ? "Entered" : "Pending";
+
+            return {
+              id: s.id || s.studentId || String(index + 1),
+              studentDbId: s.id,
+              roll: s.roll ? String(s.roll).padStart(2, "0") : String(index + 1).padStart(2, "0"),
+              name: s.name || `Student ${index + 1}`,
+              totalMarks,
+              obtainedMarks,
+              percentage,
+              grade,
+              status,
+            };
+          });
+
+          setStudents(mappedRows);
+        }
+      } catch (err: any) {
+        console.error("Error fetching students result:", err);
+      } finally {
+        setIsLoadingStudents(false);
       }
+    },
+    [assignments]
+  );
 
-      const resultsMap = new Map<string, { marks: number; fullMarks: number }>();
-      if (Array.isArray(existingResults)) {
-        existingResults.forEach((r) => {
-          if (r.student?.id) resultsMap.set(r.student.id, { marks: r.marks, fullMarks: r.fullMarks || 100 });
-          if (r.student?.studentId) resultsMap.set(r.student.studentId, { marks: r.marks, fullMarks: r.fullMarks || 100 });
-          if (r.studentId) resultsMap.set(r.studentId, { marks: r.marks, fullMarks: r.fullMarks || 100 });
-        });
-      }
-
-      if (fetchedStudents.length > 0) {
-        const mappedRows: StudentResultRow[] = fetchedStudents.map((s, index) => {
-          const existing = resultsMap.get(s.id) || resultsMap.get(s.studentId);
-          const totalMarks = existing?.fullMarks || 100;
-          const obtainedMarks = existing !== undefined ? existing.marks : null;
-          const percentage = obtainedMarks !== null ? (obtainedMarks / totalMarks) * 100 : null;
-          const grade = percentage !== null ? calculateGrade(percentage) : "-";
-          const status = obtainedMarks !== null ? "Entered" : "Pending";
-
-          return {
-            id: s.id || s.studentId || String(index + 1),
-            studentDbId: s.id,
-            roll: s.roll ? String(s.roll).padStart(2, "0") : String(index + 1).padStart(2, "0"),
-            name: s.name || `Student ${index + 1}`,
-            totalMarks,
-            obtainedMarks,
-            percentage,
-            grade,
-            status,
-          };
-        });
-
-        setStudents(mappedRows);
-      }
-    } catch (err: any) {
-      console.error("Error fetching students result:", err);
-    } finally {
-      setIsLoadingStudents(false);
+  // Auto-fetch whenever filters change (No Search Button needed!)
+  useEffect(() => {
+    if (selectedClassId && selectedSectionId && selectedSubjectId) {
+      fetchStudentsForSelection(selectedExamId, selectedClassId, selectedSectionId, selectedSubjectId);
     }
-  };
-
-  // Search trigger
-  const handleSearch = () => {
-    fetchStudentsForSelection(selectedExamId, selectedClassId, selectedSectionId, selectedSubjectId);
-  };
+  }, [selectedExamId, selectedClassId, selectedSectionId, selectedSubjectId, fetchStudentsForSelection]);
 
   // 5. Save Single Student Mark from Edit Dialog
   const handleSaveStudentMark = async (studentId: string, marks: number, fullMarks: number) => {
@@ -335,7 +329,6 @@ export function MyResultsView() {
       fullMarks,
     });
 
-    // Update local state immediately
     setStudents((prev) =>
       prev.map((s) => {
         if (s.studentDbId === studentId || s.id === studentId) {
@@ -432,7 +425,7 @@ export function MyResultsView() {
         </div>
       )}
 
-      {/* 2. Filter Bar Card */}
+      {/* 2. Filter Bar Card (No Search Button, Clean 4-Cols) */}
       <MyResultsFilterCard
         exams={exams.map((e) => ({ id: e.id, name: e.name, year: e.year }))}
         selectedExamId={selectedExamId}
@@ -446,8 +439,6 @@ export function MyResultsView() {
         subjects={availableSubjects}
         selectedSubjectId={selectedSubjectId}
         onSubjectChange={handleSubjectChange}
-        onSearch={handleSearch}
-        isLoading={isLoadingStudents}
         isFetchingFilters={isFetchingFilters}
       />
 
@@ -459,7 +450,7 @@ export function MyResultsView() {
         averageMarks={averageMarks}
       />
 
-      {/* 4. My Entered Marks Table with Pagination and Edit Modal */}
+      {/* 4. My Entered Marks Table */}
       <MyEnteredMarksTable
         students={students}
         isLoading={isLoadingStudents}

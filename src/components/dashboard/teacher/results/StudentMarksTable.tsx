@@ -139,11 +139,15 @@ export function StudentMarksTable({
                     {/* Marks Input */}
                     <td className="py-2.5 px-4">
                       <Input
-                        type="number"
-                        min={0}
-                        max={student.fullMarks}
+                        type="text"
+                        inputMode="numeric"
                         value={student.marks}
-                        onChange={(e) => onMarksChange(student.id, e.target.value)}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          if (val === "" || /^\d*$/.test(val)) {
+                            onMarksChange(student.id, val);
+                          }
+                        }}
                         placeholder="0"
                         className="h-9 w-24 px-2.5 text-center font-bold text-slate-900 rounded-lg border-slate-200 bg-white focus:bg-blue-50/50 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 text-xs sm:text-sm"
                       />
