@@ -1,7 +1,9 @@
 "use client";
 
-import { UserInfo } from "@/src/types/user.interface";
-import { NavItem } from "@/src/lib/navitems.config";
+import { usePathname } from "next/navigation";
+import { UserInfo, UserRole } from "@/src/types/user.interface";
+import { NavItem, getNavItemsByRole } from "@/src/lib/navitems.config";
+import { mockUsers } from "@/src/services/auth/getUserInfo";
 import { UserDropdown } from "./UserDropdown";
 import { DashboardMobileSidebar } from "./DashboardMobileSidebar";
 import { Input } from "@/src/components/ui/input";
@@ -12,18 +14,32 @@ interface DashboardNavbarContentProps {
   navItems: NavItem[];
 }
 
-export function DashboardNavbarContent({ user, navItems }: DashboardNavbarContentProps) {
+export function DashboardNavbarContent({ user, navItems: initialNavItems }: DashboardNavbarContentProps) {
+  const pathname = usePathname();
+
+  // Dynamically resolve active portal and user from URL path
+  const activeRole: UserRole = pathname.startsWith("/teacher")
+    ? "TEACHER"
+    : pathname.startsWith("/admin")
+    ? "ADMIN"
+    : pathname.startsWith("/dashboard")
+    ? "PARENT"
+    : user.role;
+
+  const activeUser = mockUsers[activeRole] || user;
+  const activeNavItems = getNavItemsByRole(activeRole) || initialNavItems;
+
   return (
-    <header className="sticky top-0 z-30 h-18 w-full border-b border-slate-200 bg-white/80 backdrop-blur-md px-4 lg:px-8 flex items-center justify-between gap-4">
+    <header className="sticky top-0 z-30 h-14 sm:h-16 w-full border-b border-slate-200 bg-white/80 backdrop-blur-md px-4 lg:px-6 flex items-center justify-between gap-4">
       {/* Left: Mobile Menu Trigger + Search Bar */}
       <div className="flex items-center gap-3.5 flex-1 max-w-lg">
-        <DashboardMobileSidebar navItems={navItems} user={user} />
+        <DashboardMobileSidebar navItems={activeNavItems} user={activeUser} />
 
         <div className="relative w-full hidden sm:block">
           <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4.5 w-4.5 text-slate-400" />
-          <Input
-            type="search"
-            placeholder="Search students, teachers, classes..."
+          <Input 
+            type="search" 
+            placeholder="Search students, teachers, classes..." 
             className="w-full pl-10 bg-slate-50 border-slate-200 text-sm text-slate-800 placeholder:text-slate-400 rounded-xl focus-visible:ring-blue-500/30 h-10 shadow-2xs"
           />
         </div>
@@ -31,7 +47,7 @@ export function DashboardNavbarContent({ user, navItems }: DashboardNavbarConten
 
       {/* Right: Notifications + User Profile Dropdown */}
       <div className="flex items-center gap-3">
-        <button
+        <button 
           className="relative p-2.5 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-xl transition-colors border border-slate-200/80 cursor-pointer"
           title="Notifications"
         >
@@ -41,7 +57,7 @@ export function DashboardNavbarContent({ user, navItems }: DashboardNavbarConten
 
         <div className="h-5 w-px bg-slate-200 mx-1 hidden sm:block" />
 
-        <UserDropdown user={user} />
+        <UserDropdown user={activeUser} />
       </div>
     </header>
   );

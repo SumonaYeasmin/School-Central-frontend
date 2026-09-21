@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { NavItem } from "@/src/lib/navitems.config";
-import { UserInfo } from "@/src/types/user.interface";
+import { getNavItemsByRole, NavItem } from "@/src/lib/navitems.config";
+import { UserInfo, UserRole } from "@/src/types/user.interface";
 import { getIconComponent } from "@/src/lib/icon-mapper";
 import { Badge } from "@/src/components/ui/badge";
 import { School, Sparkles, ExternalLink } from "lucide-react";
@@ -16,11 +16,22 @@ interface DashboardSidebarContentProps {
 }
 
 export function DashboardSidebarContent({ 
-  navItems, 
+  navItems: initialNavItems, 
   user,
   onItemClick 
 }: DashboardSidebarContentProps) {
   const pathname = usePathname();
+
+  // Dynamically resolve active portal and navigation from URL path
+  const activeRole: UserRole = pathname.startsWith("/teacher")
+    ? "TEACHER"
+    : pathname.startsWith("/admin")
+    ? "ADMIN"
+    : pathname.startsWith("/dashboard")
+    ? "PARENT"
+    : user.role;
+
+  const currentNavItems = getNavItemsByRole(activeRole) || initialNavItems;
 
   const getPortalLabel = (role: string) => {
     switch (role) {
@@ -35,7 +46,7 @@ export function DashboardSidebarContent({
 
   // Group items by category preserving config order
   const categories: { name: string; items: NavItem[] }[] = [];
-  navItems.forEach((item) => {
+  currentNavItems.forEach((item) => {
     const categoryName = item.category || "MAIN MENU";
     let existing = categories.find((c) => c.name === categoryName);
     if (!existing) {

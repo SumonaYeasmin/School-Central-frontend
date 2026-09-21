@@ -74,6 +74,12 @@ export const createStudent = async (studentData: any) => {
   return response.data;
 };
 
+// সব ক্লাস রুটিন নিয়ে আসার ফাংশন
+export const getRoutines = async (params?: { day?: string; classId?: string; sectionId?: string; teacherId?: string }) => {
+  const response = await api.get("/routines", { params });
+  return response.data;
+};
+
 // Re-export parent service functions
 export * from "./parentService";
 

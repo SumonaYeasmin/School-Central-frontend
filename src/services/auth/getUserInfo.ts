@@ -1,9 +1,9 @@
 import { UserInfo, UserRole } from "@/src/types/user.interface";
 
-// 🛠️ MANUAL ROLE SWITCHER: "ADMIN" | "TEACHER" | "PARENT"
-const ACTIVE_DEV_ROLE: UserRole = "ADMIN";
+// Default fallback role for development / unauthenticated state
+const DEFAULT_FALLBACK_ROLE: UserRole = "ADMIN";
 
-const mockUsers: Record<UserRole, UserInfo> = {
+export const mockUsers: Record<UserRole, UserInfo> = {
   ADMIN: {
     id: "admin-01",
     name: "Sarah Jenkins",
@@ -28,9 +28,10 @@ const mockUsers: Record<UserRole, UserInfo> = {
 };
 
 /**
- * Static mock function to get current user info for UI development
- * Always provides fallback to prevent undefined errors
+ * Get current user info.
+ * Auto-detects by passed role or defaults to fallback mock user.
  */
-export async function getUserInfo(): Promise<UserInfo> {
-  return mockUsers[ACTIVE_DEV_ROLE] || mockUsers.ADMIN;
+export async function getUserInfo(role?: UserRole): Promise<UserInfo> {
+  if (role && mockUsers[role]) return mockUsers[role];
+  return mockUsers[DEFAULT_FALLBACK_ROLE] || mockUsers.ADMIN;
 }
