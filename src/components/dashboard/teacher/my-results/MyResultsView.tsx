@@ -5,7 +5,7 @@ import { MyResultsHeader } from "./MyResultsHeader";
 import { MyResultsFilterCard, FilterOption } from "./MyResultsFilterCard";
 import { MyResultsStatsCards } from "./MyResultsStatsCards";
 import { MyEnteredMarksTable, StudentResultRow } from "./MyEnteredMarksTable";
-import { CheckCircle2, AlertCircle } from "lucide-react";
+import { CheckCircle2, AlertCircle, RefreshCw } from "lucide-react";
 import { getMyAssignments, getTeacherAssignmentStudents, getTeachers } from "@/src/services/teacherService";
 import { getExams, ExamItem } from "@/src/services/examService";
 import { getResults, createResult } from "@/src/services/resultService";
@@ -20,24 +20,12 @@ interface AssignmentItem {
   subject: { id: string; name: string; code?: string };
 }
 
-// Initial demo students matching the mockup
-const INITIAL_DEMO_STUDENTS: StudentResultRow[] = [
-  { id: "1", roll: "01", name: "Rahim Ahmed", totalMarks: 100, obtainedMarks: 85, percentage: 85.0, grade: "A+", status: "Entered" },
-  { id: "2", roll: "02", name: "Karim Hossain", totalMarks: 100, obtainedMarks: 72, percentage: 72.0, grade: "A", status: "Entered" },
-  { id: "3", roll: "03", name: "Sumaiya Akter", totalMarks: 100, obtainedMarks: 91, percentage: 91.0, grade: "A+", status: "Entered" },
-  { id: "4", roll: "04", name: "Jahid Hasan", totalMarks: 100, obtainedMarks: 68, percentage: 68.0, grade: "A-", status: "Entered" },
-  { id: "5", roll: "05", name: "Nusrat Jahan", totalMarks: 100, obtainedMarks: 88, percentage: 88.0, grade: "A+", status: "Entered" },
-  { id: "6", roll: "06", name: "Tanvir Islam", totalMarks: 100, obtainedMarks: 76, percentage: 76.0, grade: "A", status: "Entered" },
-  { id: "7", roll: "07", name: "Faria Rahman", totalMarks: 100, obtainedMarks: 65, percentage: 65.0, grade: "B+", status: "Entered" },
-  { id: "8", roll: "08", name: "Rifat Chowdhury", totalMarks: 100, obtainedMarks: 92, percentage: 92.0, grade: "A+", status: "Entered" },
-  { id: "9", roll: "09", name: "Habiba Akter", totalMarks: 100, obtainedMarks: 80, percentage: 80.0, grade: "A", status: "Entered" },
-  { id: "10", roll: "10", name: "Mehedi Hasan", totalMarks: 100, obtainedMarks: 70, percentage: 70.0, grade: "A-", status: "Pending" },
-];
-
 export function MyResultsView() {
   // Raw Data State
   const [assignments, setAssignments] = useState<AssignmentItem[]>([]);
   const [exams, setExams] = useState<ExamItem[]>([]);
+  const [activeTeacherName, setActiveTeacherName] = useState<string>("Faculty Teacher");
+  const [activeTeacherEmail, setActiveTeacherEmail] = useState<string>(mockUsers.TEACHER.email);
 
   // Filter Selection State
   const [selectedExamId, setSelectedExamId] = useState<string>("");
@@ -45,8 +33,8 @@ export function MyResultsView() {
   const [selectedSectionId, setSelectedSectionId] = useState<string>("");
   const [selectedSubjectId, setSelectedSubjectId] = useState<string>("");
 
-  // Table Data & Loading States
-  const [students, setStudents] = useState<StudentResultRow[]>(INITIAL_DEMO_STUDENTS);
+  // Table Data & Loading States - Initialized strictly to empty array (No hardcoded demo students)
+  const [students, setStudents] = useState<StudentResultRow[]>([]);
   const [isFetchingFilters, setIsFetchingFilters] = useState<boolean>(true);
   const [isLoadingStudents, setIsLoadingStudents] = useState<boolean>(false);
 
@@ -69,7 +57,7 @@ export function MyResultsView() {
     return "F";
   };
 
-  // 1. Initialize Filters & Data
+  // 1. Initialize Filters & Data strictly for logged-in teacher
   const initializeData = useCallback(async () => {
     setIsFetchingFilters(true);
     try {
@@ -80,9 +68,11 @@ export function MyResultsView() {
           try {
             const parsed = JSON.parse(storedUser);
             if (parsed?.email) emailToUse = parsed.email;
+            if (parsed?.name) setActiveTeacherName(parsed.name);
           } catch {}
         }
       }
+      setActiveTeacherEmail(emailToUse);
 
       const [examsData, assignmentsData] = await Promise.allSettled([
         getExams(),
@@ -107,12 +97,15 @@ export function MyResultsView() {
       if (assignmentsData.status === "fulfilled" && Array.isArray(assignmentsData.value) && assignmentsData.value.length > 0) {
         validAssignments = assignmentsData.value;
       } else {
+        // Fallback for development if email not configured
         try {
           const allTeachers = await getTeachers();
           if (allTeachers && allTeachers.length > 0) {
             const teacherWithAssign = allTeachers.find((t) => t.assignments && t.assignments.length > 0) || allTeachers[0];
             if (teacherWithAssign?.assignments && teacherWithAssign.assignments.length > 0) {
               validAssignments = teacherWithAssign.assignments as AssignmentItem[];
+              setActiveTeacherName(teacherWithAssign.name);
+              setActiveTeacherEmail(teacherWithAssign.email || emailToUse);
             }
           }
         } catch (e) {
@@ -131,6 +124,8 @@ export function MyResultsView() {
         setSelectedClassId(initialClassId);
         setSelectedSectionId(initialSectionId);
         setSelectedSubjectId(initialSubjectId);
+      } else {
+        setStudents([]);
       }
     } catch (err: any) {
       console.error("Error initializing teacher results:", err);
@@ -143,7 +138,7 @@ export function MyResultsView() {
     initializeData();
   }, [initializeData]);
 
-  // 2. Computed assigned dropdown options
+  // 2. Computed assigned dropdown options (ONLY classes/sections/subjects assigned to this teacher)
   const availableClasses: FilterOption[] = useMemo(() => {
     const classMap = new Map<string, FilterOption>();
     assignments.forEach((a) => {
@@ -215,7 +210,7 @@ export function MyResultsView() {
     setSelectedSubjectId(newSubjectId);
   };
 
-  // 4. Fetch Students & Results automatically
+  // 4. Fetch Students & Results for this teacher's selected assignment ONLY
   const fetchStudentsForSelection = useCallback(
     async (
       examId: string,
@@ -224,7 +219,10 @@ export function MyResultsView() {
       subjectId: string,
       currentAssignments = assignments
     ) => {
-      if (!classId || !sectionId) return;
+      if (!classId || !sectionId) {
+        setStudents([]);
+        return;
+      }
 
       setIsLoadingStudents(true);
       try {
@@ -298,9 +296,12 @@ export function MyResultsView() {
           });
 
           setStudents(mappedRows);
+        } else {
+          setStudents([]);
         }
       } catch (err: any) {
         console.error("Error fetching students result:", err);
+        setStudents([]);
       } finally {
         setIsLoadingStudents(false);
       }
@@ -308,10 +309,12 @@ export function MyResultsView() {
     [assignments]
   );
 
-  // Auto-fetch whenever filters change (No Search Button needed!)
+  // Auto-fetch whenever filters change
   useEffect(() => {
     if (selectedClassId && selectedSectionId && selectedSubjectId) {
       fetchStudentsForSelection(selectedExamId, selectedClassId, selectedSectionId, selectedSubjectId);
+    } else {
+      setStudents([]);
     }
   }, [selectedExamId, selectedClassId, selectedSectionId, selectedSubjectId, fetchStudentsForSelection]);
 
@@ -358,8 +361,8 @@ export function MyResultsView() {
   };
 
   // Active names for headers and labels
-  const activeExamName = exams.find((e) => e.id === selectedExamId)?.name || "Half Yearly Exam 2026";
-  const activeSubjectName = availableSubjects.find((s) => s.id === selectedSubjectId)?.name || "Mathematics";
+  const activeExamName = exams.find((e) => e.id === selectedExamId)?.name || "Exam";
+  const activeSubjectName = availableSubjects.find((s) => s.id === selectedSubjectId)?.name || "Assigned Subject";
 
   // Summary Metrics calculations
   const totalStudents = students.length;
@@ -425,7 +428,29 @@ export function MyResultsView() {
         </div>
       )}
 
-      {/* 2. Filter Bar Card (No Search Button, Clean 4-Cols) */}
+      {/* No Assignment Notice (if logged-in teacher has 0 assigned subjects) */}
+      {!isFetchingFilters && assignments.length === 0 && (
+        <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <AlertCircle className="h-5 w-5 text-amber-600 shrink-0" />
+            <div>
+              <p className="text-sm font-bold">No Subject Assignments Found</p>
+              <p className="text-xs text-amber-700 mt-0.5">
+                Teacher <strong>{activeTeacherName}</strong> ({activeTeacherEmail}) has not been assigned to any class or subject by the admin yet.
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={initializeData}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-100 text-amber-800 text-xs font-semibold hover:bg-amber-200 cursor-pointer"
+          >
+            <RefreshCw className="h-3.5 w-3.5" />
+            <span>Reload</span>
+          </button>
+        </div>
+      )}
+
+      {/* 2. Filter Bar Card (Only Teacher's Assigned Classes, Sections, and Subjects) */}
       <MyResultsFilterCard
         exams={exams.map((e) => ({ id: e.id, name: e.name, year: e.year }))}
         selectedExamId={selectedExamId}
@@ -450,7 +475,7 @@ export function MyResultsView() {
         averageMarks={averageMarks}
       />
 
-      {/* 4. My Entered Marks Table */}
+      {/* 4. My Entered Marks Table (Only Students of This Teacher's Assigned Class & Section) */}
       <MyEnteredMarksTable
         students={students}
         isLoading={isLoadingStudents}
