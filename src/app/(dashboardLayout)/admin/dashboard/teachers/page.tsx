@@ -5,16 +5,9 @@ import { TeachersHeader } from "@/src/components/dashboard/admin/teachers/Teache
 import { TeachersStats } from "@/src/components/dashboard/admin/teachers/TeachersStats";
 import { TeachersTable } from "@/src/components/dashboard/admin/teachers/TeachersTable";
 import { AddTeacherModal } from "@/src/components/dashboard/admin/teachers/AddTeacherModal";
-import { EditTeacherModal } from "@/src/components/dashboard/admin/teachers/EditTeacherModal";
-import { AssignSubjectModal } from "@/src/components/dashboard/admin/teachers/AssignSubjectModal";
-import { DeleteTeacherDialog } from "@/src/components/dashboard/admin/teachers/DeleteTeacherDialog";
 import {
   getTeachers,
   createTeacher,
-  updateTeacher,
-  deleteTeacher,
-  assignTeacher,
-  removeTeacherAssignment,
 } from "@/src/services/teacherService";
 import { getClasses, getSubjects } from "@/src/services/academicService";
 import {
@@ -33,9 +26,6 @@ export default function TeachersPage() {
 
   // Modals state
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [editingTeacher, setEditingTeacher] = useState<Teacher | null>(null);
-  const [assigningTeacher, setAssigningTeacher] = useState<Teacher | null>(null);
-  const [deletingTeacher, setDeletingTeacher] = useState<Teacher | null>(null);
 
   // Fetch all teachers, classes, and subjects from database
   const fetchData = useCallback(async () => {
@@ -66,39 +56,6 @@ export default function TeachersPage() {
     await fetchData();
   };
 
-  // Handler: Update Teacher
-  const handleUpdateTeacher = async (id: string, teacherData: UpdateTeacherDto) => {
-    await updateTeacher(id, teacherData);
-    await fetchData();
-  };
-
-  // Handler: Assign Subject
-  const handleAssignSubject = async (tId: string, data: AssignTeacherDto) => {
-    await assignTeacher(tId, data);
-    const updatedTeachers = await getTeachers();
-    setTeachers(updatedTeachers || []);
-    const updatedTeacher = updatedTeachers.find((t) => t.id === tId) || null;
-    setAssigningTeacher(updatedTeacher);
-  };
-
-  // Handler: Remove Assignment
-  const handleRemoveAssignment = async (assignmentId: string) => {
-    await removeTeacherAssignment(assignmentId);
-    const updatedTeachers = await getTeachers();
-    setTeachers(updatedTeachers || []);
-    if (assigningTeacher) {
-      const updatedTeacher =
-        updatedTeachers.find((t) => t.id === assigningTeacher.id) || null;
-      setAssigningTeacher(updatedTeacher);
-    }
-  };
-
-  // Handler: Delete Teacher
-  const handleDeleteTeacher = async (id: string) => {
-    await deleteTeacher(id);
-    await fetchData();
-  };
-
   // Dynamic KPI Stats
   const totalStaff = teachers.length;
   const assignedTeachers = teachers.filter(
@@ -112,7 +69,7 @@ export default function TeachersPage() {
   ).size;
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto">
+    <div className="space-y-6 container mx-auto">
       {/* 1. Header with Breadcrumb and Add Teacher Button */}
       <TeachersHeader onAddTeacher={() => setIsAddModalOpen(true)} />
 
@@ -133,9 +90,6 @@ export default function TeachersPage() {
       ) : (
         <TeachersTable
           teachers={teachers}
-          onEdit={(teacher) => setEditingTeacher(teacher)}
-          onAssignSubject={(teacher) => setAssigningTeacher(teacher)}
-          onDelete={(teacher) => setDeletingTeacher(teacher)}
           onAddTeacher={() => setIsAddModalOpen(true)}
         />
       )}
@@ -145,33 +99,6 @@ export default function TeachersPage() {
         isOpen={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}
         onAdd={handleAddTeacher}
-      />
-
-      {/* 5. Edit Teacher Modal */}
-      <EditTeacherModal
-        isOpen={Boolean(editingTeacher)}
-        teacher={editingTeacher}
-        onClose={() => setEditingTeacher(null)}
-        onUpdate={handleUpdateTeacher}
-      />
-
-      {/* 6. Assign Subject Modal */}
-      <AssignSubjectModal
-        isOpen={Boolean(assigningTeacher)}
-        teacher={assigningTeacher}
-        classes={classes}
-        subjects={subjects}
-        onClose={() => setAssigningTeacher(null)}
-        onAssign={handleAssignSubject}
-        onRemove={handleRemoveAssignment}
-      />
-
-      {/* 7. Delete Teacher Dialog */}
-      <DeleteTeacherDialog
-        isOpen={Boolean(deletingTeacher)}
-        teacher={deletingTeacher}
-        onClose={() => setDeletingTeacher(null)}
-        onDelete={handleDeleteTeacher}
       />
     </div>
   );

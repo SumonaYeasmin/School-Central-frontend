@@ -48,7 +48,7 @@ export function ParentCard({
   const primaryRelation =
     parent.students && parent.students.length > 0
       ? parent.students.find((s) => s.isPrimary)?.relation ||
-        parent.students[0].relation
+      parent.students[0].relation
       : null;
 
   return (

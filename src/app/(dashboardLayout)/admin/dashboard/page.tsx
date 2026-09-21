@@ -5,7 +5,7 @@ import { RecentAdmissions } from "@/src/components/dashboard/admin/overview/Rece
 
 export default function AdminDashboardPage() {
   return (
-    <div className="space-y-6 max-w-7xl mx-auto">
+    <div className="space-y-6 container mx-auto">
       {/* 1. Header with action buttons */}
       <AdminOverviewHeader />
 

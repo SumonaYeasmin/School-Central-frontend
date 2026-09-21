@@ -3,37 +3,37 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/src/components/ui/ca
 
 export function AdminOverviewStats() {
   const stats = [
-    { 
-      title: "Total Students", 
-      value: "1,248", 
-      growth: "+12% this month", 
-      icon: GraduationCap, 
-      color: "text-blue-600", 
-      bg: "bg-blue-50 border-blue-100" 
+    {
+      title: "Total Students",
+      value: "1,248",
+      growth: "+12% this month",
+      icon: GraduationCap,
+      color: "text-blue-600",
+      bg: "bg-blue-50 border-blue-100"
     },
-    { 
-      title: "Active Teachers", 
-      value: "48", 
-      growth: "4 departments", 
-      icon: Users, 
-      color: "text-emerald-600", 
-      bg: "bg-emerald-50 border-emerald-100" 
+    {
+      title: "Active Teachers",
+      value: "48",
+      growth: "4 departments",
+      icon: Users,
+      color: "text-emerald-600",
+      bg: "bg-emerald-50 border-emerald-100"
     },
-    { 
-      title: "Classes & Sections", 
-      value: "12 / 32 Sections", 
-      growth: "All active", 
-      icon: School, 
-      color: "text-amber-600", 
-      bg: "bg-amber-50 border-amber-100" 
+    {
+      title: "Classes & Sections",
+      value: "12 / 32 Sections",
+      growth: "All active",
+      icon: School,
+      color: "text-amber-600",
+      bg: "bg-amber-50 border-amber-100"
     },
-    { 
-      title: "Curriculum Subjects", 
-      value: "36 Subjects", 
-      growth: "Updated 2026", 
-      icon: BookOpen, 
-      color: "text-indigo-600", 
-      bg: "bg-indigo-50 border-indigo-100" 
+    {
+      title: "Curriculum Subjects",
+      value: "36 Subjects",
+      growth: "Updated 2026",
+      icon: BookOpen,
+      color: "text-indigo-600",
+      bg: "bg-indigo-50 border-indigo-100"
     },
   ];
 

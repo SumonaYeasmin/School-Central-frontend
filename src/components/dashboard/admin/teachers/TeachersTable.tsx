@@ -9,20 +9,15 @@ import {
   Eye,
   Plus,
   X,
-  Star,
 } from "lucide-react";
 import { Input } from "@/src/components/ui/input";
 import { Button } from "@/src/components/ui/button";
 import { Badge } from "@/src/components/ui/badge";
 import Link from "next/link";
 import { Teacher } from "@/src/types/teacher";
-import { TeacherActionsMenu } from "./TeacherActionsMenu";
 
 interface TeachersTableProps {
   teachers?: Teacher[];
-  onEdit?: (teacher: Teacher) => void;
-  onAssignSubject?: (teacher: Teacher) => void;
-  onDelete?: (teacher: Teacher) => void;
   onAddTeacher?: () => void;
 }
 
@@ -48,10 +43,10 @@ function getInitials(name: string) {
 
 export function TeachersTable({
   teachers = [],
-  onEdit = () => {},
-  onAssignSubject = () => {},
-  onDelete = () => {},
-  onAddTeacher = () => {},
+  onEdit = () => { },
+  onAssignSubject = () => { },
+  onDelete = () => { },
+  onAddTeacher = () => { },
 }: TeachersTableProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedDepartment, setSelectedDepartment] = useState<string>("ALL");
@@ -180,11 +175,10 @@ export function TeachersTable({
             <button
               type="button"
               onClick={() => setSelectedDepartment("ALL")}
-              className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
-                selectedDepartment === "ALL"
+              className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer ${selectedDepartment === "ALL"
                   ? "bg-white text-blue-700 shadow-xs border border-slate-200/80"
                   : "text-slate-600 hover:text-slate-900"
-              }`}
+                }`}
             >
               All Departments
             </button>
@@ -196,11 +190,10 @@ export function TeachersTable({
                   key={dept}
                   type="button"
                   onClick={() => setSelectedDepartment(dept)}
-                  className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-all flex items-center gap-1 cursor-pointer ${
-                    isSelected
+                  className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-all flex items-center gap-1 cursor-pointer ${isSelected
                       ? "bg-white text-blue-700 shadow-xs border border-slate-200/80"
                       : "text-slate-600 hover:text-slate-900"
-                  }`}
+                    }`}
                 >
                   <span>{dept}</span>
                   <span className="text-[10px] text-slate-400">({count})</span>
@@ -295,31 +288,23 @@ export function TeachersTable({
                       </Badge>
                     </td>
 
-                    {/* 4. Assigned Subjects */}
+                    {/* 4. Assigned Subjects Count */}
                     <td className="py-4 px-4">
                       {assignments.length === 0 ? (
-                        <span className="text-xs text-slate-400 italic">
-                          None assigned
+                        <span className="text-xs text-slate-400 font-medium">
+                          0 Subjects
                         </span>
                       ) : (
-                        <div className="flex flex-wrap gap-1.5 max-w-xs">
-                          {assignments.map((a) => (
-                            <Badge
-                              key={a.id}
-                              variant="outline"
-                              className="bg-blue-50 text-blue-800 border-blue-200/80 text-[11px] font-semibold py-0.5 px-2 rounded-lg flex items-center gap-1"
-                            >
-                              <BookOpen className="h-3 w-3 text-blue-600" />
-                              <span>{a.subject?.name}</span>
-                              <span className="text-blue-500 font-normal">
-                                ({a.class?.name} · {a.section?.name})
-                              </span>
-                              {a.isClassTeacher && (
-                                <Star className="h-2.5 w-2.5 fill-amber-500 text-amber-500 ml-0.5" />
-                              )}
-                            </Badge>
-                          ))}
-                        </div>
+                        <Badge
+                          variant="outline"
+                          className="bg-blue-50 text-blue-700 border-blue-200 text-xs font-semibold py-1 px-2.5 rounded-xl inline-flex items-center gap-1.5"
+                        >
+                          <BookOpen className="h-3.5 w-3.5 text-blue-600" />
+                          <span>
+                            {assignments.length}{" "}
+                            {assignments.length === 1 ? "Subject" : "Subjects"}
+                          </span>
+                        </Badge>
                       )}
                     </td>
 
@@ -337,27 +322,20 @@ export function TeachersTable({
                       </div>
                     </td>
 
-                    {/* 6. Actions */}
+                    {/* 6. Actions (Only Details button) */}
                     <td className="py-4 px-4 text-right">
-                      <div className="flex items-center justify-end gap-1.5">
+                      <div className="flex items-center justify-end">
                         <Button
                           asChild
                           size="sm"
                           variant="ghost"
-                          className="h-8 px-3 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 hover:text-blue-700 border border-blue-200/60 font-semibold text-xs flex items-center gap-1.5 cursor-pointer"
+                          className="h-8 px-3.5 rounded-xl bg-blue-50 text-blue-600 hover:bg-blue-100 hover:text-blue-700 border border-blue-200/60 font-semibold text-xs flex items-center gap-1.5 cursor-pointer transition-colors"
                         >
                           <Link href={`/admin/dashboard/teachers/${teacher.id}`}>
                             <Eye className="h-3.5 w-3.5" />
                             <span>Details</span>
                           </Link>
                         </Button>
-
-                        <TeacherActionsMenu
-                          teacher={teacher}
-                          onEdit={onEdit}
-                          onAssignSubject={onAssignSubject}
-                          onDelete={onDelete}
-                        />
                       </div>
                     </td>
                   </tr>

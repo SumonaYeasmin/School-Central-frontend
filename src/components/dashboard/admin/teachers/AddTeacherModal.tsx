@@ -135,8 +135,8 @@ export function AddTeacherModal({
     } catch (err: any) {
       setError(
         err?.response?.data?.message ||
-          err?.message ||
-          "Failed to create teacher profile. Please try again."
+        err?.message ||
+        "Failed to create teacher profile. Please try again."
       );
     } finally {
       setIsSaving(false);

@@ -51,7 +51,7 @@ export default function StudentDetailsPage() {
   }
 
   return (
-    <div className="space-y-6 max-w-6xl mx-auto">
+    <div className="space-y-6 container mx-auto  ">
       {/* 1. Header Navigation & Breadcrumb */}
       <StudentDetailsBreadcrumb studentName={student.name} />
 

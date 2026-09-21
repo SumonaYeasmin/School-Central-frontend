@@ -115,8 +115,8 @@ export function AssignSubjectModal({
     } catch (err: any) {
       setError(
         err?.response?.data?.message ||
-          err?.message ||
-          "Failed to assign subject. The subject in this section may already be assigned to another teacher."
+        err?.message ||
+        "Failed to assign subject. The subject in this section may already be assigned to another teacher."
       );
     } finally {
       setIsSaving(false);
@@ -131,8 +131,8 @@ export function AssignSubjectModal({
     } catch (err: any) {
       setError(
         err?.response?.data?.message ||
-          err?.message ||
-          "Failed to remove assignment."
+        err?.message ||
+        "Failed to remove assignment."
       );
     } finally {
       setRemovingId(null);

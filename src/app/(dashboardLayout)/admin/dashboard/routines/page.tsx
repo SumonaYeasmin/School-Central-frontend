@@ -118,7 +118,7 @@ export default function ClassRoutinesPage() {
   };
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto">
+    <div className="space-y-6 container mx-auto">
       {/* 1. Header with Breadcrumb and Add Routine Button */}
       <RoutinesHeader onAddRoutine={() => setIsAddModalOpen(true)} />
 

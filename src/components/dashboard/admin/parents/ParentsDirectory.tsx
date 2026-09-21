@@ -49,10 +49,10 @@ function getInitials(name: string) {
 
 export function ParentsDirectory({
   parents = [],
-  onEdit = () => {},
-  onManageStudents = () => {},
-  onDelete = () => {},
-  onAddParent = () => {},
+  onEdit = () => { },
+  onManageStudents = () => { },
+  onDelete = () => { },
+  onAddParent = () => { },
 }: ParentsDirectoryProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [viewMode, setViewMode] = useState<"grid" | "table">("grid");
@@ -109,11 +109,10 @@ export function ParentsDirectory({
               size="sm"
               variant={viewMode === "grid" ? "default" : "ghost"}
               onClick={() => setViewMode("grid")}
-              className={`h-8 px-3 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer ${
-                viewMode === "grid"
+              className={`h-8 px-3 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer ${viewMode === "grid"
                   ? "bg-white text-slate-900 shadow-xs hover:bg-white"
                   : "text-slate-500 hover:text-slate-900"
-              }`}
+                }`}
             >
               <LayoutGrid className="h-3.5 w-3.5" />
               <span>Card Grid</span>
@@ -123,11 +122,10 @@ export function ParentsDirectory({
               size="sm"
               variant={viewMode === "table" ? "default" : "ghost"}
               onClick={() => setViewMode("table")}
-              className={`h-8 px-3 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer ${
-                viewMode === "table"
+              className={`h-8 px-3 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer ${viewMode === "table"
                   ? "bg-white text-slate-900 shadow-xs hover:bg-white"
                   : "text-slate-500 hover:text-slate-900"
-              }`}
+                }`}
             >
               <TableIcon className="h-3.5 w-3.5" />
               <span>Table</span>
@@ -251,23 +249,23 @@ export function ParentsDirectory({
                             {parent.students!.map((ps) => {
                               const s = ps.student;
                               return (
-                                  <Badge
-                                    key={ps.id || ps.studentId}
-                                    variant="outline"
-                                    className="bg-blue-50 text-blue-800 border-blue-200/80 text-[11px] font-semibold py-0.5 px-2 rounded-lg flex items-center gap-1"
-                                  >
-                                    <GraduationCap className="h-3 w-3 text-blue-600" />
-                                    <span>{s?.name || "Student"}</span>
-                                    {s?.class?.name && (
-                                      <span className="text-blue-500 font-normal">
-                                        ({s.class.name}
-                                        {s.section?.name
-                                          ? ` · ${s.section.name.startsWith("Section") ? s.section.name : "Section " + s.section.name}`
-                                          : ""}
-                                        )
-                                      </span>
-                                    )}
-                                  </Badge>
+                                <Badge
+                                  key={ps.id || ps.studentId}
+                                  variant="outline"
+                                  className="bg-blue-50 text-blue-800 border-blue-200/80 text-[11px] font-semibold py-0.5 px-2 rounded-lg flex items-center gap-1"
+                                >
+                                  <GraduationCap className="h-3 w-3 text-blue-600" />
+                                  <span>{s?.name || "Student"}</span>
+                                  {s?.class?.name && (
+                                    <span className="text-blue-500 font-normal">
+                                      ({s.class.name}
+                                      {s.section?.name
+                                        ? ` · ${s.section.name.startsWith("Section") ? s.section.name : "Section " + s.section.name}`
+                                        : ""}
+                                      )
+                                    </span>
+                                  )}
+                                </Badge>
                               );
                             })}
                           </div>

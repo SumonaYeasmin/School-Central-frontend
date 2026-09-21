@@ -28,7 +28,7 @@ export default function ClassesSectionsPage() {
   }, [fetchClasses]);
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto">
+    <div className="space-y-6 container mx-auto">
       {/* 1. Header with Search and Action Buttons */}
       <ClassesHeader />
 

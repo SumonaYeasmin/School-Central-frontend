@@ -22,7 +22,7 @@ import {
   TeacherDetailSkeleton,
   TeacherNotFound,
 } from "@/src/components/dashboard/admin/teachers/details";
-import { EditTeacherModal } from "@/src/components/dashboard/admin/teachers/EditTeacherModal";
+import { EditTeacherModal } from "@/src/components/dashboard/admin/teachers/details/EditTeacherModal";
 import { AssignSubjectModal } from "@/src/components/dashboard/admin/teachers/AssignSubjectModal";
 
 export default function TeacherDetailsPage() {

@@ -122,7 +122,7 @@ export default function ParentsPage() {
   ).length;
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto">
+    <div className="space-y-6 container mx-auto">
       {/* 1. Header with Breadcrumb and Add Parent Button */}
       <ParentsHeader onAddParent={() => setIsAddModalOpen(true)} />
 
