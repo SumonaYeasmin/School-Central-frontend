@@ -135,6 +135,14 @@ export const navItemsConfig: NavItem[] = [
     category: "MANAGEMENT",
   },
   {
+    title: "Enter Marks",
+    href: "/teacher/dashboard/results/enter-marks",
+    icon: "FileSpreadsheet",
+    badge: "New",
+    roles: ["TEACHER"],
+    category: "RESULTS",
+  },
+  {
     title: "Settings",
     href: "/teacher/dashboard/profile-settings",
     icon: "Settings",
