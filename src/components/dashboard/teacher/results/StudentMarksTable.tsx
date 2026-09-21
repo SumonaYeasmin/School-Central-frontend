@@ -88,19 +88,26 @@ export function StudentMarksTable({
         ) : (
           /* Responsive Table Wrapper */
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs sm:text-sm border-collapse">
+            <table className="w-full text-left text-xs sm:text-sm border-collapse table-fixed min-w-[620px]">
+              <colgroup>
+                <col className="w-[12%] min-w-[60px]" />
+                <col className="w-[38%] min-w-[160px]" />
+                <col className="w-[18%] min-w-[90px]" />
+                <col className="w-[18%] min-w-[100px]" />
+                <col className="w-[14%] min-w-[80px]" />
+              </colgroup>
               <thead>
                 <tr className="border-b border-slate-100 bg-slate-50/70 text-slate-500 font-semibold">
-                  <th className="py-3 px-4 w-20">Roll</th>
-                  <th className="py-3 px-4">Student Name</th>
-                  <th className="py-3 px-4 w-32">Full Marks</th>
-                  <th className="py-3 px-4 w-32">
+                  <th className="py-3.5 px-4">Roll</th>
+                  <th className="py-3.5 px-4">Student Name</th>
+                  <th className="py-3.5 px-4">Full Marks</th>
+                  <th className="py-3.5 px-4">
                     <div className="flex items-center gap-1">
                       <span>Marks</span>
                       <Info className="h-3.5 w-3.5 text-slate-400" />
                     </div>
                   </th>
-                  <th className="py-3 px-4 w-28 text-center">
+                  <th className="py-3.5 px-4 text-center">
                     <div className="flex items-center justify-center gap-1">
                       <span>Grade</span>
                       <Info className="h-3.5 w-3.5 text-slate-400" />
@@ -115,17 +122,17 @@ export function StudentMarksTable({
                     className="hover:bg-blue-50/40 transition-colors group"
                   >
                     {/* Roll */}
-                    <td className="py-3 px-4 font-semibold text-slate-900">
+                    <td className="py-3.5 px-4 font-semibold text-slate-900">
                       {student.roll || "-"}
                     </td>
 
                     {/* Name */}
-                    <td className="py-3 px-4 font-medium text-slate-900 truncate">
+                    <td className="py-3.5 px-4 font-medium text-slate-900 truncate">
                       {student.name}
                     </td>
 
                     {/* Full Marks */}
-                    <td className="py-3 px-4 text-slate-500 font-medium">
+                    <td className="py-3.5 px-4 text-slate-500 font-medium">
                       {student.fullMarks}
                     </td>
 
@@ -143,7 +150,7 @@ export function StudentMarksTable({
                     </td>
 
                     {/* Grade Badge */}
-                    <td className="py-3 px-4 text-center">
+                    <td className="py-3.5 px-4 text-center">
                       <Badge
                         variant="outline"
                         className={`px-3 py-0.5 text-xs rounded-md shadow-2xs transition-all ${getGradeBadge(

@@ -134,11 +134,25 @@ export const navItemsConfig: NavItem[] = [
     roles: ["TEACHER"],
     category: "MANAGEMENT",
   },
+
   {
     title: "Enter Marks",
     href: "/teacher/dashboard/results/enter-marks",
     icon: "FileSpreadsheet",
-    badge: "New",
+    roles: ["TEACHER"],
+    category: "RESULTS",
+  },
+    {
+    title: "My Student Results",
+    href: "/teacher/dashboard/results/my-student-results",
+    icon: "GraduationCap",
+    roles: ["TEACHER"],
+    category: "RESULTS",
+  },
+    {
+    title: "Result Sheet",
+    href: "/teacher/dashboard/results/result-sheet",
+    icon: "Sheet",
     roles: ["TEACHER"],
     category: "RESULTS",
   },

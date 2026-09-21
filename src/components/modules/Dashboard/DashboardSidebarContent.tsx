@@ -115,8 +115,12 @@ export function DashboardSidebarContent({
                       <Badge
                         variant="outline"
                         className={cn(
-                          "text-xs px-2 py-0.5 border-none font-bold",
-                          isActive
+                          "text-[10px] px-2 py-0.5 border-none font-bold rounded-md tracking-wide",
+                          item.badge === "Featured"
+                            ? isActive
+                              ? "bg-white/25 text-white font-extrabold"
+                              : "bg-blue-500/15 text-blue-600 font-extrabold"
+                            : isActive
                             ? "bg-white/20 text-white"
                             : "bg-slate-100 text-slate-600 group-hover:bg-blue-50 group-hover:text-blue-600"
                         )}
