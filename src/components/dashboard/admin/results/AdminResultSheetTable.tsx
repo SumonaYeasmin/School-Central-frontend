@@ -136,24 +136,41 @@ export function AdminResultSheetTable({
 
                     {/* Obtained Marks */}
                     <td className="py-4 px-4 font-bold text-slate-900">
-                      {student.obtainedMarks ?? student.totalMarks ?? 0}
+                      {student.obtainedMarks !== null && student.obtainedMarks !== undefined ? (
+                        student.obtainedMarks
+                      ) : (
+                        <span className="text-slate-400 font-normal italic text-xs">Pending</span>
+                      )}
                     </td>
 
                     {/* GPA */}
                     <td className="py-4 px-4 font-semibold text-slate-800">
-                      {student.gpa}
+                      {student.obtainedMarks !== null && student.obtainedMarks !== undefined ? (
+                        student.gpa
+                      ) : (
+                        <span className="text-slate-400">–</span>
+                      )}
                     </td>
 
                     {/* Grade Badge */}
                     <td className="py-4 px-4 text-center">
-                      <Badge
-                        variant="outline"
-                        className={`px-2.5 py-0.5 text-xs rounded-md shadow-2xs ${getGradeBadgeClass(
-                          student.grade
-                        )}`}
-                      >
-                        {student.grade}
-                      </Badge>
+                      {student.obtainedMarks !== null && student.obtainedMarks !== undefined ? (
+                        <Badge
+                          variant="outline"
+                          className={`px-2.5 py-0.5 text-xs rounded-md shadow-2xs ${getGradeBadgeClass(
+                            student.grade
+                          )}`}
+                        >
+                          {student.grade}
+                        </Badge>
+                      ) : (
+                        <Badge
+                          variant="outline"
+                          className="bg-slate-50 text-slate-400 border-slate-200 text-xs px-2 py-0.5 font-normal"
+                        >
+                          Pending
+                        </Badge>
+                      )}
                     </td>
 
                     {/* Status Badge */}

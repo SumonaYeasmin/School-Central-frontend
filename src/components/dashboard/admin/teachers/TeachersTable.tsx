@@ -19,6 +19,9 @@ import { Teacher } from "@/src/types/teacher";
 interface TeachersTableProps {
   teachers?: Teacher[];
   onAddTeacher?: () => void;
+  onEdit?: (teacher: Teacher) => void;
+  onAssignSubject?: (teacher: Teacher) => void;
+  onDelete?: (teacher: Teacher) => void;
 }
 
 const AVATAR_COLORS = [

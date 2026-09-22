@@ -18,9 +18,10 @@ export interface AdminStudentSheetItem {
   roll: string;
   name: string;
   fullMarks: number;
-  obtainedMarks: number;
-  totalMarks?: number;
-  percentage?: number;
+  obtainedMarks: number | null;
+  hasMarks?: boolean;
+  totalMarks?: number | null;
+  percentage?: number | null;
   gpa: string;
   grade: string;
   status: string;

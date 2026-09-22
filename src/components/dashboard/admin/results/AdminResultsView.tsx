@@ -13,21 +13,8 @@ import { getClasses, getSubjects, getStudents } from "@/src/services/academicSer
 import { getExams, ExamItem, publishExamResult, unpublishExamResult } from "@/src/services/examService";
 import { getResults } from "@/src/services/resultService";
 
-// Fallback initial data for presentation
-const DEMO_ADMIN_RESULTS: AdminStudentSheetItem[] = [
-  { id: "1", roll: "01", name: "Rahim Ahmed", fullMarks: 100, obtainedMarks: 88, gpa: "5.00", grade: "A+", status: "Published" },
-  { id: "2", roll: "02", name: "Karim Hossain", fullMarks: 100, obtainedMarks: 81, gpa: "4.50", grade: "A", status: "Published" },
-  { id: "3", roll: "03", name: "Sumaiya Akter", fullMarks: 100, obtainedMarks: 93, gpa: "5.00", grade: "A+", status: "Published" },
-  { id: "4", roll: "04", name: "Jahid Hasan", fullMarks: 100, obtainedMarks: 77, gpa: "4.00", grade: "A", status: "Published" },
-  { id: "5", roll: "05", name: "Nusrat Jahan", fullMarks: 100, obtainedMarks: 85, gpa: "4.50", grade: "A", status: "Published" },
-  { id: "6", roll: "06", name: "Tanvir Islam", fullMarks: 100, obtainedMarks: 74, gpa: "3.50", grade: "B+", status: "Published" },
-  { id: "7", roll: "07", name: "Faria Rahman", fullMarks: 100, obtainedMarks: 68, gpa: "3.00", grade: "B", status: "Published" },
-  { id: "8", roll: "08", name: "Rifat Chowdhury", fullMarks: 100, obtainedMarks: 87, gpa: "4.50", grade: "A", status: "Published" },
-  { id: "9", roll: "09", name: "Habiba Akter", fullMarks: 100, obtainedMarks: 80, gpa: "4.00", grade: "A", status: "Published" },
-  { id: "10", roll: "10", name: "Mehedi Hasan", fullMarks: 100, obtainedMarks: 71, gpa: "3.50", grade: "B+", status: "Published" },
-  { id: "11", roll: "11", name: "Shoma Akter", fullMarks: 100, obtainedMarks: 67, gpa: "2.80", grade: "B", status: "Published" },
-  { id: "12", roll: "12", name: "Tanjila Rafi", fullMarks: 100, obtainedMarks: 61, gpa: "2.50", grade: "C+", status: "Published" },
-];
+// Initial empty state (loaded dynamically from database)
+const INITIAL_ADMIN_RESULTS: AdminStudentSheetItem[] = [];
 
 export function AdminResultsView() {
   // Navigation tab state: "class_sheet" vs "student_marksheet"
@@ -45,7 +32,7 @@ export function AdminResultsView() {
   const [selectedSubjectId, setSelectedSubjectId] = useState<string>("");
 
   // Table Data & Loading States
-  const [students, setStudents] = useState<AdminStudentSheetItem[]>(DEMO_ADMIN_RESULTS);
+  const [students, setStudents] = useState<AdminStudentSheetItem[]>(INITIAL_ADMIN_RESULTS);
   const [isFetchingFilters, setIsFetchingFilters] = useState<boolean>(true);
   const [isLoadingStudents, setIsLoadingStudents] = useState<boolean>(false);
   const [isPublishing, setIsPublishing] = useState<boolean>(false);
@@ -69,7 +56,7 @@ export function AdminResultsView() {
     return { grade: "F", gpa: "0.00" };
   };
 
-  // 1. Fetch Students & Results (On-demand Search)
+  // 1. Fetch Students & Results (Real Dynamic Database Fetch)
   const fetchStudentsForSelection = useCallback(
     async (examId: string, classId: string, sectionId: string, subjectId: string) => {
       if (!classId) return;
@@ -101,10 +88,13 @@ export function AdminResultsView() {
         if (fetchedStudents.length > 0) {
           const mappedRows: AdminStudentSheetItem[] = fetchedStudents.map((s, index) => {
             const existing = resultsMap.get(s.id) || resultsMap.get(s.studentId);
+            const hasMarks = existing !== undefined && existing !== null;
             const fullMarks = existing?.fullMarks || 100;
-            const obtainedMarks = existing !== undefined ? existing.marks : 75 + ((index * 3) % 25);
-            const percentage = (obtainedMarks / fullMarks) * 100;
-            const { grade, gpa } = calculateGradeAndGPA(percentage);
+            const obtainedMarks = hasMarks ? existing.marks : null;
+            const percentage = hasMarks ? (existing.marks / fullMarks) * 100 : null;
+            const { grade, gpa } = hasMarks && percentage !== null
+              ? calculateGradeAndGPA(percentage)
+              : { grade: "-", gpa: "-" };
 
             return {
               id: s.id || s.studentId || String(index + 1),
@@ -113,8 +103,9 @@ export function AdminResultsView() {
               name: s.name || `Student ${index + 1}`,
               fullMarks,
               obtainedMarks,
-              totalMarks: obtainedMarks,
-              percentage,
+              hasMarks,
+              totalMarks: obtainedMarks ?? undefined,
+              percentage: percentage ?? undefined,
               gpa,
               grade,
               status: "Published",
@@ -122,6 +113,8 @@ export function AdminResultsView() {
           });
 
           setStudents(mappedRows);
+        } else {
+          setStudents([]);
         }
       } catch (err: any) {
         console.error("Error fetching admin result data:", err);
@@ -377,20 +370,31 @@ export function AdminResultsView() {
   const activeSectionName = availableSections.find((s) => s.id === selectedSectionId)?.name || "A";
   const activeSubjectName = availableSubjects.find((s) => s.id === selectedSubjectId)?.name || "Mathematics";
 
-  // Statistics
+  // Statistics (Real Dynamic Database Calculations)
   const totalStudents = students.length;
-  const marksEntered = students.length;
-  const pendingCount = 0;
-  const marksList = students.map((s) => s.obtainedMarks ?? s.totalMarks ?? 0);
+  const enteredStudents = students.filter(
+    (s) => s.hasMarks || (s.obtainedMarks !== null && s.obtainedMarks !== undefined)
+  );
+  const marksEntered = enteredStudents.length;
+  const pendingCount = totalStudents - marksEntered;
+  const marksList = enteredStudents.map((s) => Number(s.obtainedMarks));
   const averageMarks =
     marksList.length > 0
       ? marksList.reduce((acc, curr) => acc + curr, 0) / marksList.length
-      : 78.5;
+      : 0;
 
-  const minMark = marksList.length > 0 ? Math.min(...marksList) : 61;
-  const maxMark = marksList.length > 0 ? Math.max(...marksList) : 93;
-  const lowestStudent = students.find((s) => (s.obtainedMarks ?? s.totalMarks ?? 0) === minMark)?.name || "Tanjila Rafi";
-  const highestStudent = students.find((s) => (s.obtainedMarks ?? s.totalMarks ?? 0) === maxMark)?.name || "Sumaiya Akter";
+  const minMark = marksList.length > 0 ? Math.min(...marksList) : 0;
+  const maxMark = marksList.length > 0 ? Math.max(...marksList) : 0;
+  const lowestStudent =
+    marksList.length > 0
+      ? enteredStudents.find((s) => Number(s.obtainedMarks) === minMark)?.name || "–"
+      : "–";
+  const highestStudent =
+    marksList.length > 0
+      ? enteredStudents.find((s) => Number(s.obtainedMarks) === maxMark)?.name || "–"
+      : "–";
+  const marksRangeStr =
+    marksList.length > 0 ? `${minMark} – ${maxMark}` : "–";
 
   return (
     <div className="space-y-5 sm:space-y-6 container mx-auto pb-12">
