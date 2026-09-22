@@ -1,11 +1,9 @@
 "use client";
 
-import { useState } from "react";
-import { ListOrdered, Eye, Users, Loader2, Calendar } from "lucide-react";
+import { ListOrdered, Users, Loader2, Calendar } from "lucide-react";
 import { Card, CardContent, CardHeader } from "@/src/components/ui/card";
-import { Button } from "@/src/components/ui/button";
 import { Badge } from "@/src/components/ui/badge";
-import { AdminStudentMarksheetModal, AdminStudentSheetItem } from "./AdminStudentMarksheetModal";
+import { AdminStudentSheetItem } from "./AdminStudentMarksheetModal";
 
 interface AdminResultSheetTableProps {
   students: AdminStudentSheetItem[];
@@ -26,8 +24,6 @@ export function AdminResultSheetTable({
   examName,
   isPublished = true,
 }: AdminResultSheetTableProps) {
-  const [viewingStudent, setViewingStudent] = useState<AdminStudentSheetItem | null>(null);
-
   // Grade badge styling
   const getGradeBadgeClass = (grade: string) => {
     switch (grade) {
@@ -75,7 +71,7 @@ export function AdminResultSheetTable({
         </div>
       </CardHeader>
 
-      {/* Table Content (Full direct list without pagination) */}
+      {/* Table Content (Full direct list without pagination and no action column) */}
       <CardContent className="p-0 flex-1">
         {isLoading ? (
           <div className="flex flex-col items-center justify-center py-20 text-slate-400 gap-3">
@@ -96,27 +92,25 @@ export function AdminResultSheetTable({
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs sm:text-sm border-collapse table-fixed min-w-[780px]">
+            <table className="w-full text-left text-xs sm:text-sm border-collapse table-fixed min-w-[700px]">
               <colgroup>
-                <col className="w-[8%] min-w-[55px]" />
-                <col className="w-[24%] min-w-[160px]" />
-                <col className="w-[17%] min-w-[120px]" />
-                <col className="w-[14%] min-w-[95px]" />
-                <col className="w-[10%] min-w-[75px]" />
-                <col className="w-[9%] min-w-[70px]" />
+                <col className="w-[10%] min-w-[60px]" />
+                <col className="w-[30%] min-w-[170px]" />
+                <col className="w-[14%] min-w-[90px]" />
+                <col className="w-[16%] min-w-[105px]" />
+                <col className="w-[10%] min-w-[70px]" />
+                <col className="w-[10%] min-w-[70px]" />
                 <col className="w-[10%] min-w-[85px]" />
-                <col className="w-[8%] min-w-[70px]" />
               </colgroup>
               <thead>
                 <tr className="border-b border-slate-100 bg-slate-50/50 text-slate-500 font-semibold">
                   <th className="py-4 px-4">Roll</th>
                   <th className="py-4 px-4">Student Name</th>
-                  <th className="py-4 px-4">Total Marks</th>
-                  <th className="py-4 px-4">Percentage</th>
+                  <th className="py-4 px-4">Full Marks</th>
+                  <th className="py-4 px-4">Obtained Marks</th>
                   <th className="py-4 px-4">GPA</th>
                   <th className="py-4 px-4 text-center">Grade</th>
                   <th className="py-4 px-4 text-center">Status</th>
-                  <th className="py-4 px-4 text-center">Action</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 text-slate-700">
@@ -135,14 +129,14 @@ export function AdminResultSheetTable({
                       {student.name}
                     </td>
 
-                    {/* Total Marks */}
-                    <td className="py-4 px-4 font-medium text-slate-900">
-                      {student.totalMarks}
+                    {/* Full Marks */}
+                    <td className="py-4 px-4 font-semibold text-slate-600">
+                      {student.fullMarks ?? 100}
                     </td>
 
-                    {/* Percentage */}
-                    <td className="py-4 px-4 text-slate-600 font-medium">
-                      {student.percentage.toFixed(2)}%
+                    {/* Obtained Marks */}
+                    <td className="py-4 px-4 font-bold text-slate-900">
+                      {student.obtainedMarks ?? student.totalMarks ?? 0}
                     </td>
 
                     {/* GPA */}
@@ -174,19 +168,6 @@ export function AdminResultSheetTable({
                         {isPublished ? "Published" : "Draft"}
                       </span>
                     </td>
-
-                    {/* Action: View Button */}
-                    <td className="py-4 px-4 text-center">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => setViewingStudent(student)}
-                        className="h-8 px-2.5 rounded-lg border-blue-200 bg-blue-50/40 text-blue-600 hover:bg-blue-600 hover:text-white font-semibold text-xs gap-1 shadow-2xs transition-all cursor-pointer"
-                      >
-                        <Eye className="h-3.5 w-3.5" />
-                        <span>View</span>
-                      </Button>
-                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -194,17 +175,6 @@ export function AdminResultSheetTable({
           </div>
         )}
       </CardContent>
-
-      {/* Marksheet View Modal */}
-      <AdminStudentMarksheetModal
-        student={viewingStudent}
-        onClose={() => setViewingStudent(null)}
-        examName={examName}
-        classNameStr={classNameStr}
-        sectionName={sectionName}
-        subjectName={subjectName}
-        isPublished={isPublished}
-      />
     </Card>
   );
 }

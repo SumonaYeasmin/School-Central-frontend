@@ -17,8 +17,10 @@ export interface AdminStudentSheetItem {
   studentDbId?: string;
   roll: string;
   name: string;
-  totalMarks: number;
-  percentage: number;
+  fullMarks: number;
+  obtainedMarks: number;
+  totalMarks?: number;
+  percentage?: number;
   gpa: string;
   grade: string;
   status: string;
@@ -76,12 +78,12 @@ export function AdminStudentMarksheetModal({
         {/* Results Metrics Grid */}
         <div className="grid grid-cols-3 gap-3 text-center">
           <div className="p-3 rounded-xl bg-slate-50 border border-slate-100">
-            <span className="text-[11px] font-medium text-slate-400">Total Marks</span>
-            <p className="text-lg font-black text-slate-900 mt-0.5">{student.totalMarks}</p>
+            <span className="text-[11px] font-medium text-slate-400">Obtained Marks</span>
+            <p className="text-lg font-black text-slate-900 mt-0.5">{student.obtainedMarks ?? student.totalMarks ?? 0}</p>
           </div>
           <div className="p-3 rounded-xl bg-slate-50 border border-slate-100">
-            <span className="text-[11px] font-medium text-slate-400">Percentage</span>
-            <p className="text-lg font-black text-blue-600 mt-0.5">{student.percentage.toFixed(2)}%</p>
+            <span className="text-[11px] font-medium text-slate-400">Full Marks</span>
+            <p className="text-lg font-black text-blue-600 mt-0.5">{student.fullMarks ?? 100}</p>
           </div>
           <div className="p-3 rounded-xl bg-slate-50 border border-slate-100">
             <span className="text-[11px] font-medium text-slate-400">GPA</span>
@@ -98,7 +100,8 @@ export function AdminStudentMarksheetModal({
           <div className="flex items-center justify-between text-xs py-1">
             <span className="font-medium text-slate-800">{subjectName}</span>
             <span className="font-bold text-slate-900">
-              {student.totalMarks} / 100 <span className="text-emerald-600">({student.grade})</span>
+              {student.obtainedMarks ?? student.totalMarks ?? 0} / {student.fullMarks ?? 100}{" "}
+              <span className="text-emerald-600">({student.grade})</span>
             </span>
           </div>
         </div>

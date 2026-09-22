@@ -30,6 +30,11 @@ export const getSubjects = async () => {
   return response.data;
 };
 
+export const getSubjectsByClass = async (classId: string) => {
+  const response = await api.get(`/academic/classes/${classId}/subjects`);
+  return response.data;
+};
+
 export const createSubject = async (subjectData: {
   name: string;
   code?: string;

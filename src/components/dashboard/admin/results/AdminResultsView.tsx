@@ -14,18 +14,18 @@ import { getResults } from "@/src/services/resultService";
 
 // Fallback initial data for presentation
 const DEMO_ADMIN_RESULTS: AdminStudentSheetItem[] = [
-  { id: "1", roll: "01", name: "Rahim Ahmed", totalMarks: 620, percentage: 88.57, gpa: "5.00", grade: "A+", status: "Published" },
-  { id: "2", roll: "02", name: "Karim Hossain", totalMarks: 570, percentage: 81.43, gpa: "4.50", grade: "A", status: "Published" },
-  { id: "3", roll: "03", name: "Sumaiya Akter", totalMarks: 650, percentage: 92.86, gpa: "5.00", grade: "A+", status: "Published" },
-  { id: "4", roll: "04", name: "Jahid Hasan", totalMarks: 540, percentage: 77.14, gpa: "4.00", grade: "A", status: "Published" },
-  { id: "5", roll: "05", name: "Nusrat Jahan", totalMarks: 600, percentage: 85.71, gpa: "4.50", grade: "A", status: "Published" },
-  { id: "6", roll: "06", name: "Tanvir Islam", totalMarks: 520, percentage: 74.29, gpa: "3.50", grade: "B+", status: "Published" },
-  { id: "7", roll: "07", name: "Faria Rahman", totalMarks: 480, percentage: 68.57, gpa: "3.00", grade: "B", status: "Published" },
-  { id: "8", roll: "08", name: "Rifat Chowdhury", totalMarks: 610, percentage: 87.14, gpa: "4.50", grade: "A", status: "Published" },
-  { id: "9", roll: "09", name: "Habiba Akter", totalMarks: 560, percentage: 80.00, gpa: "4.00", grade: "A", status: "Published" },
-  { id: "10", roll: "10", name: "Mehedi Hasan", totalMarks: 500, percentage: 71.43, gpa: "3.50", grade: "B+", status: "Published" },
-  { id: "11", roll: "11", name: "Shoma Akter", totalMarks: 470, percentage: 67.14, gpa: "2.80", grade: "B", status: "Published" },
-  { id: "12", roll: "12", name: "Tanjila Rafi", totalMarks: 430, percentage: 61.43, gpa: "2.50", grade: "C+", status: "Published" },
+  { id: "1", roll: "01", name: "Rahim Ahmed", fullMarks: 100, obtainedMarks: 88, gpa: "5.00", grade: "A+", status: "Published" },
+  { id: "2", roll: "02", name: "Karim Hossain", fullMarks: 100, obtainedMarks: 81, gpa: "4.50", grade: "A", status: "Published" },
+  { id: "3", roll: "03", name: "Sumaiya Akter", fullMarks: 100, obtainedMarks: 93, gpa: "5.00", grade: "A+", status: "Published" },
+  { id: "4", roll: "04", name: "Jahid Hasan", fullMarks: 100, obtainedMarks: 77, gpa: "4.00", grade: "A", status: "Published" },
+  { id: "5", roll: "05", name: "Nusrat Jahan", fullMarks: 100, obtainedMarks: 85, gpa: "4.50", grade: "A", status: "Published" },
+  { id: "6", roll: "06", name: "Tanvir Islam", fullMarks: 100, obtainedMarks: 74, gpa: "3.50", grade: "B+", status: "Published" },
+  { id: "7", roll: "07", name: "Faria Rahman", fullMarks: 100, obtainedMarks: 68, gpa: "3.00", grade: "B", status: "Published" },
+  { id: "8", roll: "08", name: "Rifat Chowdhury", fullMarks: 100, obtainedMarks: 87, gpa: "4.50", grade: "A", status: "Published" },
+  { id: "9", roll: "09", name: "Habiba Akter", fullMarks: 100, obtainedMarks: 80, gpa: "4.00", grade: "A", status: "Published" },
+  { id: "10", roll: "10", name: "Mehedi Hasan", fullMarks: 100, obtainedMarks: 71, gpa: "3.50", grade: "B+", status: "Published" },
+  { id: "11", roll: "11", name: "Shoma Akter", fullMarks: 100, obtainedMarks: 67, gpa: "2.80", grade: "B", status: "Published" },
+  { id: "12", roll: "12", name: "Tanjila Rafi", fullMarks: 100, obtainedMarks: 61, gpa: "2.50", grade: "C+", status: "Published" },
 ];
 
 export function AdminResultsView() {
@@ -65,107 +65,7 @@ export function AdminResultsView() {
     return { grade: "F", gpa: "0.00" };
   };
 
-  // 1. Initialize Academic Filters (Classes, Sections, Subjects, Exams)
-  const initializeAdminData = useCallback(async () => {
-    setIsFetchingFilters(true);
-    try {
-      const [classesRes, subjectsRes, examsRes] = await Promise.allSettled([
-        getClasses(),
-        getSubjects(),
-        getExams(),
-      ]);
-
-      let loadedClasses: any[] = [];
-      if (classesRes.status === "fulfilled" && Array.isArray(classesRes.value)) {
-        loadedClasses = classesRes.value;
-        setClassesList(loadedClasses);
-      }
-
-      let loadedSubjects: any[] = [];
-      if (subjectsRes.status === "fulfilled" && Array.isArray(subjectsRes.value)) {
-        loadedSubjects = subjectsRes.value;
-        setSubjectsList(loadedSubjects);
-      }
-
-      let loadedExams: ExamItem[] = [];
-      if (examsRes.status === "fulfilled" && Array.isArray(examsRes.value) && examsRes.value.length > 0) {
-        loadedExams = examsRes.value;
-      } else {
-        loadedExams = [
-          { id: "exam-half-yearly-2026", name: "Half Yearly Exam 2026", year: 2026, status: "PUBLISHED" },
-          { id: "exam-final-2026", name: "Final Term Exam 2026", year: 2026, status: "DRAFT" },
-        ];
-      }
-      setExams(loadedExams);
-      if (loadedExams.length > 0) {
-        setSelectedExamId(loadedExams[0].id);
-      }
-
-      if (loadedClasses.length > 0) {
-        const firstClass = loadedClasses[0];
-        setSelectedClassId(firstClass.id);
-
-        const firstSec = firstClass.sections?.[0];
-        const initialSecId = firstSec?.id || firstSec?.name || "";
-        setSelectedSectionId(initialSecId);
-
-        if (loadedSubjects.length > 0) {
-          setSelectedSubjectId(loadedSubjects[0].id);
-        }
-      }
-    } catch (err: any) {
-      console.error("Error initializing admin result data:", err);
-    } finally {
-      setIsFetchingFilters(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    initializeAdminData();
-  }, [initializeAdminData]);
-
-  // 2. Computed Dropdown Options for Admin
-  const availableClasses: FilterOption[] = useMemo(() => {
-    return classesList.map((c) => ({ id: c.id, name: c.name }));
-  }, [classesList]);
-
-  const availableSections: FilterOption[] = useMemo(() => {
-    if (!selectedClassId) return [];
-    const matchedClass = classesList.find((c) => c.id === selectedClassId);
-    if (!matchedClass?.sections) return [];
-    return matchedClass.sections.map((s: any) => ({
-      id: s.id || s.name,
-      name: s.name,
-    }));
-  }, [classesList, selectedClassId]);
-
-  const availableSubjects: FilterOption[] = useMemo(() => {
-    return subjectsList.map((sub) => ({
-      id: sub.id,
-      name: sub.name,
-      code: sub.code,
-    }));
-  }, [subjectsList]);
-
-  // 3. Cascade selection handlers
-  const handleClassChange = (newClassId: string) => {
-    setSelectedClassId(newClassId);
-
-    const matchedClass = classesList.find((c) => c.id === newClassId);
-    const firstSec = matchedClass?.sections?.[0];
-    const newSecId = firstSec?.id || firstSec?.name || "";
-    setSelectedSectionId(newSecId);
-  };
-
-  const handleSectionChange = (newSecId: string) => {
-    setSelectedSectionId(newSecId);
-  };
-
-  const handleSubjectChange = (newSubId: string) => {
-    setSelectedSubjectId(newSubId);
-  };
-
-  // 4. Fetch Students & Results
+  // 1. Fetch Students & Results (On-demand Search)
   const fetchStudentsForSelection = useCallback(
     async (examId: string, classId: string, sectionId: string, subjectId: string) => {
       if (!classId) return;
@@ -197,8 +97,9 @@ export function AdminResultsView() {
         if (fetchedStudents.length > 0) {
           const mappedRows: AdminStudentSheetItem[] = fetchedStudents.map((s, index) => {
             const existing = resultsMap.get(s.id) || resultsMap.get(s.studentId);
-            const totalMarks = existing !== undefined ? existing.marks : 75 + ((index * 3) % 25);
-            const percentage = (totalMarks / 100) * 100;
+            const fullMarks = existing?.fullMarks || 100;
+            const obtainedMarks = existing !== undefined ? existing.marks : 75 + ((index * 3) % 25);
+            const percentage = (obtainedMarks / fullMarks) * 100;
             const { grade, gpa } = calculateGradeAndGPA(percentage);
 
             return {
@@ -206,7 +107,9 @@ export function AdminResultsView() {
               studentDbId: s.id,
               roll: s.roll ? String(s.roll).padStart(2, "0") : String(index + 1).padStart(2, "0"),
               name: s.name || `Student ${index + 1}`,
-              totalMarks,
+              fullMarks,
+              obtainedMarks,
+              totalMarks: obtainedMarks,
               percentage,
               gpa,
               grade,
@@ -225,14 +128,199 @@ export function AdminResultsView() {
     []
   );
 
-  // Auto-fetch whenever filters change
+  // 2. Initialize Academic Filters (Classes, Sections, Subjects, Exams)
+  const initializeAdminData = useCallback(async () => {
+    setIsFetchingFilters(true);
+    try {
+      const [classesRes, subjectsRes, examsRes] = await Promise.allSettled([
+        getClasses(),
+        getSubjects(),
+        getExams(),
+      ]);
+
+      let loadedClasses: any[] = [];
+      if (classesRes.status === "fulfilled" && Array.isArray(classesRes.value)) {
+        loadedClasses = classesRes.value;
+        setClassesList(loadedClasses);
+      }
+
+      let loadedSubjects: any[] = [];
+      if (subjectsRes.status === "fulfilled" && Array.isArray(subjectsRes.value)) {
+        loadedSubjects = subjectsRes.value;
+        setSubjectsList(loadedSubjects);
+      }
+
+      let loadedExams: ExamItem[] = [];
+      if (examsRes.status === "fulfilled" && Array.isArray(examsRes.value) && examsRes.value.length > 0) {
+        loadedExams = examsRes.value;
+      } else {
+        loadedExams = [
+          { id: "exam-half-yearly-2026", name: "Half Yearly Exam 2026", year: 2026, status: "PUBLISHED" },
+          { id: "exam-final-2026", name: "Final Term Exam 2026", year: 2026, status: "DRAFT" },
+        ];
+      }
+      setExams(loadedExams);
+      const initialExamId = loadedExams.length > 0 ? loadedExams[0].id : "";
+      setSelectedExamId(initialExamId);
+
+      if (loadedClasses.length > 0) {
+        const firstClass = loadedClasses[0];
+        setSelectedClassId(firstClass.id);
+
+        const firstSec = firstClass.sections?.[0];
+        const initialSecId = firstSec?.id || firstSec?.name || "";
+        setSelectedSectionId(initialSecId);
+
+        // Find subjects belonging to the first class
+        let firstClassSubjects: any[] = [];
+        if (firstClass.classSubjects && Array.isArray(firstClass.classSubjects) && firstClass.classSubjects.length > 0) {
+          firstClassSubjects = firstClass.classSubjects
+            .filter((cs: any) => cs.subject)
+            .map((cs: any) => cs.subject);
+        } else {
+          firstClassSubjects = loadedSubjects.filter((sub) =>
+            sub.classSubjects?.some((cs: any) => cs.classId === firstClass.id || cs.class?.id === firstClass.id)
+          );
+        }
+
+        const initialSubId =
+          firstClassSubjects.length > 0
+            ? firstClassSubjects[0].id
+            : loadedSubjects.length > 0
+            ? loadedSubjects[0].id
+            : "";
+
+        setSelectedSubjectId(initialSubId);
+
+        // Fetch initial default result sheet
+        fetchStudentsForSelection(initialExamId, firstClass.id, initialSecId, initialSubId);
+      }
+    } catch (err: any) {
+      console.error("Error initializing admin result data:", err);
+    } finally {
+      setIsFetchingFilters(false);
+    }
+  }, [fetchStudentsForSelection]);
+
   useEffect(() => {
+    initializeAdminData();
+  }, [initializeAdminData]);
+
+  // 3. Computed Dropdown Options for Admin
+  const availableClasses: FilterOption[] = useMemo(() => {
+    return classesList.map((c) => ({ id: c.id, name: c.name }));
+  }, [classesList]);
+
+  const availableSections: FilterOption[] = useMemo(() => {
+    if (!selectedClassId) return [];
+    const matchedClass = classesList.find((c) => c.id === selectedClassId);
+    if (!matchedClass?.sections) return [];
+    return matchedClass.sections.map((s: any) => ({
+      id: s.id || s.name,
+      name: s.name,
+    }));
+  }, [classesList, selectedClassId]);
+
+  // Filter subjects strictly belonging to the selected Class
+  const availableSubjects: FilterOption[] = useMemo(() => {
+    if (!selectedClassId) return [];
+
+    // 1. Check if the selected class contains classSubjects directly
+    const matchedClass = classesList.find((c) => c.id === selectedClassId);
+    if (matchedClass?.classSubjects && Array.isArray(matchedClass.classSubjects) && matchedClass.classSubjects.length > 0) {
+      return matchedClass.classSubjects
+        .filter((cs: any) => cs.subject)
+        .map((cs: any) => ({
+          id: cs.subject.id,
+          name: cs.subject.name,
+          code: cs.subject.code,
+        }));
+    }
+
+    // 2. Check if subjects in subjectsList contain classSubjects linking to this class
+    const matchedFromSubjects = subjectsList.filter((sub) => {
+      if (sub.classSubjects && Array.isArray(sub.classSubjects) && sub.classSubjects.length > 0) {
+        return sub.classSubjects.some(
+          (cs: any) => cs.classId === selectedClassId || cs.class?.id === selectedClassId
+        );
+      }
+      return false;
+    });
+
+    if (matchedFromSubjects.length > 0) {
+      return matchedFromSubjects.map((sub) => ({
+        id: sub.id,
+        name: sub.name,
+        code: sub.code,
+      }));
+    }
+
+    // 3. Fallback: If no class-subject mapping is established yet, show all subjects
+    return subjectsList.map((sub) => ({
+      id: sub.id,
+      name: sub.name,
+      code: sub.code,
+    }));
+  }, [classesList, subjectsList, selectedClassId]);
+
+  // Keep selectedSubjectId synchronized with available subjects for the current class
+  useEffect(() => {
+    if (availableSubjects.length > 0) {
+      const isCurrentSubjectValid = availableSubjects.some((s) => s.id === selectedSubjectId);
+      if (!isCurrentSubjectValid) {
+        setSelectedSubjectId(availableSubjects[0].id);
+      }
+    } else {
+      setSelectedSubjectId("");
+    }
+  }, [availableSubjects, selectedSubjectId]);
+
+  // 4. Cascade selection handlers
+  const handleClassChange = (newClassId: string) => {
+    setSelectedClassId(newClassId);
+
+    const matchedClass = classesList.find((c) => c.id === newClassId);
+    const firstSec = matchedClass?.sections?.[0];
+    const newSecId = firstSec?.id || firstSec?.name || "";
+    setSelectedSectionId(newSecId);
+
+    // Calculate subjects for the new class and immediately select the first one
+    let newClassSubjects: any[] = [];
+    if (matchedClass?.classSubjects && Array.isArray(matchedClass.classSubjects) && matchedClass.classSubjects.length > 0) {
+      newClassSubjects = matchedClass.classSubjects
+        .filter((cs: any) => cs.subject)
+        .map((cs: any) => cs.subject);
+    } else {
+      newClassSubjects = subjectsList.filter((sub) =>
+        sub.classSubjects?.some((cs: any) => cs.classId === newClassId || cs.class?.id === newClassId)
+      );
+    }
+
+    if (newClassSubjects.length > 0) {
+      setSelectedSubjectId(newClassSubjects[0].id);
+    } else if (subjectsList.length > 0) {
+      setSelectedSubjectId(subjectsList[0].id);
+    } else {
+      setSelectedSubjectId("");
+    }
+  };
+
+  const handleSectionChange = (newSecId: string) => {
+    setSelectedSectionId(newSecId);
+  };
+
+  const handleSubjectChange = (newSubId: string) => {
+    setSelectedSubjectId(newSubId);
+  };
+
+  // 5. Search Button Click Handler
+  const handleSearch = () => {
     if (selectedClassId) {
       fetchStudentsForSelection(selectedExamId, selectedClassId, selectedSectionId, selectedSubjectId);
     }
-  }, [selectedExamId, selectedClassId, selectedSectionId, selectedSubjectId, fetchStudentsForSelection]);
+  };
 
-  // 5. Admin 1-Click Publish / Unpublish Toggle
+  // 6. Admin 1-Click Publish / Unpublish Toggle
   const activeExam = exams.find((e) => e.id === selectedExamId);
   const activeExamStatus = activeExam?.status || "PUBLISHED";
   const isPublished = activeExamStatus === "PUBLISHED";
@@ -289,16 +377,16 @@ export function AdminResultsView() {
   const totalStudents = students.length;
   const marksEntered = students.length;
   const pendingCount = 0;
-  const marksList = students.map((s) => s.totalMarks);
+  const marksList = students.map((s) => s.obtainedMarks ?? s.totalMarks ?? 0);
   const averageMarks =
     marksList.length > 0
       ? marksList.reduce((acc, curr) => acc + curr, 0) / marksList.length
       : 78.5;
 
-  const minMark = marksList.length > 0 ? Math.min(...marksList) : 430;
-  const maxMark = marksList.length > 0 ? Math.max(...marksList) : 650;
-  const lowestStudent = students.find((s) => s.totalMarks === minMark)?.name || "Tanjila Rafi";
-  const highestStudent = students.find((s) => s.totalMarks === maxMark)?.name || "Sumaiya Akter";
+  const minMark = marksList.length > 0 ? Math.min(...marksList) : 61;
+  const maxMark = marksList.length > 0 ? Math.max(...marksList) : 93;
+  const lowestStudent = students.find((s) => (s.obtainedMarks ?? s.totalMarks ?? 0) === minMark)?.name || "Tanjila Rafi";
+  const highestStudent = students.find((s) => (s.obtainedMarks ?? s.totalMarks ?? 0) === maxMark)?.name || "Sumaiya Akter";
 
   return (
     <div className="space-y-5 sm:space-y-6 container mx-auto pb-12">
@@ -359,7 +447,15 @@ export function AdminResultsView() {
         </div>
       )}
 
-      {/* 2. Filter Bar Card */}
+      {/* 2. 4-Column Stats Summary Cards (Placed at TOP before filter search) */}
+      <AdminResultStatsCards
+        totalStudents={totalStudents}
+        marksEntered={marksEntered}
+        pendingCount={pendingCount}
+        averageMarks={averageMarks}
+      />
+
+      {/* 3. Filter Bar Card with Explicit Search Button */}
       <AdminResultFilterCard
         exams={exams.map((e) => ({ id: e.id, name: e.name, year: e.year }))}
         selectedExamId={selectedExamId}
@@ -373,15 +469,9 @@ export function AdminResultsView() {
         subjects={availableSubjects}
         selectedSubjectId={selectedSubjectId}
         onSubjectChange={handleSubjectChange}
+        onSearch={handleSearch}
+        isSearching={isLoadingStudents}
         isFetchingFilters={isFetchingFilters}
-      />
-
-      {/* 3. 4-Column Stats Summary Cards */}
-      <AdminResultStatsCards
-        totalStudents={totalStudents}
-        marksEntered={marksEntered}
-        pendingCount={pendingCount}
-        averageMarks={averageMarks}
       />
 
       {/* 4. Main Grid: Left 2 Cols (Table) + Right 1 Col (Sidebar Panel) */}

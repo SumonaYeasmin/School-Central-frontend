@@ -1,7 +1,8 @@
 "use client";
 
-import { Calendar, GraduationCap, Layers, BookOpen } from "lucide-react";
+import { Calendar, GraduationCap, Layers, BookOpen, Search, Loader2 } from "lucide-react";
 import { Card, CardContent } from "@/src/components/ui/card";
+import { Button } from "@/src/components/ui/button";
 import {
   Select,
   SelectContent,
@@ -30,6 +31,8 @@ interface AdminResultFilterCardProps {
   subjects: FilterOption[];
   selectedSubjectId: string;
   onSubjectChange: (id: string) => void;
+  onSearch: () => void;
+  isSearching?: boolean;
   isFetchingFilters?: boolean;
 }
 
@@ -46,12 +49,14 @@ export function AdminResultFilterCard({
   subjects,
   selectedSubjectId,
   onSubjectChange,
+  onSearch,
+  isSearching = false,
   isFetchingFilters = false,
 }: AdminResultFilterCardProps) {
   return (
     <Card className="bg-white border-slate-200/90 rounded-2xl shadow-xs">
       <CardContent className="p-4 sm:p-5">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4 items-end">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3.5 sm:gap-4 items-end">
           {/* 1. Exam Selector */}
           <div className="space-y-1.5">
             <label className="text-xs font-semibold text-slate-700 flex items-center gap-1.5">
@@ -136,7 +141,7 @@ export function AdminResultFilterCard({
               disabled={isFetchingFilters || subjects.length === 0}
             >
               <SelectTrigger className="w-full h-10 rounded-xl border-slate-200 bg-white text-slate-900 text-xs sm:text-sm font-medium focus:ring-2 focus:ring-blue-500/20">
-                <SelectValue placeholder={subjects.length === 0 ? "No subject" : "Select Subject"} />
+                <SelectValue placeholder={subjects.length === 0 ? "No subject for this class" : "Select Subject"} />
               </SelectTrigger>
               <SelectContent>
                 {subjects.map((sub) => (
@@ -146,6 +151,28 @@ export function AdminResultFilterCard({
                 ))}
               </SelectContent>
             </Select>
+          </div>
+
+          {/* 5. Search Action Button */}
+          <div className="space-y-1.5">
+            <Button
+              type="button"
+              onClick={onSearch}
+              disabled={isFetchingFilters || isSearching || !selectedClassId}
+              className="w-full h-10 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs sm:text-sm gap-2 shadow-sm shadow-blue-600/20 cursor-pointer transition-all active:scale-[0.98]"
+            >
+              {isSearching ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <span>Searching...</span>
+                </>
+              ) : (
+                <>
+                  <Search className="h-4 w-4" />
+                  <span>Search Result</span>
+                </>
+              )}
+            </Button>
           </div>
         </div>
       </CardContent>
