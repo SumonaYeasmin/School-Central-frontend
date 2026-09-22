@@ -83,6 +83,7 @@ export const navItemsConfig: NavItem[] = [
     title: "Results",
     href: "/admin/dashboard/results",
     icon: "BarChart3",
+    badge: "Featured",
     roles: ["ADMIN"],
     category: "MANAGEMENT",
   },
@@ -134,7 +135,6 @@ export const navItemsConfig: NavItem[] = [
     roles: ["TEACHER"],
     category: "MANAGEMENT",
   },
-
   {
     title: "Enter Marks",
     href: "/teacher/dashboard/results/enter-marks",
@@ -142,17 +142,10 @@ export const navItemsConfig: NavItem[] = [
     roles: ["TEACHER"],
     category: "RESULTS",
   },
-    {
+  {
     title: "My Student Results",
     href: "/teacher/dashboard/results/my-student-results",
     icon: "GraduationCap",
-    roles: ["TEACHER"],
-    category: "RESULTS",
-  },
-    {
-    title: "Result Sheet",
-    href: "/teacher/dashboard/results/result-sheet",
-    icon: "Sheet",
     roles: ["TEACHER"],
     category: "RESULTS",
   },

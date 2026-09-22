@@ -17,7 +17,7 @@ export interface FilterOption {
   year?: number;
 }
 
-interface ResultSheetFilterCardProps {
+interface AdminResultFilterCardProps {
   exams: FilterOption[];
   selectedExamId: string;
   onExamChange: (id: string) => void;
@@ -33,7 +33,7 @@ interface ResultSheetFilterCardProps {
   isFetchingFilters?: boolean;
 }
 
-export function ResultSheetFilterCard({
+export function AdminResultFilterCard({
   exams,
   selectedExamId,
   onExamChange,
@@ -47,7 +47,7 @@ export function ResultSheetFilterCard({
   selectedSubjectId,
   onSubjectChange,
   isFetchingFilters = false,
-}: ResultSheetFilterCardProps) {
+}: AdminResultFilterCardProps) {
   return (
     <Card className="bg-white border-slate-200/90 rounded-2xl shadow-xs">
       <CardContent className="p-4 sm:p-5">
@@ -88,7 +88,7 @@ export function ResultSheetFilterCard({
               disabled={isFetchingFilters || classes.length === 0}
             >
               <SelectTrigger className="w-full h-10 rounded-xl border-slate-200 bg-white text-slate-900 text-xs sm:text-sm font-medium focus:ring-2 focus:ring-blue-500/20">
-                <SelectValue placeholder={isFetchingFilters ? "Loading..." : classes.length === 0 ? "No classes" : "Select Class"} />
+                <SelectValue placeholder={isFetchingFilters ? "Loading classes..." : classes.length === 0 ? "No classes" : "Select Class"} />
               </SelectTrigger>
               <SelectContent>
                 {classes.map((cls) => (

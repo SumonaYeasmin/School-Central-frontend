@@ -3,19 +3,19 @@
 import { Users, Check, AlertTriangle, BarChart3 } from "lucide-react";
 import { Card, CardContent } from "@/src/components/ui/card";
 
-interface ResultSheetStatsCardsProps {
+interface AdminResultStatsCardsProps {
   totalStudents: number;
   marksEntered: number;
   pendingCount: number;
   averageMarks: number;
 }
 
-export function ResultSheetStatsCards({
+export function AdminResultStatsCards({
   totalStudents = 32,
   marksEntered = 32,
   pendingCount = 0,
   averageMarks = 78.5,
-}: ResultSheetStatsCardsProps) {
+}: AdminResultStatsCardsProps) {
   const percentageStr =
     totalStudents > 0 ? ((marksEntered / totalStudents) * 100).toFixed(0) : "0";
 
@@ -49,7 +49,7 @@ export function ResultSheetStatsCards({
           <div>
             <p className="text-xs font-semibold text-slate-500">Marks Entered</p>
             <p className="text-2xl sm:text-3xl font-black text-emerald-600 tracking-tight mt-0.5">
-              {marksEntered} <span className="text-lg font-bold text-emerald-700/80">/ {totalStudents} ({percentageStr}%)</span>
+              {marksEntered} <span className="text-sm font-bold text-emerald-700/80">/ {totalStudents} ({percentageStr}%)</span>
             </p>
           </div>
         </CardContent>

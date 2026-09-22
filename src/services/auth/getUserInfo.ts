@@ -12,9 +12,9 @@ export const mockUsers: Record<UserRole, UserInfo> = {
     avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=200",
   },
   TEACHER: {
-    id: "teacher-01",
-    name: "Rafiqul Islam",
-    email: "rafiqul.islam@schoolcentral.edu",
+    id: "TCH-2026-819",
+    name: "Akash",
+    email: "akash@gmail.com",
     role: "TEACHER",
     avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=200",
   },

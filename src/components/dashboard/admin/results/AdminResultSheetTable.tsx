@@ -5,26 +5,28 @@ import { ListOrdered, Eye, Users, Loader2, Calendar } from "lucide-react";
 import { Card, CardContent, CardHeader } from "@/src/components/ui/card";
 import { Button } from "@/src/components/ui/button";
 import { Badge } from "@/src/components/ui/badge";
-import { StudentMarksheetModal, StudentSheetItem } from "./StudentMarksheetModal";
+import { AdminStudentMarksheetModal, AdminStudentSheetItem } from "./AdminStudentMarksheetModal";
 
-interface ResultSheetTableProps {
-  students: StudentSheetItem[];
+interface AdminResultSheetTableProps {
+  students: AdminStudentSheetItem[];
   isLoading?: boolean;
   classNameStr: string;
   sectionName: string;
   subjectName: string;
   examName: string;
+  isPublished?: boolean;
 }
 
-export function ResultSheetTable({
+export function AdminResultSheetTable({
   students,
   isLoading = false,
   classNameStr,
   sectionName,
   subjectName,
   examName,
-}: ResultSheetTableProps) {
-  const [viewingStudent, setViewingStudent] = useState<StudentSheetItem | null>(null);
+  isPublished = true,
+}: AdminResultSheetTableProps) {
+  const [viewingStudent, setViewingStudent] = useState<AdminStudentSheetItem | null>(null);
 
   // Grade badge styling
   const getGradeBadgeClass = (grade: string) => {
@@ -73,7 +75,7 @@ export function ResultSheetTable({
         </div>
       </CardHeader>
 
-      {/* Table Content (No pagination - full direct list) */}
+      {/* Table Content (Full direct list without pagination) */}
       <CardContent className="p-0 flex-1">
         {isLoading ? (
           <div className="flex flex-col items-center justify-center py-20 text-slate-400 gap-3">
@@ -88,7 +90,7 @@ export function ResultSheetTable({
             <div>
               <p className="text-sm font-semibold text-slate-700">No student records found</p>
               <p className="text-xs text-slate-500 mt-1 max-w-sm">
-                Select your assigned Class, Section, and Subject from the filters above.
+                Select Class, Section, and Subject from the filters above.
               </p>
             </div>
           </div>
@@ -162,8 +164,14 @@ export function ResultSheetTable({
 
                     {/* Status Badge */}
                     <td className="py-4 px-4 text-center">
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200/80">
-                        {student.status || "Published"}
+                      <span
+                        className={`inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-semibold ${
+                          isPublished
+                            ? "bg-emerald-50 text-emerald-700 border border-emerald-200/80"
+                            : "bg-amber-50 text-amber-700 border border-amber-200/80"
+                        }`}
+                      >
+                        {isPublished ? "Published" : "Draft"}
                       </span>
                     </td>
 
@@ -188,13 +196,14 @@ export function ResultSheetTable({
       </CardContent>
 
       {/* Marksheet View Modal */}
-      <StudentMarksheetModal
+      <AdminStudentMarksheetModal
         student={viewingStudent}
         onClose={() => setViewingStudent(null)}
         examName={examName}
         classNameStr={classNameStr}
         sectionName={sectionName}
         subjectName={subjectName}
+        isPublished={isPublished}
       />
     </Card>
   );
