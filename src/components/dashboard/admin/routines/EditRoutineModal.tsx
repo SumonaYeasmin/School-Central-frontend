@@ -11,7 +11,7 @@ import {
 } from "@/src/components/ui/dialog";
 import { Button } from "@/src/components/ui/button";
 import { Input } from "@/src/components/ui/input";
-import { SectionRoutine, DAYS_OF_WEEK, TIME_SLOTS, PeriodSlot } from "./mockRoutines";
+import { SectionRoutine, DAYS_OF_WEEK, TIME_SLOTS, PeriodSlot, GROUP_SUBJECT_PRESETS, AVAILABLE_ROOMS } from "./mockRoutines";
 
 interface EditRoutineModalProps {
   isOpen: boolean;
@@ -166,43 +166,66 @@ export function EditRoutineModal({
                   </div>
 
                   <div className="space-y-2">
-                    {period.groupSlots.map((grp, gIdx) => (
-                      <div
-                        key={gIdx}
-                        className="grid grid-cols-1 sm:grid-cols-4 gap-2 items-center bg-white border border-slate-200/70 p-2 rounded-xl"
-                      >
-                        <span className="text-xs font-bold text-slate-800 sm:col-span-1">
-                          {grp.group}:
-                        </span>
-                        <Input
-                          type="text"
-                          value={grp.subject}
-                          onChange={(e) =>
-                            handleGroupSlotChange(pKey, gIdx, "subject", e.target.value)
-                          }
-                          placeholder="Subject"
-                          className="bg-slate-50 text-xs h-8 rounded-lg"
-                        />
-                        <Input
-                          type="text"
-                          value={grp.teacher}
-                          onChange={(e) =>
-                            handleGroupSlotChange(pKey, gIdx, "teacher", e.target.value)
-                          }
-                          placeholder="Teacher"
-                          className="bg-slate-50 text-xs h-8 rounded-lg"
-                        />
-                        <Input
-                          type="text"
-                          value={grp.room}
-                          onChange={(e) =>
-                            handleGroupSlotChange(pKey, gIdx, "room", e.target.value)
-                          }
-                          placeholder="Room / Lab"
-                          className="bg-slate-50 text-xs h-8 rounded-lg"
-                        />
-                      </div>
-                    ))}
+                    {period.groupSlots.map((grp, gIdx) => {
+                      const groupKey =
+                        grp.group.toLowerCase().includes("sci")
+                          ? "Science"
+                          : grp.group.toLowerCase().includes("art") ||
+                            grp.group.toLowerCase().includes("hum")
+                          ? "Arts"
+                          : "Commerce";
+
+                      const groupPresetList = GROUP_SUBJECT_PRESETS[groupKey] || [];
+                      const subjectOptions = Array.from(
+                        new Set([...groupPresetList, grp.subject].filter(Boolean))
+                      );
+
+                      return (
+                        <div
+                          key={gIdx}
+                          className="grid grid-cols-1 sm:grid-cols-4 gap-2 items-center bg-white border border-slate-200/70 p-2 rounded-xl"
+                        >
+                          <span className="text-xs font-bold text-slate-800 sm:col-span-1">
+                            {grp.group}:
+                          </span>
+                          <select
+                            value={grp.subject}
+                            onChange={(e) =>
+                              handleGroupSlotChange(pKey, gIdx, "subject", e.target.value)
+                            }
+                            className="bg-slate-50 text-xs h-8 rounded-lg px-2 border border-slate-200 font-semibold focus:border-blue-500 outline-none cursor-pointer"
+                          >
+                            {subjectOptions.map((sub) => (
+                              <option key={sub} value={sub}>
+                                {sub}
+                              </option>
+                            ))}
+                          </select>
+                          <Input
+                            type="text"
+                            value={grp.teacher}
+                            onChange={(e) =>
+                              handleGroupSlotChange(pKey, gIdx, "teacher", e.target.value)
+                            }
+                            placeholder="Teacher"
+                            className="bg-slate-50 text-xs h-8 rounded-lg"
+                          />
+                          <select
+                            value={grp.room}
+                            onChange={(e) =>
+                              handleGroupSlotChange(pKey, gIdx, "room", e.target.value)
+                            }
+                            className="bg-slate-50 text-xs h-8 rounded-lg px-2 border border-slate-200 font-semibold focus:border-blue-500 outline-none cursor-pointer"
+                          >
+                            {AVAILABLE_ROOMS.map((r) => (
+                              <option key={r} value={r}>
+                                {r}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
               );
@@ -254,15 +277,19 @@ export function EditRoutineModal({
                     <label className="text-[11px] font-semibold text-slate-500 block mb-1">
                       Room / Lab
                     </label>
-                    <Input
-                      type="text"
-                      value={period?.room || ""}
+                    <select
+                      value={period?.room || "Room 101"}
                       onChange={(e) =>
                         handlePeriodChange(pKey, "room", e.target.value)
                       }
-                      className="bg-white rounded-xl text-xs h-8 font-semibold"
-                      placeholder="e.g. Room 101, Lab 01"
-                    />
+                      className="w-full bg-white rounded-xl text-xs h-8 px-2 border border-slate-200 font-semibold focus:border-blue-500 outline-none cursor-pointer"
+                    >
+                      {AVAILABLE_ROOMS.map((r) => (
+                        <option key={r} value={r}>
+                          {r}
+                        </option>
+                      ))}
+                    </select>
                   </div>
                 </div>
               </div>

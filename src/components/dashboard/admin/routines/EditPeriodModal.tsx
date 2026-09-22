@@ -12,7 +12,7 @@ import {
 import { Button } from "@/src/components/ui/button";
 import { Input } from "@/src/components/ui/input";
 import { Layers, Sparkles, BookOpen, User, MapPin } from "lucide-react";
-import { PeriodSlot, GroupSubjectEntry } from "./mockRoutines";
+import { PeriodSlot, GroupSubjectEntry, GROUP_SUBJECT_PRESETS, AVAILABLE_ROOMS } from "./mockRoutines";
 
 interface EditPeriodModalProps {
   isOpen: boolean;
@@ -68,6 +68,16 @@ export function EditPeriodModal({
   const [commerceSubject, setCommerceSubject] = useState("Accounting");
   const [commerceTeacher, setCommerceTeacher] = useState("Robert Kiyosaki");
   const [commerceRoom, setCommerceRoom] = useState("Room 202");
+
+  const scienceSubjectOptions = Array.from(
+    new Set([...GROUP_SUBJECT_PRESETS.Science, scienceSubject].filter(Boolean))
+  );
+  const artsSubjectOptions = Array.from(
+    new Set([...GROUP_SUBJECT_PRESETS.Arts, artsSubject].filter(Boolean))
+  );
+  const commerceSubjectOptions = Array.from(
+    new Set([...GROUP_SUBJECT_PRESETS.Commerce, commerceSubject].filter(Boolean))
+  );
 
   useEffect(() => {
     if (periodData && isOpen) {
@@ -206,22 +216,28 @@ export function EditPeriodModal({
 
               {/* 1. Science Group */}
               <div className="p-3.5 bg-emerald-50/50 rounded-2xl border border-emerald-200/80 space-y-2">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center justify-between">
                   <span className="text-[10px] font-black px-2 py-0.5 rounded bg-emerald-600 text-white uppercase tracking-wider">
                     Science Group
+                  </span>
+                  <span className="text-[10px] font-semibold text-emerald-700">
+                    {scienceSubjectOptions.length} Subjects
                   </span>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                   <div>
-                    <label className="text-[11px] font-bold text-slate-700 block mb-0.5">Subject</label>
-                    <Input
-                      type="text"
-                      required
-                      placeholder="e.g. Physics, Chemistry"
+                    <label className="text-[11px] font-bold text-slate-700 block mb-0.5">Subject *</label>
+                    <select
                       value={scienceSubject}
                       onChange={(e) => setScienceSubject(e.target.value)}
-                      className="bg-white rounded-xl text-xs h-9 font-semibold"
-                    />
+                      className="w-full h-9 px-2.5 rounded-xl border border-emerald-200 bg-white text-xs font-semibold focus:border-emerald-500 outline-none cursor-pointer"
+                    >
+                      {scienceSubjectOptions.map((sub) => (
+                        <option key={sub} value={sub}>
+                          {sub}
+                        </option>
+                      ))}
+                    </select>
                   </div>
                   <div>
                     <label className="text-[11px] font-bold text-slate-700 block mb-0.5">Teacher</label>
@@ -234,36 +250,46 @@ export function EditPeriodModal({
                     />
                   </div>
                   <div>
-                    <label className="text-[11px] font-bold text-slate-700 block mb-0.5">Room / Lab</label>
-                    <Input
-                      type="text"
-                      placeholder="e.g. Physics Lab"
+                    <label className="text-[11px] font-bold text-slate-700 block mb-0.5">Room / Lab *</label>
+                    <select
                       value={scienceRoom}
                       onChange={(e) => setScienceRoom(e.target.value)}
-                      className="bg-white rounded-xl text-xs h-9 font-semibold"
-                    />
+                      className="w-full h-9 px-2.5 rounded-xl border border-emerald-200 bg-white text-xs font-semibold focus:border-emerald-500 outline-none cursor-pointer"
+                    >
+                      {AVAILABLE_ROOMS.map((r) => (
+                        <option key={r} value={r}>
+                          {r}
+                        </option>
+                      ))}
+                    </select>
                   </div>
                 </div>
               </div>
 
               {/* 2. Arts / Humanities Group */}
               <div className="p-3.5 bg-amber-50/50 rounded-2xl border border-amber-200/80 space-y-2">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center justify-between">
                   <span className="text-[10px] font-black px-2 py-0.5 rounded bg-amber-600 text-white uppercase tracking-wider">
                     Arts / Humanities Group
+                  </span>
+                  <span className="text-[10px] font-semibold text-amber-700">
+                    {artsSubjectOptions.length} Subjects
                   </span>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                   <div>
-                    <label className="text-[11px] font-bold text-slate-700 block mb-0.5">Subject</label>
-                    <Input
-                      type="text"
-                      required
-                      placeholder="e.g. History, Civics, Geography"
+                    <label className="text-[11px] font-bold text-slate-700 block mb-0.5">Subject *</label>
+                    <select
                       value={artsSubject}
                       onChange={(e) => setArtsSubject(e.target.value)}
-                      className="bg-white rounded-xl text-xs h-9 font-semibold"
-                    />
+                      className="w-full h-9 px-2.5 rounded-xl border border-amber-200 bg-white text-xs font-semibold focus:border-amber-500 outline-none cursor-pointer"
+                    >
+                      {artsSubjectOptions.map((sub) => (
+                        <option key={sub} value={sub}>
+                          {sub}
+                        </option>
+                      ))}
+                    </select>
                   </div>
                   <div>
                     <label className="text-[11px] font-bold text-slate-700 block mb-0.5">Teacher</label>
@@ -276,36 +302,46 @@ export function EditPeriodModal({
                     />
                   </div>
                   <div>
-                    <label className="text-[11px] font-bold text-slate-700 block mb-0.5">Room / Lab</label>
-                    <Input
-                      type="text"
-                      placeholder="e.g. Room 201"
+                    <label className="text-[11px] font-bold text-slate-700 block mb-0.5">Room / Lab *</label>
+                    <select
                       value={artsRoom}
                       onChange={(e) => setArtsRoom(e.target.value)}
-                      className="bg-white rounded-xl text-xs h-9 font-semibold"
-                    />
+                      className="w-full h-9 px-2.5 rounded-xl border border-amber-200 bg-white text-xs font-semibold focus:border-amber-500 outline-none cursor-pointer"
+                    >
+                      {AVAILABLE_ROOMS.map((r) => (
+                        <option key={r} value={r}>
+                          {r}
+                        </option>
+                      ))}
+                    </select>
                   </div>
                 </div>
               </div>
 
               {/* 3. Commerce / Business Group */}
               <div className="p-3.5 bg-blue-50/50 rounded-2xl border border-blue-200/80 space-y-2">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center justify-between">
                   <span className="text-[10px] font-black px-2 py-0.5 rounded bg-blue-600 text-white uppercase tracking-wider">
                     Commerce / Business Studies Group
+                  </span>
+                  <span className="text-[10px] font-semibold text-blue-700">
+                    {commerceSubjectOptions.length} Subjects
                   </span>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                   <div>
-                    <label className="text-[11px] font-bold text-slate-700 block mb-0.5">Subject</label>
-                    <Input
-                      type="text"
-                      required
-                      placeholder="e.g. Accounting, Finance"
+                    <label className="text-[11px] font-bold text-slate-700 block mb-0.5">Subject *</label>
+                    <select
                       value={commerceSubject}
                       onChange={(e) => setCommerceSubject(e.target.value)}
-                      className="bg-white rounded-xl text-xs h-9 font-semibold"
-                    />
+                      className="w-full h-9 px-2.5 rounded-xl border border-blue-200 bg-white text-xs font-semibold focus:border-blue-500 outline-none cursor-pointer"
+                    >
+                      {commerceSubjectOptions.map((sub) => (
+                        <option key={sub} value={sub}>
+                          {sub}
+                        </option>
+                      ))}
+                    </select>
                   </div>
                   <div>
                     <label className="text-[11px] font-bold text-slate-700 block mb-0.5">Teacher</label>
@@ -318,14 +354,18 @@ export function EditPeriodModal({
                     />
                   </div>
                   <div>
-                    <label className="text-[11px] font-bold text-slate-700 block mb-0.5">Room / Lab</label>
-                    <Input
-                      type="text"
-                      placeholder="e.g. Room 202"
+                    <label className="text-[11px] font-bold text-slate-700 block mb-0.5">Room / Lab *</label>
+                    <select
                       value={commerceRoom}
                       onChange={(e) => setCommerceRoom(e.target.value)}
-                      className="bg-white rounded-xl text-xs h-9 font-semibold"
-                    />
+                      className="w-full h-9 px-2.5 rounded-xl border border-blue-200 bg-white text-xs font-semibold focus:border-blue-500 outline-none cursor-pointer"
+                    >
+                      {AVAILABLE_ROOMS.map((r) => (
+                        <option key={r} value={r}>
+                          {r}
+                        </option>
+                      ))}
+                    </select>
                   </div>
                 </div>
               </div>
@@ -370,13 +410,17 @@ export function EditPeriodModal({
                     <MapPin className="h-3.5 w-3.5 text-blue-600" />
                     <span>Room / Lab</span>
                   </label>
-                  <Input
-                    type="text"
-                    placeholder="e.g. Room 101, Lab 01"
+                  <select
                     value={room}
                     onChange={(e) => setRoom(e.target.value)}
-                    className="rounded-xl border border-slate-200 text-xs sm:text-sm h-10 font-semibold"
-                  />
+                    className="w-full h-10 px-3 rounded-xl border border-slate-200 bg-white text-xs sm:text-sm font-semibold focus:border-blue-500 outline-none cursor-pointer"
+                  >
+                    {AVAILABLE_ROOMS.map((r) => (
+                      <option key={r} value={r}>
+                        {r}
+                      </option>
+                    ))}
+                  </select>
                 </div>
               </div>
 

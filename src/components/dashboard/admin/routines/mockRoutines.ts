@@ -52,6 +52,56 @@ export const DAYS_OF_WEEK = ["Monday", "Tuesday", "Wednesday", "Thursday", "Frid
 
 export const CLASSES_LIST = ["Class 6", "Class 7", "Class 8", "Class 9", "Class 10"] as const;
 
+export const GROUP_SUBJECT_PRESETS = {
+  Science: [
+    "Physics",
+    "Chemistry",
+    "Biology",
+    "Higher Mathematics",
+  ],
+  Arts: [
+    "History & World Civilization",
+    "Geography & Environment",
+    "Civics & Citizenship",
+    "Economics",
+  ],
+  Commerce: [
+    "Accounting",
+    "Finance & Banking",
+    "Business Entrepreneurship",
+  ],
+};
+
+export const AVAILABLE_ROOMS = [
+  // Science & Specialized Labs
+  "Physics Lab",
+  "Chemistry Lab",
+  "Biology Lab",
+  "Science Lab 01",
+  "Science Lab 02",
+  "ICT / Computer Lab",
+  // 1st Floor Classrooms
+  "Room 101",
+  "Room 102",
+  "Room 103",
+  "Room 104",
+  "Room 105",
+  // 2nd Floor Classrooms
+  "Room 201",
+  "Room 202",
+  "Room 203",
+  "Room 204",
+  "Room 205",
+  // 3rd Floor Classrooms
+  "Room 301",
+  "Room 302",
+  "Room 303",
+  // Other School Facilities
+  "Library Room",
+  "Multi-purpose Hall",
+  "Auditorium",
+];
+
 export const MOCK_ROUTINES: SectionRoutine[] = [
   // ==================== CLASS 6 ====================
   // 1. Class 6 · Section A

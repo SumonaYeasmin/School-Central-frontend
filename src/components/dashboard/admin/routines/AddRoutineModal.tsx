@@ -13,17 +13,15 @@ import { Button } from "@/src/components/ui/button";
 import { Input } from "@/src/components/ui/input";
 import { AlertCircle, CheckCircle2, Loader2, Sparkles, Clock, MapPin, User, BookOpen, Layers } from "lucide-react";
 import { createRoutine } from "@/src/services/routineService";
-import { SectionRoutine, DAYS_OF_WEEK, TIME_SLOTS, PeriodSlot, GroupSubjectEntry } from "./mockRoutines";
+import { SectionRoutine, DAYS_OF_WEEK, TIME_SLOTS, PeriodSlot, GroupSubjectEntry, GROUP_SUBJECT_PRESETS, AVAILABLE_ROOMS } from "./mockRoutines";
 
 interface AddRoutineModalProps {
   isOpen: boolean;
   onClose: () => void;
-  routines?: SectionRoutine[];
+  targetRoutine?: SectionRoutine;
   dbClasses?: any[];
   dbTeachers?: any[];
   dbSubjects?: any[];
-  initialClassId?: string;
-  initialSectionId?: string;
   initialDay?: string;
   initialPeriodKey?: "p1" | "p2" | "p3" | "p4" | "p5";
   onAdd?: (
@@ -54,12 +52,10 @@ const THEME_OPTIONS: Array<{ id: PeriodSlot["theme"]; label: string; bg: string 
 export function AddRoutineModal({
   isOpen,
   onClose,
-  routines = [],
+  targetRoutine,
   dbClasses = [],
   dbTeachers = [],
   dbSubjects = [],
-  initialClassId,
-  initialSectionId,
   initialDay,
   initialPeriodKey,
   onAdd,
@@ -68,8 +64,6 @@ export function AddRoutineModal({
   const [slotType, setSlotType] = useState<"single" | "group">("single");
 
   // Form selection states
-  const [selectedClassId, setSelectedClassId] = useState<string>("");
-  const [selectedSectionId, setSelectedSectionId] = useState<string>("");
   const [day, setDay] = useState<string>("Monday");
   const [periodPresetKey, setPeriodPresetKey] = useState<"p1" | "p2" | "p3" | "p4" | "p5">("p1");
   const [startTime, setStartTime] = useState<string>("10:00");
@@ -118,21 +112,9 @@ export function AddRoutineModal({
         }
       }
 
-      // Default class & section
-      if (initialClassId) {
-        setSelectedClassId(initialClassId);
-      } else if (dbClasses.length > 0) {
-        const firstClass = dbClasses[0];
-        setSelectedClassId(firstClass.id);
-        const firstSec = firstClass.sections?.[0];
-        setSelectedSectionId(initialSectionId || firstSec?.id || "");
-      } else if (routines.length > 0) {
-        setSelectedClassId(routines[0].grade);
-        setSelectedSectionId(initialSectionId || routines[0].id);
-      }
-
-      if (initialSectionId) {
-        setSelectedSectionId(initialSectionId);
+      // Default room from target section
+      if (targetRoutine?.room) {
+        setRoom(targetRoutine.room);
       }
 
       // Default teacher
@@ -145,43 +127,260 @@ export function AddRoutineModal({
         setSelectedSubjectId(dbSubjects[0].id);
       }
     }
-  }, [isOpen, dbClasses, dbTeachers, dbSubjects, routines, initialClassId, initialSectionId, initialDay, initialPeriodKey]);
+  }, [isOpen, dbTeachers, dbSubjects, targetRoutine, initialDay, initialPeriodKey]);
 
-  // Derived sections based on selected class
-  const availableSections = useMemo(() => {
-    if (dbClasses.length > 0 && selectedClassId) {
-      const matchedClass = dbClasses.find((c) => c.id === selectedClassId);
-      return matchedClass?.sections || [];
-    }
-    // Fallback to routines
-    return routines.filter((r) => r.grade === selectedClassId);
-  }, [dbClasses, selectedClassId, routines]);
-
-  // Derived subjects based on selected class
+  // Derived common subjects based on target routine class (Strictly excluding group subjects for Class 9/10)
   const availableSubjects = useMemo(() => {
-    if (dbClasses.length > 0 && selectedClassId) {
-      const matchedClass = dbClasses.find((c) => c.id === selectedClassId);
+    const isClass9or10 =
+      targetRoutine?.grade?.includes("9") ||
+      targetRoutine?.grade?.includes("10") ||
+      targetRoutine?.fullName?.includes("9") ||
+      targetRoutine?.fullName?.includes("10");
+
+    if (dbClasses.length > 0 && targetRoutine?.grade) {
+      const matchedClass = dbClasses.find(
+        (c) =>
+          c.name?.toLowerCase() === targetRoutine.grade.toLowerCase() ||
+          c.id === targetRoutine.id ||
+          c.id === targetRoutine.grade
+      );
       if (matchedClass?.classSubjects && matchedClass.classSubjects.length > 0) {
+        if (isClass9or10) {
+          // For Class 9 and 10: Filter ONLY common subjects (no group attached)
+          const commonOnly = matchedClass.classSubjects.filter((cs: any) => {
+            if (cs.groupId || cs.group) return false;
+            const n = (cs.subject?.name || "").toLowerCase();
+            const isGroup =
+              n.includes("পদার্থ") ||
+              n.includes("রসায়ন") ||
+              n.includes("রসায়ন") ||
+              n.includes("জীব") ||
+              n.includes("উচ্চতর") ||
+              n.includes("ইতিহাস") ||
+              n.includes("ভূগোল") ||
+              n.includes("পৌরনীতি") ||
+              n.includes("অর্থনীতি") ||
+              n.includes("হিসাব") ||
+              n.includes("ফিন্যান্স") ||
+              n.includes("ব্যবসায়") ||
+              n.includes("ব্যবসায়") ||
+              n.includes("phys") ||
+              n.includes("chem") ||
+              n.includes("bio") ||
+              n.includes("high") ||
+              n.includes("acc") ||
+              n.includes("fin") ||
+              n.includes("bus");
+            return !isGroup;
+          });
+          return commonOnly.map((cs: any) => cs.subject).filter(Boolean);
+        }
+
+        // For Junior Classes (6, 7, 8) all subjects are general core
         return matchedClass.classSubjects.map((cs: any) => cs.subject).filter(Boolean);
+      }
+    }
+
+    if (dbSubjects.length > 0) {
+      if (isClass9or10) {
+        return dbSubjects.filter((s: any) => {
+          const hasGroup = s.classSubjects?.some((cs: any) => cs.groupId || cs.group);
+          if (hasGroup) return false;
+          const n = (s.name || "").toLowerCase();
+          const isGroup =
+            n.includes("পদার্থ") ||
+            n.includes("রসায়ন") ||
+            n.includes("রসায়ন") ||
+            n.includes("জীব") ||
+            n.includes("উচ্চতর") ||
+            n.includes("ইতিহাস") ||
+            n.includes("ভূগোল") ||
+            n.includes("পৌরনীতি") ||
+            n.includes("অর্থনীতি") ||
+            n.includes("হিসাব") ||
+            n.includes("ফিন্যান্স") ||
+            n.includes("ব্যবসায়") ||
+            n.includes("ব্যবসায়") ||
+            n.includes("phys") ||
+            n.includes("chem") ||
+            n.includes("bio") ||
+            n.includes("high") ||
+            n.includes("acc") ||
+            n.includes("fin") ||
+            n.includes("bus");
+          return !isGroup;
+        });
       }
       return dbSubjects;
     }
-    return dbSubjects;
-  }, [dbClasses, selectedClassId, dbSubjects]);
 
-  // Handle Class change
-  const handleClassChange = (newClassId: string) => {
-    setSelectedClassId(newClassId);
-    setConflictError(null);
-    if (dbClasses.length > 0) {
-      const matchedClass = dbClasses.find((c) => c.id === newClassId);
-      const firstSec = matchedClass?.sections?.[0];
-      setSelectedSectionId(firstSec?.id || "");
-    } else {
-      const firstSec = routines.find((r) => r.grade === newClassId);
-      setSelectedSectionId(firstSec?.id || "");
+    return dbSubjects;
+  }, [dbClasses, targetRoutine, dbSubjects]);
+
+  // Sync selectedSubjectId when available common subjects change
+  useEffect(() => {
+    if (availableSubjects.length > 0) {
+      if (!selectedSubjectId || !availableSubjects.some((s: any) => s.id === selectedSubjectId)) {
+        setSelectedSubjectId(availableSubjects[0].id);
+      }
     }
-  };
+  }, [availableSubjects, selectedSubjectId]);
+
+  // Derived group subject lists (Directly from database classes & subjects: 4 Science, 4 Arts, 3 Commerce)
+  const scienceSubjectOptions = useMemo(() => {
+    if (dbClasses.length > 0) {
+      const cls9_10 = dbClasses.find(
+        (c) => c.name?.includes("9") || c.name?.includes("10")
+      );
+      if (cls9_10?.classSubjects) {
+        const sciFromClass = cls9_10.classSubjects
+          .filter((cs: any) => cs.group?.name?.toLowerCase().includes("sci"))
+          .map((cs: any) => cs.subject?.name)
+          .filter(Boolean);
+        if (sciFromClass.length > 0) {
+          return Array.from(new Set(sciFromClass));
+        }
+      }
+    }
+
+    if (dbSubjects.length > 0) {
+      const dbScience = dbSubjects
+        .filter((s: any) => {
+          const hasSciGroup = s.classSubjects?.some((cs: any) =>
+            cs.group?.name?.toLowerCase().includes("sci")
+          );
+          const n = (s.name || "").toLowerCase();
+          return (
+            hasSciGroup ||
+            n.includes("পদার্থ") ||
+            n.includes("রসায়ন") ||
+            n.includes("রসায়ন") ||
+            n.includes("জীব") ||
+            n.includes("উচ্চতর")
+          );
+        })
+        .map((s: any) => s.name);
+
+      if (dbScience.length > 0) {
+        return Array.from(new Set(dbScience));
+      }
+    }
+
+    return [...GROUP_SUBJECT_PRESETS.Science];
+  }, [dbClasses, dbSubjects]);
+
+  const artsSubjectOptions = useMemo(() => {
+    if (dbClasses.length > 0) {
+      const cls9_10 = dbClasses.find(
+        (c) => c.name?.includes("9") || c.name?.includes("10")
+      );
+      if (cls9_10?.classSubjects) {
+        const artsFromClass = cls9_10.classSubjects
+          .filter(
+            (cs: any) =>
+              cs.group?.name?.toLowerCase().includes("hum") ||
+              cs.group?.name?.toLowerCase().includes("art")
+          )
+          .map((cs: any) => cs.subject?.name)
+          .filter(Boolean);
+        if (artsFromClass.length > 0) {
+          return Array.from(new Set(artsFromClass));
+        }
+      }
+    }
+
+    if (dbSubjects.length > 0) {
+      const dbArts = dbSubjects
+        .filter((s: any) => {
+          const hasArtsGroup = s.classSubjects?.some(
+            (cs: any) =>
+              cs.group?.name?.toLowerCase().includes("hum") ||
+              cs.group?.name?.toLowerCase().includes("art")
+          );
+          const n = (s.name || "").toLowerCase();
+          return (
+            hasArtsGroup ||
+            n.includes("ইতিহাস") ||
+            n.includes("ভূগোল") ||
+            n.includes("পৌরনীতি") ||
+            n.includes("অর্থনীতি")
+          );
+        })
+        .map((s: any) => s.name);
+
+      if (dbArts.length > 0) {
+        return Array.from(new Set(dbArts));
+      }
+    }
+
+    return [...GROUP_SUBJECT_PRESETS.Arts];
+  }, [dbClasses, dbSubjects]);
+
+  const commerceSubjectOptions = useMemo(() => {
+    if (dbClasses.length > 0) {
+      const cls9_10 = dbClasses.find(
+        (c) => c.name?.includes("9") || c.name?.includes("10")
+      );
+      if (cls9_10?.classSubjects) {
+        const comFromClass = cls9_10.classSubjects
+          .filter(
+            (cs: any) =>
+              cs.group?.name?.toLowerCase().includes("bus") ||
+              cs.group?.name?.toLowerCase().includes("com")
+          )
+          .map((cs: any) => cs.subject?.name)
+          .filter(Boolean);
+        if (comFromClass.length > 0) {
+          return Array.from(new Set(comFromClass));
+        }
+      }
+    }
+
+    if (dbSubjects.length > 0) {
+      const dbCommerce = dbSubjects
+        .filter((s: any) => {
+          const hasComGroup = s.classSubjects?.some(
+            (cs: any) =>
+              cs.group?.name?.toLowerCase().includes("bus") ||
+              cs.group?.name?.toLowerCase().includes("com")
+          );
+          const n = (s.name || "").toLowerCase();
+          return (
+            hasComGroup ||
+            n.includes("হিসাব") ||
+            n.includes("ফিন্যান্স") ||
+            n.includes("ব্যবসায়") ||
+            n.includes("ব্যবসায়")
+          );
+        })
+        .map((s: any) => s.name);
+
+      if (dbCommerce.length > 0) {
+        return Array.from(new Set(dbCommerce));
+      }
+    }
+
+    return [...GROUP_SUBJECT_PRESETS.Commerce];
+  }, [dbClasses, dbSubjects]);
+
+  // Sync selected values when group subject options update
+  useEffect(() => {
+    if (scienceSubjectOptions.length > 0 && !scienceSubjectOptions.includes(scienceSubject)) {
+      setScienceSubject(scienceSubjectOptions[0]);
+    }
+  }, [scienceSubjectOptions, scienceSubject]);
+
+  useEffect(() => {
+    if (artsSubjectOptions.length > 0 && !artsSubjectOptions.includes(artsSubject)) {
+      setArtsSubject(artsSubjectOptions[0]);
+    }
+  }, [artsSubjectOptions, artsSubject]);
+
+  useEffect(() => {
+    if (commerceSubjectOptions.length > 0 && !commerceSubjectOptions.includes(commerceSubject)) {
+      setCommerceSubject(commerceSubjectOptions[0]);
+    }
+  }, [commerceSubjectOptions, commerceSubject]);
 
   // Handle Period Preset change
   const handlePeriodPresetChange = (key: "p1" | "p2" | "p3" | "p4" | "p5") => {
@@ -253,20 +452,37 @@ export function AddRoutineModal({
 
     try {
       let createdDbItem: any = null;
+      const targetSectionId = targetRoutine?.id || "c6-a";
 
       // If single mode and we have DB IDs, call backend API
-      if (slotType === "single" && selectedClassId && selectedSectionId && selectedSubjectId && selectedTeacherId) {
+      if (slotType === "single" && targetRoutine && selectedSubjectId && selectedTeacherId) {
         try {
-          createdDbItem = await createRoutine({
-            day: day.toUpperCase(),
-            startTime,
-            endTime,
-            roomNumber: room.trim() || undefined,
-            classId: selectedClassId,
-            sectionId: selectedSectionId,
-            subjectId: selectedSubjectId,
-            teacherId: selectedTeacherId,
-          });
+          // Find matching DB Class & Section IDs if present
+          const matchedClass = dbClasses.find(
+            (c) =>
+              c.name?.toLowerCase() === targetRoutine.grade?.toLowerCase() ||
+              c.id === targetRoutine.id ||
+              c.id === targetRoutine.grade
+          );
+          const matchedSection = matchedClass?.sections?.find(
+            (s: any) =>
+              s.name?.toLowerCase() === targetRoutine.section?.toLowerCase() ||
+              `section ${s.name}`.toLowerCase() === targetRoutine.section?.toLowerCase() ||
+              s.id === targetRoutine.id
+          );
+
+          if (matchedClass && matchedSection) {
+            createdDbItem = await createRoutine({
+              day: day.toUpperCase(),
+              startTime,
+              endTime,
+              roomNumber: room.trim() || undefined,
+              classId: matchedClass.id,
+              sectionId: matchedSection.id,
+              subjectId: selectedSubjectId,
+              teacherId: selectedTeacherId,
+            });
+          }
         } catch (apiErr: any) {
           const errMsg =
             apiErr?.response?.data?.message ||
@@ -278,8 +494,8 @@ export function AddRoutineModal({
         }
       }
 
-      // Update frontend live timetable
-      onAdd?.(selectedSectionId, day, periodPresetKey, periodData, createdDbItem);
+      // Update frontend live timetable for this target section
+      onAdd?.(targetSectionId, day, periodPresetKey, periodData, createdDbItem);
 
       onClose();
     } catch (err: any) {
@@ -296,12 +512,33 @@ export function AddRoutineModal({
         <DialogHeader className="space-y-1 text-left">
           <DialogTitle className="text-xl font-black text-slate-900 flex items-center gap-2">
             <Sparkles className="h-5 w-5 text-blue-600" />
-            <span>Add / Assign Class Routine</span>
+            <span>Add Routine Period</span>
           </DialogTitle>
           <DialogDescription className="text-xs text-slate-500 font-medium">
-            Schedule a single subject or 3-group combined elective slot for this class & section.
+            Add a subject period directly to the active section routine.
           </DialogDescription>
         </DialogHeader>
+
+        {/* Target Section Indicator Card */}
+        <div className="flex items-center justify-between p-3.5 bg-blue-50/70 rounded-2xl border border-blue-200/80 mt-1 text-left">
+          <div className="flex items-center gap-2.5">
+            <div className="h-9 w-9 rounded-xl bg-blue-600 text-white font-black text-xs flex items-center justify-center shadow-xs">
+              {targetRoutine?.section?.replace(/Section\s*/i, "") || "A"}
+            </div>
+            <div>
+              <span className="text-[10px] font-bold text-blue-600 uppercase tracking-wider block">
+                Selected Section
+              </span>
+              <h3 className="font-extrabold text-slate-900 text-sm leading-tight">
+                {targetRoutine?.fullName || `${targetRoutine?.grade} · ${targetRoutine?.section}`}
+              </h3>
+            </div>
+          </div>
+          <div className="text-right text-xs">
+            <span className="text-slate-400 text-[10px] block">Default Room</span>
+            <span className="font-bold text-slate-800">{targetRoutine?.room || "Room 101"}</span>
+          </div>
+        </div>
 
         {/* Conflict Error Alert */}
         {conflictError && (
@@ -312,7 +549,7 @@ export function AddRoutineModal({
         )}
 
         {/* 1. Slot Type Selector (Single Subject vs 3-Group Elective) */}
-        <div className="flex items-center gap-2 p-1 bg-slate-100 rounded-2xl mt-3">
+        <div className="flex items-center gap-2 p-1 bg-slate-100 rounded-2xl mt-2">
           <button
             type="button"
             onClick={() => setSlotType("single")}
@@ -339,56 +576,7 @@ export function AddRoutineModal({
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4 mt-4">
-          {/* 1. Class & Section Dropdowns */}
-          <div className="grid grid-cols-2 gap-3 text-left">
-            <div className="space-y-1.5">
-              <label className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
-                <BookOpen className="h-3.5 w-3.5 text-blue-600" />
-                <span>Select Class *</span>
-              </label>
-              <select
-                value={selectedClassId}
-                onChange={(e) => handleClassChange(e.target.value)}
-                required
-                className="w-full h-10 px-3 rounded-xl border border-slate-200 bg-white text-xs sm:text-sm font-semibold focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none"
-              >
-                {dbClasses.length > 0
-                  ? dbClasses.map((c) => (
-                      <option key={c.id} value={c.id}>
-                        {c.name}
-                      </option>
-                    ))
-                  : Array.from(new Set(routines.map((r) => r.grade))).map((cls) => (
-                      <option key={cls} value={cls}>
-                        {cls}
-                      </option>
-                    ))}
-              </select>
-            </div>
-
-            <div className="space-y-1.5">
-              <label className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
-                <span>Select Section *</span>
-              </label>
-              <select
-                value={selectedSectionId}
-                onChange={(e) => {
-                  setSelectedSectionId(e.target.value);
-                  setConflictError(null);
-                }}
-                required
-                className="w-full h-10 px-3 rounded-xl border border-slate-200 bg-white text-xs sm:text-sm font-semibold focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none"
-              >
-                {availableSections.map((sec: any) => (
-                  <option key={sec.id} value={sec.id}>
-                    Section {sec.name || sec.section}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-
-          {/* 2. Weekday & Period Slot */}
+          {/* Day & Period Selector */}
           <div className="grid grid-cols-2 gap-3 text-left">
             <div className="space-y-1.5">
               <label className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
@@ -439,120 +627,207 @@ export function AddRoutineModal({
 
               {/* Science Group */}
               <div className="p-3.5 bg-emerald-50/50 rounded-2xl border border-emerald-200/80 space-y-2">
-                <span className="text-[10px] font-black px-2 py-0.5 rounded bg-emerald-600 text-white uppercase tracking-wider inline-block">
-                  Science Group
-                </span>
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-black px-2 py-0.5 rounded bg-emerald-600 text-white uppercase tracking-wider inline-block">
+                    Science Group
+                  </span>
+                  <span className="text-[10px] font-semibold text-emerald-700">
+                    {scienceSubjectOptions.length} Subjects Available
+                  </span>
+                </div>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                   <div>
-                    <label className="text-[11px] font-bold text-slate-700 block mb-0.5">Subject</label>
-                    <Input
-                      type="text"
-                      required
-                      placeholder="e.g. Physics, Chemistry"
+                    <label className="text-[11px] font-bold text-slate-700 block mb-0.5">Subject *</label>
+                    <select
                       value={scienceSubject}
                       onChange={(e) => setScienceSubject(e.target.value)}
-                      className="bg-white rounded-xl text-xs h-9 font-semibold"
-                    />
+                      className="w-full h-9 px-2.5 rounded-xl border border-emerald-200 bg-white text-xs font-semibold focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none cursor-pointer"
+                    >
+                      {scienceSubjectOptions.map((sub) => (
+                        <option key={sub} value={sub}>
+                          {sub}
+                        </option>
+                      ))}
+                    </select>
                   </div>
                   <div>
                     <label className="text-[11px] font-bold text-slate-700 block mb-0.5">Teacher</label>
-                    <Input
-                      type="text"
-                      placeholder="e.g. Rafael Ortiz"
-                      value={scienceTeacher}
-                      onChange={(e) => setScienceTeacher(e.target.value)}
-                      className="bg-white rounded-xl text-xs h-9"
-                    />
+                    {dbTeachers.length > 0 ? (
+                      <select
+                        value={scienceTeacher}
+                        onChange={(e) => setScienceTeacher(e.target.value)}
+                        className="w-full h-9 px-2.5 rounded-xl border border-slate-200 bg-white text-xs font-medium focus:border-emerald-500 outline-none cursor-pointer"
+                      >
+                        {dbTeachers.map((t) => (
+                          <option key={t.id || t.name} value={t.name}>
+                            {t.name}
+                          </option>
+                        ))}
+                        <option value="Rafael Ortiz">Rafael Ortiz</option>
+                        <option value="Marie Curie">Marie Curie</option>
+                        <option value="Dr. Charles Darwin">Dr. Charles Darwin</option>
+                      </select>
+                    ) : (
+                      <Input
+                        type="text"
+                        placeholder="e.g. Rafael Ortiz"
+                        value={scienceTeacher}
+                        onChange={(e) => setScienceTeacher(e.target.value)}
+                        className="bg-white rounded-xl text-xs h-9"
+                      />
+                    )}
                   </div>
                   <div>
-                    <label className="text-[11px] font-bold text-slate-700 block mb-0.5">Room / Lab</label>
-                    <Input
-                      type="text"
-                      placeholder="e.g. Physics Lab"
+                    <label className="text-[11px] font-bold text-slate-700 block mb-0.5">Room / Lab *</label>
+                    <select
                       value={scienceRoom}
                       onChange={(e) => setScienceRoom(e.target.value)}
-                      className="bg-white rounded-xl text-xs h-9 font-semibold"
-                    />
+                      className="w-full h-9 px-2.5 rounded-xl border border-emerald-200 bg-white text-xs font-semibold focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none cursor-pointer"
+                    >
+                      {AVAILABLE_ROOMS.map((r) => (
+                        <option key={r} value={r}>
+                          {r}
+                        </option>
+                      ))}
+                    </select>
                   </div>
                 </div>
               </div>
 
               {/* Arts Group */}
               <div className="p-3.5 bg-amber-50/50 rounded-2xl border border-amber-200/80 space-y-2">
-                <span className="text-[10px] font-black px-2 py-0.5 rounded bg-amber-600 text-white uppercase tracking-wider inline-block">
-                  Arts / Humanities Group
-                </span>
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-black px-2 py-0.5 rounded bg-amber-600 text-white uppercase tracking-wider inline-block">
+                    Arts / Humanities Group
+                  </span>
+                  <span className="text-[10px] font-semibold text-amber-700">
+                    {artsSubjectOptions.length} Subjects Available
+                  </span>
+                </div>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                   <div>
-                    <label className="text-[11px] font-bold text-slate-700 block mb-0.5">Subject</label>
-                    <Input
-                      type="text"
-                      required
-                      placeholder="e.g. History, Civics, Geography"
+                    <label className="text-[11px] font-bold text-slate-700 block mb-0.5">Subject *</label>
+                    <select
                       value={artsSubject}
                       onChange={(e) => setArtsSubject(e.target.value)}
-                      className="bg-white rounded-xl text-xs h-9 font-semibold"
-                    />
+                      className="w-full h-9 px-2.5 rounded-xl border border-amber-200 bg-white text-xs font-semibold focus:border-amber-500 focus:ring-1 focus:ring-amber-500 outline-none cursor-pointer"
+                    >
+                      {artsSubjectOptions.map((sub) => (
+                        <option key={sub} value={sub}>
+                          {sub}
+                        </option>
+                      ))}
+                    </select>
                   </div>
                   <div>
                     <label className="text-[11px] font-bold text-slate-700 block mb-0.5">Teacher</label>
-                    <Input
-                      type="text"
-                      placeholder="e.g. Farhana Sultana"
-                      value={artsTeacher}
-                      onChange={(e) => setArtsTeacher(e.target.value)}
-                      className="bg-white rounded-xl text-xs h-9"
-                    />
+                    {dbTeachers.length > 0 ? (
+                      <select
+                        value={artsTeacher}
+                        onChange={(e) => setArtsTeacher(e.target.value)}
+                        className="w-full h-9 px-2.5 rounded-xl border border-slate-200 bg-white text-xs font-medium focus:border-amber-500 outline-none cursor-pointer"
+                      >
+                        {dbTeachers.map((t) => (
+                          <option key={t.id || t.name} value={t.name}>
+                            {t.name}
+                          </option>
+                        ))}
+                        <option value="Farhana Sultana">Farhana Sultana</option>
+                        <option value="Kabir Ahmed">Kabir Ahmed</option>
+                        <option value="Nasreen Akter">Nasreen Akter</option>
+                      </select>
+                    ) : (
+                      <Input
+                        type="text"
+                        placeholder="e.g. Farhana Sultana"
+                        value={artsTeacher}
+                        onChange={(e) => setArtsTeacher(e.target.value)}
+                        className="bg-white rounded-xl text-xs h-9"
+                      />
+                    )}
                   </div>
                   <div>
-                    <label className="text-[11px] font-bold text-slate-700 block mb-0.5">Room / Lab</label>
-                    <Input
-                      type="text"
-                      placeholder="e.g. Room 201"
+                    <label className="text-[11px] font-bold text-slate-700 block mb-0.5">Room / Lab *</label>
+                    <select
                       value={artsRoom}
                       onChange={(e) => setArtsRoom(e.target.value)}
-                      className="bg-white rounded-xl text-xs h-9 font-semibold"
-                    />
+                      className="w-full h-9 px-2.5 rounded-xl border border-amber-200 bg-white text-xs font-semibold focus:border-amber-500 focus:ring-1 focus:ring-amber-500 outline-none cursor-pointer"
+                    >
+                      {AVAILABLE_ROOMS.map((r) => (
+                        <option key={r} value={r}>
+                          {r}
+                        </option>
+                      ))}
+                    </select>
                   </div>
                 </div>
               </div>
 
               {/* Commerce Group */}
               <div className="p-3.5 bg-blue-50/50 rounded-2xl border border-blue-200/80 space-y-2">
-                <span className="text-[10px] font-black px-2 py-0.5 rounded bg-blue-600 text-white uppercase tracking-wider inline-block">
-                  Commerce / Business Studies Group
-                </span>
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-black px-2 py-0.5 rounded bg-blue-600 text-white uppercase tracking-wider inline-block">
+                    Commerce / Business Studies Group
+                  </span>
+                  <span className="text-[10px] font-semibold text-blue-700">
+                    {commerceSubjectOptions.length} Subjects Available
+                  </span>
+                </div>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                   <div>
-                    <label className="text-[11px] font-bold text-slate-700 block mb-0.5">Subject</label>
-                    <Input
-                      type="text"
-                      required
-                      placeholder="e.g. Accounting, Finance"
+                    <label className="text-[11px] font-bold text-slate-700 block mb-0.5">Subject *</label>
+                    <select
                       value={commerceSubject}
                       onChange={(e) => setCommerceSubject(e.target.value)}
-                      className="bg-white rounded-xl text-xs h-9 font-semibold"
-                    />
+                      className="w-full h-9 px-2.5 rounded-xl border border-blue-200 bg-white text-xs font-semibold focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none cursor-pointer"
+                    >
+                      {commerceSubjectOptions.map((sub) => (
+                        <option key={sub} value={sub}>
+                          {sub}
+                        </option>
+                      ))}
+                    </select>
                   </div>
                   <div>
                     <label className="text-[11px] font-bold text-slate-700 block mb-0.5">Teacher</label>
-                    <Input
-                      type="text"
-                      placeholder="e.g. Robert Kiyosaki"
-                      value={commerceTeacher}
-                      onChange={(e) => setCommerceTeacher(e.target.value)}
-                      className="bg-white rounded-xl text-xs h-9"
-                    />
+                    {dbTeachers.length > 0 ? (
+                      <select
+                        value={commerceTeacher}
+                        onChange={(e) => setCommerceTeacher(e.target.value)}
+                        className="w-full h-9 px-2.5 rounded-xl border border-slate-200 bg-white text-xs font-medium focus:border-blue-500 outline-none cursor-pointer"
+                      >
+                        {dbTeachers.map((t) => (
+                          <option key={t.id || t.name} value={t.name}>
+                            {t.name}
+                          </option>
+                        ))}
+                        <option value="Robert Kiyosaki">Robert Kiyosaki</option>
+                        <option value="Adam Smith">Adam Smith</option>
+                        <option value="Tanvir Hossain">Tanvir Hossain</option>
+                      </select>
+                    ) : (
+                      <Input
+                        type="text"
+                        placeholder="e.g. Robert Kiyosaki"
+                        value={commerceTeacher}
+                        onChange={(e) => setCommerceTeacher(e.target.value)}
+                        className="bg-white rounded-xl text-xs h-9"
+                      />
+                    )}
                   </div>
                   <div>
-                    <label className="text-[11px] font-bold text-slate-700 block mb-0.5">Room / Lab</label>
-                    <Input
-                      type="text"
-                      placeholder="e.g. Room 202"
+                    <label className="text-[11px] font-bold text-slate-700 block mb-0.5">Room / Lab *</label>
+                    <select
                       value={commerceRoom}
                       onChange={(e) => setCommerceRoom(e.target.value)}
-                      className="bg-white rounded-xl text-xs h-9 font-semibold"
-                    />
+                      className="w-full h-9 px-2.5 rounded-xl border border-blue-200 bg-white text-xs font-semibold focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none cursor-pointer"
+                    >
+                      {AVAILABLE_ROOMS.map((r) => (
+                        <option key={r} value={r}>
+                          {r}
+                        </option>
+                      ))}
+                    </select>
                   </div>
                 </div>
               </div>
@@ -633,17 +908,20 @@ export function AddRoutineModal({
                     <MapPin className="h-3.5 w-3.5 text-blue-600" />
                     <span>Room / Lab *</span>
                   </label>
-                  <Input
-                    type="text"
-                    required
-                    placeholder="e.g. Room 101, Lab 02"
+                  <select
                     value={room}
                     onChange={(e) => {
                       setRoom(e.target.value);
                       setConflictError(null);
                     }}
-                    className="rounded-xl border border-slate-200 text-xs sm:text-sm h-10 font-semibold"
-                  />
+                    className="w-full h-10 px-3 rounded-xl border border-slate-200 bg-white text-xs sm:text-sm font-semibold focus:border-blue-500 outline-none cursor-pointer"
+                  >
+                    {AVAILABLE_ROOMS.map((r) => (
+                      <option key={r} value={r}>
+                        {r}
+                      </option>
+                    ))}
+                  </select>
                 </div>
               </div>
 

@@ -2,7 +2,7 @@
 
 import { Badge } from "@/src/components/ui/badge";
 import { Button } from "@/src/components/ui/button";
-import { Coffee, CalendarOff, Edit3, Calendar, Plus } from "lucide-react";
+import { Coffee, Edit3, Calendar, Plus } from "lucide-react";
 import {
   SectionRoutine,
   TIME_SLOTS,
@@ -72,71 +72,28 @@ export function WeeklyTimetable({
             <h2 className="text-xl font-black text-slate-900">
               {routine.fullName || `${routine.grade} · ${routine.section}`}
             </h2>
-
-            {/* Action Buttons: Add Routine & Update Routine */}
-            <div className="flex items-center gap-2">
-              <Button
-                type="button"
-                onClick={onOpenAddRoutine}
-                className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-3.5 py-1.5 rounded-xl text-xs flex items-center gap-1.5 shadow-sm shadow-blue-600/20 transition-all cursor-pointer"
-              >
-                <Plus className="h-3.5 w-3.5 stroke-[2.5]" />
-                <span>Add Routine</span>
-              </Button>
-
-              <Button
-                type="button"
-                onClick={onOpenFullEdit}
-                className="bg-amber-500 hover:bg-amber-600 text-white font-bold px-3.5 py-1.5 rounded-xl text-xs flex items-center gap-1.5 shadow-xs transition-all cursor-pointer"
-              >
-                <Edit3 className="h-3.5 w-3.5" />
-                <span>Update Routine</span>
-              </Button>
-            </div>
           </div>
-
-          <p className="text-xs text-slate-500 mt-1 flex items-center gap-2 flex-wrap">
-            <span>
-              Class Teacher:{" "}
-              <strong className="text-slate-800 font-semibold">
-                {routine.classTeacher || "Unassigned"}
-              </strong>
-            </span>
-            <span>•</span>
-            <span>
-              Room:{" "}
-              <strong className="text-slate-800 font-semibold">
-                {routine.room || "Room 101"}
-              </strong>
-            </span>
-            <span>•</span>
-            <span>
-              <strong className="text-slate-800 font-semibold">
-                {routine.studentCount || 30}
-              </strong>{" "}
-              Students
-            </span>
-            <span>•</span>
-            <span className="text-slate-400">Click any class card to edit period</span>
-          </p>
         </div>
 
-        {/* Off day indicators */}
-        <div className="flex flex-wrap items-center gap-2 self-start sm:self-auto">
-          <Badge
-            variant="outline"
-            className="bg-slate-50 text-slate-500 border-slate-200 text-xs font-medium py-1 px-3 rounded-xl flex items-center gap-1.5"
+        {/* Action Buttons: Add Routine & Update Routine */}
+        <div className="flex items-center gap-2">
+          <Button
+            type="button"
+            onClick={onOpenAddRoutine}
+            className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-3.5 py-1.5 rounded-xl text-xs flex items-center gap-1.5 shadow-sm shadow-blue-600/20 transition-all cursor-pointer"
           >
-            <CalendarOff className="h-3.5 w-3.5 text-slate-400" />
-            <span>Saturday · Weekend</span>
-          </Badge>
-          <Badge
-            variant="outline"
-            className="bg-slate-50 text-slate-500 border-slate-200 text-xs font-medium py-1 px-3 rounded-xl flex items-center gap-1.5"
+            <Plus className="h-3.5 w-3.5 stroke-[2.5]" />
+            <span>Add Routine</span>
+          </Button>
+
+          <Button
+            type="button"
+            onClick={onOpenFullEdit}
+            className="bg-amber-500 hover:bg-amber-600 text-white font-bold px-3.5 py-1.5 rounded-xl text-xs flex items-center gap-1.5 shadow-xs transition-all cursor-pointer"
           >
-            <CalendarOff className="h-3.5 w-3.5 text-slate-400" />
-            <span>Sunday · Weekend</span>
-          </Badge>
+            <Edit3 className="h-3.5 w-3.5" />
+            <span>Update Routine</span>
+          </Button>
         </div>
       </div>
 

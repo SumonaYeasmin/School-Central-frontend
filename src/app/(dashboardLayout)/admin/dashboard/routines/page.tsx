@@ -365,12 +365,10 @@ export default function ClassRoutinesPage() {
       <AddRoutineModal
         isOpen={addModalState.isOpen}
         onClose={() => setAddModalState((prev) => ({ ...prev, isOpen: false }))}
-        routines={routines}
+        targetRoutine={selectedRoutine}
         dbClasses={dbClasses}
         dbTeachers={dbTeachers}
         dbSubjects={dbSubjects}
-        initialClassId={selectedRoutine?.grade}
-        initialSectionId={selectedSectionId}
         initialDay={addModalState.day}
         initialPeriodKey={addModalState.periodKey}
         onAdd={handleAddPeriod}
