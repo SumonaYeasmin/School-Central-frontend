@@ -2,7 +2,7 @@
 
 import { Badge } from "@/src/components/ui/badge";
 import { Button } from "@/src/components/ui/button";
-import { Coffee, CalendarOff, Edit3, Settings2 } from "lucide-react";
+import { Coffee, CalendarOff, Edit3 } from "lucide-react";
 import {
   SectionRoutine,
   TIME_SLOTS,
@@ -11,7 +11,7 @@ import {
 } from "./mockRoutines";
 
 interface WeeklyTimetableProps {
-  routine: SectionRoutine;
+  routine?: SectionRoutine;
   onEditPeriod?: (
     day: string,
     timeSlot: string,
@@ -36,20 +36,31 @@ export function WeeklyTimetable({
   onEditPeriod,
   onOpenFullEdit,
 }: WeeklyTimetableProps) {
+  if (!routine) {
+    return (
+      <div className="bg-white border border-slate-200/90 rounded-3xl p-12 text-center shadow-xs">
+        <p className="text-sm font-semibold text-slate-700">No Routine Selected</p>
+        <p className="text-xs text-slate-400 mt-1">
+          Please select a Class and Section above to view its timetable.
+        </p>
+      </div>
+    );
+  }
+
   return (
-    <div className="bg-white border border-slate-200/90 rounded-3xl p-6 shadow-xs space-y-6">
-      {/* 1. Timetable Header with PROMINENT Update Routine Button */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div className="bg-white border border-slate-200/90 rounded-3xl p-5 sm:p-6 shadow-xs space-y-6">
+      {/* 1. Timetable Header with Update Routine Button */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-slate-100 pb-4">
         <div>
           <span className="text-[11px] font-bold tracking-widest text-slate-400 uppercase">
             WEEKLY TIMETABLE
           </span>
           <div className="flex flex-wrap items-center gap-3 mt-1">
             <h2 className="text-xl font-bold text-slate-900">
-              {routine.fullName}
+              {routine.fullName || `${routine.grade} · ${routine.section}`}
             </h2>
 
-            {/* BIG PROMINENT UPDATE / EDIT BUTTON */}
+            {/* UPDATE / EDIT BUTTON */}
             <Button
               type="button"
               onClick={onOpenFullEdit}
@@ -59,8 +70,29 @@ export function WeeklyTimetable({
               <span>Update Routine</span>
             </Button>
           </div>
-          <p className="text-xs text-slate-500 mt-0.5">
-            Monday–Friday · six one-hour periods each day · Click any card to edit individually
+          <p className="text-xs text-slate-500 mt-1 flex items-center gap-2 flex-wrap">
+            <span>
+              Class Teacher:{" "}
+              <strong className="text-slate-800 font-semibold">
+                {routine.classTeacher || "Unassigned"}
+              </strong>
+            </span>
+            <span>•</span>
+            <span>
+              Room:{" "}
+              <strong className="text-slate-800 font-semibold">
+                {routine.room || "Room 101"}
+              </strong>
+            </span>
+            <span>•</span>
+            <span>
+              <strong className="text-slate-800 font-semibold">
+                {routine.studentCount || 30}
+              </strong>{" "}
+              Students
+            </span>
+            <span>•</span>
+            <span className="text-slate-400">Click any period card to edit individually</span>
           </p>
         </div>
 
@@ -71,14 +103,14 @@ export function WeeklyTimetable({
             className="bg-slate-50 text-slate-500 border-slate-200 text-xs font-medium py-1 px-3 rounded-xl flex items-center gap-1.5"
           >
             <CalendarOff className="h-3.5 w-3.5 text-slate-400" />
-            <span>Saturday · Off day</span>
+            <span>Saturday · Weekend</span>
           </Badge>
           <Badge
             variant="outline"
             className="bg-slate-50 text-slate-500 border-slate-200 text-xs font-medium py-1 px-3 rounded-xl flex items-center gap-1.5"
           >
             <CalendarOff className="h-3.5 w-3.5 text-slate-400" />
-            <span>Sunday · Off day</span>
+            <span>Sunday · Weekend</span>
           </Badge>
         </div>
       </div>
@@ -135,7 +167,7 @@ export function WeeklyTimetable({
 
                   {/* 5 Days columns */}
                   {DAYS_OF_WEEK.map((day) => {
-                    const daySchedule = routine.schedule[day];
+                    const daySchedule = routine?.schedule?.[day];
                     const period: PeriodSlot | undefined =
                       daySchedule?.[slot.periodKey!];
 
@@ -166,7 +198,7 @@ export function WeeklyTimetable({
                           title="Click to edit this period"
                           className={`group/period relative border rounded-2xl p-3.5 transition-all duration-150 shadow-2xs flex flex-col justify-between h-[88px] text-left cursor-pointer hover:shadow-md hover:scale-[1.02] active:scale-98 ${themeClass}`}
                         >
-                          {/* Subject Title & ALWAYS VISIBLE Edit Button */}
+                          {/* Subject Title & Edit Button */}
                           <div className="flex items-start justify-between gap-1.5">
                             <span className="font-bold text-slate-900 text-xs truncate">
                               {period.subject}
@@ -176,14 +208,14 @@ export function WeeklyTimetable({
                             </div>
                           </div>
 
-                          {/* Teacher & Room info */}
-                          <div>
-                            <div className="text-[11px] text-slate-600 font-medium truncate">
+                          {/* Teacher Name & Room */}
+                          <div className="flex items-center justify-between text-[11px] font-medium opacity-90 mt-1">
+                            <span className="truncate pr-1">
                               {period.teacher}
-                            </div>
-                            <div className="text-[10px] text-slate-400 truncate mt-0.5 font-medium">
+                            </span>
+                            <span className="text-[10px] px-1.5 py-0.5 rounded bg-black/5 shrink-0 font-semibold">
                               {period.room}
-                            </div>
+                            </span>
                           </div>
                         </div>
                       </td>
@@ -194,33 +226,6 @@ export function WeeklyTimetable({
             })}
           </tbody>
         </table>
-      </div>
-
-      {/* 3. Bottom Legend & Quick Edit Info */}
-      <div className="pt-4 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center sm:justify-between text-xs text-slate-500 font-medium gap-3">
-        <div className="flex flex-wrap items-center gap-6">
-          <div className="flex items-center gap-2">
-            <span className="h-2.5 w-2.5 rounded-full bg-blue-500"></span>
-            <span>Academic class</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="h-2.5 w-2.5 rounded-full bg-amber-400"></span>
-            <span>Tiffin break</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="h-2.5 w-2.5 rounded-full bg-slate-300"></span>
-            <span>Saturday & Sunday off</span>
-          </div>
-        </div>
-
-        <button
-          type="button"
-          onClick={onOpenFullEdit}
-          className="flex items-center gap-1.5 text-amber-700 hover:text-amber-800 font-bold bg-amber-50 border border-amber-200 py-1.5 px-3.5 rounded-xl w-fit cursor-pointer transition-colors shadow-2xs"
-        >
-          <Settings2 className="h-3.5 w-3.5 text-amber-600" />
-          <span>Update This Routine</span>
-        </button>
       </div>
     </div>
   );

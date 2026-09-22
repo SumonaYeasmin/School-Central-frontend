@@ -17,7 +17,7 @@ export default function ClassRoutinesPage() {
   // 1. Routine State (allows real-time live editing)
   const [routines, setRoutines] = useState<SectionRoutine[]>(MOCK_ROUTINES);
   const [selectedSectionId, setSelectedSectionId] = useState<string>(
-    routines[0]?.id || "g6-c"
+    routines[0]?.id || "c6-a"
   );
 
   // 2. Single Period Edit Modal State

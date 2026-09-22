@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -16,7 +16,7 @@ import { SectionRoutine, DAYS_OF_WEEK, TIME_SLOTS, PeriodSlot } from "./mockRout
 interface EditRoutineModalProps {
   isOpen: boolean;
   onClose: () => void;
-  routine: SectionRoutine;
+  routine?: SectionRoutine;
   onSaveRoutine: (updatedRoutine: SectionRoutine) => void;
 }
 
@@ -27,39 +27,48 @@ export function EditRoutineModal({
   onSaveRoutine,
 }: EditRoutineModalProps) {
   const [activeDay, setActiveDay] = useState<(typeof DAYS_OF_WEEK)[number]>("Monday");
-  const [formData, setFormData] = useState<SectionRoutine>(routine);
+  const [formData, setFormData] = useState<SectionRoutine | undefined>(routine);
 
-  // Sync state when routine changes
-  useState(() => {
-    setFormData(routine);
-  });
+  // Sync state when routine or modal opens
+  useEffect(() => {
+    if (routine) {
+      setFormData(routine);
+    }
+  }, [routine, isOpen]);
+
+  if (!routine || !formData) return null;
 
   const handlePeriodChange = (
     periodKey: "p1" | "p2" | "p3" | "p4" | "p5",
     field: keyof PeriodSlot,
     value: string
   ) => {
-    setFormData((prev) => ({
-      ...prev,
-      schedule: {
-        ...prev.schedule,
-        [activeDay]: {
-          ...prev.schedule[activeDay],
-          [periodKey]: {
-            ...prev.schedule[activeDay][periodKey],
-            [field]: value,
+    setFormData((prev) => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        schedule: {
+          ...prev.schedule,
+          [activeDay]: {
+            ...prev.schedule?.[activeDay],
+            [periodKey]: {
+              ...prev.schedule?.[activeDay]?.[periodKey],
+              [field]: value,
+            },
           },
         },
-      },
-    }));
+      };
+    });
   };
 
   const handleSave = () => {
-    onSaveRoutine(formData);
+    if (formData) {
+      onSaveRoutine(formData);
+    }
     onClose();
   };
 
-  const currentDaySchedule = formData.schedule[activeDay];
+  const currentDaySchedule = formData?.schedule?.[activeDay];
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
@@ -68,7 +77,7 @@ export function EditRoutineModal({
           <DialogTitle className="text-xl font-bold text-slate-900 flex items-center gap-2">
             <span>✏️ Update Routine Schedule</span>
             <span className="text-blue-600 font-extrabold text-base bg-blue-50 px-2.5 py-0.5 rounded-lg border border-blue-200">
-              {routine.fullName}
+              {routine.fullName || `${routine.grade} · ${routine.section}`}
             </span>
           </DialogTitle>
           <DialogDescription className="text-xs text-slate-500">
@@ -109,7 +118,7 @@ export function EditRoutineModal({
             }
 
             const pKey = slot.periodKey!;
-            const period = currentDaySchedule[pKey];
+            const period = currentDaySchedule?.[pKey];
 
             return (
               <div
@@ -164,7 +173,7 @@ export function EditRoutineModal({
                         handlePeriodChange(pKey, "room", e.target.value)
                       }
                       className="bg-white rounded-xl text-xs h-8"
-                      placeholder="Enter room or lab number"
+                      placeholder="e.g. Room 101, Lab 01"
                     />
                   </div>
                 </div>
@@ -173,8 +182,7 @@ export function EditRoutineModal({
           })}
         </div>
 
-        {/* 3. Footer Action Buttons */}
-        <DialogFooter className="mt-6 pt-3 border-t border-slate-100 flex items-center justify-end gap-2">
+        <DialogFooter className="mt-6 flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
           <Button
             type="button"
             variant="outline"
@@ -186,9 +194,9 @@ export function EditRoutineModal({
           <Button
             type="button"
             onClick={handleSave}
-            className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs h-9 font-bold shadow-xs cursor-pointer"
+            className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs h-9 font-semibold shadow-xs cursor-pointer"
           >
-            Save All Updates
+            Save All Changes
           </Button>
         </DialogFooter>
       </DialogContent>
