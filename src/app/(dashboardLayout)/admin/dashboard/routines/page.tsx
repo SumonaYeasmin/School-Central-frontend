@@ -275,8 +275,8 @@ export default function ClassRoutinesPage() {
 
   return (
     <div className="space-y-6 container mx-auto pb-12">
-      {/* 1. Header with Breadcrumb and Add Routine Button */}
-      <RoutinesHeader onAddRoutine={() => handleOpenAddModal()} />
+      {/* 1. Header with Breadcrumb and Title */}
+      <RoutinesHeader />
 
       {/* Notification Toast */}
       {notification && (
