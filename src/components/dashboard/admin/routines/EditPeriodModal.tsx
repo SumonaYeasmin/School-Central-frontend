@@ -11,7 +11,8 @@ import {
 } from "@/src/components/ui/dialog";
 import { Button } from "@/src/components/ui/button";
 import { Input } from "@/src/components/ui/input";
-import { PeriodSlot } from "./mockRoutines";
+import { Layers, Sparkles, BookOpen, User, MapPin } from "lucide-react";
+import { PeriodSlot, GroupSubjectEntry } from "./mockRoutines";
 
 interface EditPeriodModalProps {
   isOpen: boolean;
@@ -29,10 +30,10 @@ interface EditPeriodModalProps {
 }
 
 const THEME_OPTIONS = [
-  { id: "amber", label: "Amber", bg: "bg-amber-100 border-amber-300 text-amber-800" },
   { id: "blue", label: "Blue", bg: "bg-blue-100 border-blue-300 text-blue-800" },
-  { id: "purple", label: "Purple", bg: "bg-purple-100 border-purple-300 text-purple-800" },
   { id: "emerald", label: "Emerald", bg: "bg-emerald-100 border-emerald-300 text-emerald-800" },
+  { id: "amber", label: "Amber", bg: "bg-amber-100 border-amber-300 text-amber-800" },
+  { id: "purple", label: "Purple", bg: "bg-purple-100 border-purple-300 text-purple-800" },
   { id: "rose", label: "Rose", bg: "bg-rose-100 border-rose-300 text-rose-800" },
 ];
 
@@ -46,129 +47,378 @@ export function EditPeriodModal({
   periodData,
   onSave,
 }: EditPeriodModalProps) {
+  // Mode: "single" or "group"
+  const [slotType, setSlotType] = useState<"single" | "group">("single");
+
+  // Single Subject States
   const [subject, setSubject] = useState("");
   const [teacher, setTeacher] = useState("");
   const [room, setRoom] = useState("");
   const [theme, setTheme] = useState<PeriodSlot["theme"]>("blue");
 
+  // Group Elective States (Science, Arts, Commerce)
+  const [scienceSubject, setScienceSubject] = useState("Physics");
+  const [scienceTeacher, setScienceTeacher] = useState("Rafael Ortiz");
+  const [scienceRoom, setScienceRoom] = useState("Physics Lab");
+
+  const [artsSubject, setArtsSubject] = useState("History & Civics");
+  const [artsTeacher, setArtsTeacher] = useState("Farhana Sultana");
+  const [artsRoom, setArtsRoom] = useState("Room 201");
+
+  const [commerceSubject, setCommerceSubject] = useState("Accounting");
+  const [commerceTeacher, setCommerceTeacher] = useState("Robert Kiyosaki");
+  const [commerceRoom, setCommerceRoom] = useState("Room 202");
+
   useEffect(() => {
-    if (periodData) {
-      setSubject(periodData.subject || "");
-      setTeacher(periodData.teacher || "");
-      setRoom(periodData.room || "");
-      setTheme(periodData.theme || "blue");
+    if (periodData && isOpen) {
+      if (periodData.isGroupPeriod && periodData.groupSlots && periodData.groupSlots.length > 0) {
+        setSlotType("group");
+        
+        // Populate Science
+        const sci = periodData.groupSlots.find((g) => g.group.toLowerCase().includes("sci"));
+        if (sci) {
+          setScienceSubject(sci.subject || "Physics");
+          setScienceTeacher(sci.teacher || "Teacher");
+          setScienceRoom(sci.room || "Lab");
+        }
+
+        // Populate Arts
+        const arts = periodData.groupSlots.find((g) => g.group.toLowerCase().includes("art") || g.group.toLowerCase().includes("hum"));
+        if (arts) {
+          setArtsSubject(arts.subject || "History");
+          setArtsTeacher(arts.teacher || "Teacher");
+          setArtsRoom(arts.room || "Room 201");
+        }
+
+        // Populate Commerce
+        const com = periodData.groupSlots.find((g) => g.group.toLowerCase().includes("com") || g.group.toLowerCase().includes("bus"));
+        if (com) {
+          setCommerceSubject(com.subject || "Accounting");
+          setCommerceTeacher(com.teacher || "Teacher");
+          setCommerceRoom(com.room || "Room 202");
+        }
+      } else {
+        setSlotType("single");
+        setSubject(periodData.subject || "");
+        setTeacher(periodData.teacher || "");
+        setRoom(periodData.room || "");
+        setTheme(periodData.theme || "blue");
+      }
     }
   }, [periodData, isOpen]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!subject.trim()) return;
 
-    onSave(day, periodKey, {
-      subject: subject.trim(),
-      teacher: teacher.trim() || "Unassigned",
-      room: room.trim() || "Room TBD",
-      theme,
-    });
+    if (slotType === "group") {
+      const groupSlots: GroupSubjectEntry[] = [
+        {
+          group: "Science",
+          subject: scienceSubject.trim() || "Science Subject",
+          teacher: scienceTeacher.trim() || "Science Faculty",
+          room: scienceRoom.trim() || "Science Lab",
+        },
+        {
+          group: "Arts",
+          subject: artsSubject.trim() || "Arts Subject",
+          teacher: artsTeacher.trim() || "Arts Faculty",
+          room: artsRoom.trim() || "Arts Room",
+        },
+        {
+          group: "Commerce",
+          subject: commerceSubject.trim() || "Commerce Subject",
+          teacher: commerceTeacher.trim() || "Commerce Faculty",
+          room: commerceRoom.trim() || "Commerce Room",
+        },
+      ];
+
+      onSave(day, periodKey, {
+        subject: `Group Electives (${scienceSubject} / ${artsSubject} / ${commerceSubject})`,
+        teacher: "Multi Faculty",
+        room: "Labs & Rooms",
+        theme: "blue",
+        isGroupPeriod: true,
+        groupSlots,
+      });
+    } else {
+      if (!subject.trim()) return;
+
+      onSave(day, periodKey, {
+        subject: subject.trim(),
+        teacher: teacher.trim() || "Unassigned",
+        room: room.trim() || "Room TBD",
+        theme,
+        isGroupPeriod: false,
+        groupSlots: undefined,
+      });
+    }
 
     onClose();
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-md bg-white rounded-3xl p-6 shadow-xl border border-slate-200">
+      <DialogContent className="sm:max-w-xl bg-white rounded-3xl p-6 shadow-2xl border border-slate-200 max-h-[90vh] overflow-y-auto">
         <DialogHeader className="space-y-1 text-left">
-          <DialogTitle className="text-xl font-bold text-slate-900">
-            Edit Routine Period
+          <DialogTitle className="text-xl font-black text-slate-900 flex items-center gap-2">
+            <Sparkles className="h-5 w-5 text-blue-600" />
+            <span>Edit Routine Period</span>
           </DialogTitle>
-          <DialogDescription className="text-xs text-slate-500">
+          <DialogDescription className="text-xs text-slate-500 font-medium">
             {sectionName} · {day} ({timeSlot})
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4 mt-2">
-          {/* 1. Subject Name */}
-          <div className="space-y-1.5 text-left">
-            <label className="text-xs font-semibold text-slate-700">
-              Subject Name <span className="text-red-500">*</span>
-            </label>
-            <Input
-              type="text"
-              required
-              placeholder="Enter subject name"
-              value={subject}
-              onChange={(e) => setSubject(e.target.value)}
-              className="rounded-xl border border-slate-200 text-sm focus:border-blue-500"
-            />
-          </div>
+        {/* 1. Slot Type Selector (Single Subject vs 3-Group Elective) */}
+        <div className="flex items-center gap-2 p-1 bg-slate-100 rounded-2xl mt-3">
+          <button
+            type="button"
+            onClick={() => setSlotType("single")}
+            className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+              slotType === "single"
+                ? "bg-white text-blue-600 shadow-xs scale-100"
+                : "text-slate-500 hover:text-slate-900"
+            }`}
+          >
+            Single / Common Subject
+          </button>
+          <button
+            type="button"
+            onClick={() => setSlotType("group")}
+            className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
+              slotType === "group"
+                ? "bg-white text-blue-600 shadow-xs scale-100"
+                : "text-slate-500 hover:text-slate-900"
+            }`}
+          >
+            <Layers className="h-3.5 w-3.5" />
+            <span>3-Group Elective (Sci + Arts + Com)</span>
+          </button>
+        </div>
 
-          {/* 2. Teacher Name */}
-          <div className="space-y-1.5 text-left">
-            <label className="text-xs font-semibold text-slate-700">
-              Teacher Name
-            </label>
-            <Input
-              type="text"
-              placeholder="Enter teacher name"
-              value={teacher}
-              onChange={(e) => setTeacher(e.target.value)}
-              className="rounded-xl border border-slate-200 text-sm focus:border-blue-500"
-            />
-          </div>
+        <form onSubmit={handleSubmit} className="space-y-4 mt-4 text-left">
+          {slotType === "group" ? (
+            /* ================= MULTI GROUP SECTION (Science + Arts + Commerce) ================= */
+            <div className="space-y-3.5">
+              <div className="p-2.5 bg-blue-50/60 rounded-xl border border-blue-100 text-xs text-blue-900 font-medium">
+                💡 During this period, Science, Arts, and Commerce students have separate elective classes simultaneously in their designated rooms/labs.
+              </div>
 
-          {/* 3. Room / Lab */}
-          <div className="space-y-1.5 text-left">
-            <label className="text-xs font-semibold text-slate-700">
-              Room / Lab
-            </label>
-            <Input
-              type="text"
-              placeholder="Enter room or lab number"
-              value={room}
-              onChange={(e) => setRoom(e.target.value)}
-              className="rounded-xl border border-slate-200 text-sm focus:border-blue-500"
-            />
-          </div>
+              {/* 1. Science Group */}
+              <div className="p-3.5 bg-emerald-50/50 rounded-2xl border border-emerald-200/80 space-y-2">
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] font-black px-2 py-0.5 rounded bg-emerald-600 text-white uppercase tracking-wider">
+                    Science Group
+                  </span>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                  <div>
+                    <label className="text-[11px] font-bold text-slate-700 block mb-0.5">Subject</label>
+                    <Input
+                      type="text"
+                      required
+                      placeholder="e.g. Physics, Chemistry"
+                      value={scienceSubject}
+                      onChange={(e) => setScienceSubject(e.target.value)}
+                      className="bg-white rounded-xl text-xs h-9 font-semibold"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[11px] font-bold text-slate-700 block mb-0.5">Teacher</label>
+                    <Input
+                      type="text"
+                      placeholder="e.g. Rafael Ortiz"
+                      value={scienceTeacher}
+                      onChange={(e) => setScienceTeacher(e.target.value)}
+                      className="bg-white rounded-xl text-xs h-9"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[11px] font-bold text-slate-700 block mb-0.5">Room / Lab</label>
+                    <Input
+                      type="text"
+                      placeholder="e.g. Physics Lab"
+                      value={scienceRoom}
+                      onChange={(e) => setScienceRoom(e.target.value)}
+                      className="bg-white rounded-xl text-xs h-9 font-semibold"
+                    />
+                  </div>
+                </div>
+              </div>
 
-          {/* 4. Color Theme Selector */}
-          <div className="space-y-2 text-left">
-            <label className="text-xs font-semibold text-slate-700">
-              Card Color Accent
-            </label>
-            <div className="flex items-center gap-2">
-              {THEME_OPTIONS.map((opt) => (
-                <button
-                  key={opt.id}
-                  type="button"
-                  onClick={() => setTheme(opt.id as any)}
-                  className={`py-1 px-3 rounded-lg text-xs font-semibold border transition-all cursor-pointer ${
-                    opt.bg
-                  } ${
-                    theme === opt.id
-                      ? "ring-2 ring-slate-800 ring-offset-1 scale-105"
-                      : "opacity-70 hover:opacity-100"
-                  }`}
-                >
-                  {opt.label}
-                </button>
-              ))}
+              {/* 2. Arts / Humanities Group */}
+              <div className="p-3.5 bg-amber-50/50 rounded-2xl border border-amber-200/80 space-y-2">
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] font-black px-2 py-0.5 rounded bg-amber-600 text-white uppercase tracking-wider">
+                    Arts / Humanities Group
+                  </span>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                  <div>
+                    <label className="text-[11px] font-bold text-slate-700 block mb-0.5">Subject</label>
+                    <Input
+                      type="text"
+                      required
+                      placeholder="e.g. History, Civics, Geography"
+                      value={artsSubject}
+                      onChange={(e) => setArtsSubject(e.target.value)}
+                      className="bg-white rounded-xl text-xs h-9 font-semibold"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[11px] font-bold text-slate-700 block mb-0.5">Teacher</label>
+                    <Input
+                      type="text"
+                      placeholder="e.g. Farhana Sultana"
+                      value={artsTeacher}
+                      onChange={(e) => setArtsTeacher(e.target.value)}
+                      className="bg-white rounded-xl text-xs h-9"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[11px] font-bold text-slate-700 block mb-0.5">Room / Lab</label>
+                    <Input
+                      type="text"
+                      placeholder="e.g. Room 201"
+                      value={artsRoom}
+                      onChange={(e) => setArtsRoom(e.target.value)}
+                      className="bg-white rounded-xl text-xs h-9 font-semibold"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* 3. Commerce / Business Group */}
+              <div className="p-3.5 bg-blue-50/50 rounded-2xl border border-blue-200/80 space-y-2">
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] font-black px-2 py-0.5 rounded bg-blue-600 text-white uppercase tracking-wider">
+                    Commerce / Business Studies Group
+                  </span>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                  <div>
+                    <label className="text-[11px] font-bold text-slate-700 block mb-0.5">Subject</label>
+                    <Input
+                      type="text"
+                      required
+                      placeholder="e.g. Accounting, Finance"
+                      value={commerceSubject}
+                      onChange={(e) => setCommerceSubject(e.target.value)}
+                      className="bg-white rounded-xl text-xs h-9 font-semibold"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[11px] font-bold text-slate-700 block mb-0.5">Teacher</label>
+                    <Input
+                      type="text"
+                      placeholder="e.g. Robert Kiyosaki"
+                      value={commerceTeacher}
+                      onChange={(e) => setCommerceTeacher(e.target.value)}
+                      className="bg-white rounded-xl text-xs h-9"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[11px] font-bold text-slate-700 block mb-0.5">Room / Lab</label>
+                    <Input
+                      type="text"
+                      placeholder="e.g. Room 202"
+                      value={commerceRoom}
+                      onChange={(e) => setCommerceRoom(e.target.value)}
+                      className="bg-white rounded-xl text-xs h-9 font-semibold"
+                    />
+                  </div>
+                </div>
+              </div>
             </div>
-          </div>
+          ) : (
+            /* ================= SINGLE / COMMON SUBJECT SECTION ================= */
+            <div className="space-y-4">
+              {/* 1. Subject Name */}
+              <div className="space-y-1.5 text-left">
+                <label className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                  <BookOpen className="h-3.5 w-3.5 text-blue-600" />
+                  <span>Subject Name <span className="text-red-500">*</span></span>
+                </label>
+                <Input
+                  type="text"
+                  required
+                  placeholder="e.g. Bangla, English, Mathematics, ICT"
+                  value={subject}
+                  onChange={(e) => setSubject(e.target.value)}
+                  className="rounded-xl border border-slate-200 text-xs sm:text-sm h-10 font-semibold"
+                />
+              </div>
+
+              {/* 2. Teacher & Room */}
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                    <User className="h-3.5 w-3.5 text-blue-600" />
+                    <span>Teacher Name</span>
+                  </label>
+                  <Input
+                    type="text"
+                    placeholder="Enter teacher name"
+                    value={teacher}
+                    onChange={(e) => setTeacher(e.target.value)}
+                    className="rounded-xl border border-slate-200 text-xs sm:text-sm h-10"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                    <MapPin className="h-3.5 w-3.5 text-blue-600" />
+                    <span>Room / Lab</span>
+                  </label>
+                  <Input
+                    type="text"
+                    placeholder="e.g. Room 101, Lab 01"
+                    value={room}
+                    onChange={(e) => setRoom(e.target.value)}
+                    className="rounded-xl border border-slate-200 text-xs sm:text-sm h-10 font-semibold"
+                  />
+                </div>
+              </div>
+
+              {/* 3. Color Theme Selector */}
+              <div className="space-y-1.5 text-left pt-1">
+                <label className="text-xs font-bold text-slate-700">Card Color Accent</label>
+                <div className="flex items-center gap-2">
+                  {THEME_OPTIONS.map((opt) => (
+                    <button
+                      key={opt.id}
+                      type="button"
+                      onClick={() => setTheme(opt.id as any)}
+                      className={`py-1.5 px-3 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
+                        opt.bg
+                      } ${
+                        theme === opt.id
+                          ? "ring-2 ring-slate-900 ring-offset-1 scale-105"
+                          : "opacity-60 hover:opacity-100"
+                      }`}
+                    >
+                      {opt.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
 
           <DialogFooter className="mt-6 flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
             <Button
               type="button"
               variant="outline"
               onClick={onClose}
-              className="rounded-xl text-xs h-9 cursor-pointer"
+              className="rounded-xl text-xs h-10 px-4 cursor-pointer font-semibold"
             >
               Cancel
             </Button>
             <Button
               type="submit"
-              className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs h-9 font-semibold shadow-xs cursor-pointer"
+              className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs h-10 px-5 font-bold shadow-md shadow-blue-600/20 cursor-pointer"
             >
-              Save Changes
+              Save Period
             </Button>
           </DialogFooter>
         </form>

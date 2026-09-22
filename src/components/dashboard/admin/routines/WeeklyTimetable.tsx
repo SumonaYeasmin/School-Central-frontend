@@ -2,7 +2,7 @@
 
 import { Badge } from "@/src/components/ui/badge";
 import { Button } from "@/src/components/ui/button";
-import { Coffee, CalendarOff, Edit3 } from "lucide-react";
+import { Coffee, CalendarOff, Edit3, Calendar, Plus } from "lucide-react";
 import {
   SectionRoutine,
   TIME_SLOTS,
@@ -19,22 +19,29 @@ interface WeeklyTimetableProps {
     periodData: PeriodSlot
   ) => void;
   onOpenFullEdit?: () => void;
+  onOpenAddRoutine?: () => void;
+  onAddPeriodSlot?: (
+    day: string,
+    periodKey: "p1" | "p2" | "p3" | "p4" | "p5"
+  ) => void;
 }
 
-// Pastel theme mapping matching the screenshot exactly
-const THEME_STYLES = {
-  amber: "bg-[#fef8ee] border-[#faeedb] hover:border-amber-400 text-[#8a4b08]",
-  blue: "bg-[#eff6ff] border-[#dbeafe] hover:border-blue-400 text-[#13519c]",
-  purple: "bg-[#faf5ff] border-[#f3e8ff] hover:border-purple-400 text-[#652d90]",
-  emerald: "bg-[#f0fdf4] border-[#dcfce7] hover:border-emerald-400 text-[#1b6b3e]",
-  rose: "bg-[#fff1f2] border-[#ffe4e6] hover:border-rose-400 text-[#9c1833]",
-  gray: "bg-slate-50 border-slate-200 hover:border-slate-300 text-slate-700",
+// Clean pastel theme colors
+const THEME_STYLES: Record<string, string> = {
+  amber: "bg-[#fef8ee] border-[#faeedb] text-[#8a4b08] hover:border-amber-400",
+  blue: "bg-[#eff6ff] border-[#dbeafe] text-[#13519c] hover:border-blue-400",
+  purple: "bg-[#faf5ff] border-[#f3e8ff] text-[#652d90] hover:border-purple-400",
+  emerald: "bg-[#f0fdf4] border-[#dcfce7] text-[#1b6b3e] hover:border-emerald-400",
+  rose: "bg-[#fff1f2] border-[#ffe4e6] text-[#9c1833] hover:border-rose-400",
+  gray: "bg-slate-50 border-slate-200 text-slate-700 hover:border-slate-300",
 };
 
 export function WeeklyTimetable({
   routine,
   onEditPeriod,
   onOpenFullEdit,
+  onOpenAddRoutine,
+  onAddPeriodSlot,
 }: WeeklyTimetableProps) {
   if (!routine) {
     return (
@@ -47,29 +54,47 @@ export function WeeklyTimetable({
     );
   }
 
+  // Filter periods (p1, p2, p3, p4, p5)
+  const regularPeriods = TIME_SLOTS.filter((s) => !s.isBreak);
+  const morningPeriods = regularPeriods.slice(0, 3); // p1, p2, p3
+  const afternoonPeriods = regularPeriods.slice(3); // p4, p5
+
   return (
-    <div className="bg-white border border-slate-200/90 rounded-3xl p-5 sm:p-6 shadow-xs space-y-6">
-      {/* 1. Timetable Header with Update Routine Button */}
+    <div className="bg-white border border-slate-200/90 rounded-3xl p-5 sm:p-6 shadow-xs space-y-5">
+      {/* 1. Timetable Header with Add and Update Routine Buttons */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-slate-100 pb-4">
         <div>
-          <span className="text-[11px] font-bold tracking-widest text-slate-400 uppercase">
-            WEEKLY TIMETABLE
+          <span className="text-[11px] font-bold tracking-widest text-slate-400 uppercase flex items-center gap-1.5">
+            <Calendar className="h-3 w-3 text-blue-500" />
+            <span>WEEKLY TIMETABLE SCHEDULE</span>
           </span>
           <div className="flex flex-wrap items-center gap-3 mt-1">
-            <h2 className="text-xl font-bold text-slate-900">
+            <h2 className="text-xl font-black text-slate-900">
               {routine.fullName || `${routine.grade} · ${routine.section}`}
             </h2>
 
-            {/* UPDATE / EDIT BUTTON */}
-            <Button
-              type="button"
-              onClick={onOpenFullEdit}
-              className="bg-amber-500 hover:bg-amber-600 text-white font-bold px-3.5 py-1.5 rounded-xl text-xs flex items-center gap-1.5 shadow-xs transition-all cursor-pointer"
-            >
-              <Edit3 className="h-3.5 w-3.5" />
-              <span>Update Routine</span>
-            </Button>
+            {/* Action Buttons: Add Routine & Update Routine */}
+            <div className="flex items-center gap-2">
+              <Button
+                type="button"
+                onClick={onOpenAddRoutine}
+                className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-3.5 py-1.5 rounded-xl text-xs flex items-center gap-1.5 shadow-sm shadow-blue-600/20 transition-all cursor-pointer"
+              >
+                <Plus className="h-3.5 w-3.5 stroke-[2.5]" />
+                <span>Add Routine</span>
+              </Button>
+
+              <Button
+                type="button"
+                onClick={onOpenFullEdit}
+                className="bg-amber-500 hover:bg-amber-600 text-white font-bold px-3.5 py-1.5 rounded-xl text-xs flex items-center gap-1.5 shadow-xs transition-all cursor-pointer"
+              >
+                <Edit3 className="h-3.5 w-3.5" />
+                <span>Update Routine</span>
+              </Button>
+            </div>
           </div>
+
           <p className="text-xs text-slate-500 mt-1 flex items-center gap-2 flex-wrap">
             <span>
               Class Teacher:{" "}
@@ -92,7 +117,7 @@ export function WeeklyTimetable({
               Students
             </span>
             <span>•</span>
-            <span className="text-slate-400">Click any period card to edit individually</span>
+            <span className="text-slate-400">Click any class card to edit period</span>
           </p>
         </div>
 
@@ -115,109 +140,244 @@ export function WeeklyTimetable({
         </div>
       </div>
 
-      {/* 2. Full Weekly Schedule Matrix Table */}
+      {/* 2. Horizontal Time / Vertical Weekday Schedule Matrix */}
       <div className="overflow-x-auto">
-        <table className="w-full text-left border-collapse min-w-[850px]">
+        <table className="w-full text-left border-collapse min-w-[950px]">
+          {/* Columns Header (Time / Periods Horizontally) */}
           <thead>
-            <tr className="border-b border-slate-100 text-xs font-bold text-slate-400 uppercase tracking-wider">
-              <th className="py-3.5 px-4 w-28">Time</th>
-              {DAYS_OF_WEEK.map((day) => (
-                <th
-                  key={day}
-                  className="py-3.5 px-3 text-center font-bold text-slate-700 text-xs"
-                >
-                  {day}
+            <tr className="border-b-2 border-slate-200 bg-slate-50/80 text-xs text-slate-700">
+              {/* Vertical Day Header */}
+              <th className="py-3 px-4 w-32 font-black uppercase tracking-wider text-slate-500">
+                Weekday
+              </th>
+
+              {/* Morning Periods (p1, p2, p3) */}
+              {morningPeriods.map((slot) => (
+                <th key={slot.periodKey} className="py-3 px-3 text-center font-bold">
+                  <div className="text-xs font-extrabold text-slate-900">{slot.label}</div>
+                  <div className="text-[11px] font-medium text-slate-400 mt-0.5">{slot.time}</div>
+                </th>
+              ))}
+
+              {/* Tiffin Break Column */}
+              <th className="py-3 px-2.5 text-center font-bold w-24 bg-amber-50/40 border-x border-amber-100">
+                <div className="text-xs font-extrabold text-amber-800 flex items-center justify-center gap-1">
+                  <Coffee className="h-3.5 w-3.5 text-amber-600" />
+                  <span>Tiffin</span>
+                </div>
+                <div className="text-[11px] font-medium text-amber-600/80 mt-0.5">1:00–2:00</div>
+              </th>
+
+              {/* Afternoon Periods (p4, p5) */}
+              {afternoonPeriods.map((slot) => (
+                <th key={slot.periodKey} className="py-3 px-3 text-center font-bold">
+                  <div className="text-xs font-extrabold text-slate-900">{slot.label}</div>
+                  <div className="text-[11px] font-medium text-slate-400 mt-0.5">{slot.time}</div>
                 </th>
               ))}
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-100">
-            {TIME_SLOTS.map((slot, sIdx) => {
-              // Handle Tiffin / Lunch Break
-              if (slot.isBreak) {
-                return (
-                  <tr key={sIdx} className="bg-amber-50/20">
-                    <td className="py-4 px-4 text-xs font-bold text-slate-400 whitespace-nowrap align-middle">
-                      {slot.time}
-                    </td>
-                    <td colSpan={5} className="py-2.5 px-3">
-                      <div className="bg-amber-50/80 border border-dashed border-amber-200 rounded-2xl py-3 px-4 flex items-center justify-center gap-2 text-center shadow-2xs">
-                        <Coffee className="h-4 w-4 text-amber-600" />
-                        <div>
-                          <span className="font-bold text-amber-900 text-xs block sm:inline">
-                            Tiffin break
-                          </span>
-                          <span className="text-[11px] text-amber-700 font-medium sm:ml-2">
-                            · 1 hour (All Sections)
-                          </span>
-                        </div>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              }
 
-              // Handle Regular Academic Periods
+          {/* Rows (Days of Week Vertically) */}
+          <tbody className="divide-y divide-slate-100 bg-white">
+            {DAYS_OF_WEEK.map((day) => {
+              const daySchedule = routine?.schedule?.[day];
+
               return (
-                <tr key={sIdx} className="hover:bg-slate-50/30 transition-colors">
-                  {/* Time column */}
-                  <td className="py-4 px-4 text-xs font-bold text-slate-400 whitespace-nowrap align-middle">
-                    {slot.time}
+                <tr key={day} className="hover:bg-blue-50/15 transition-colors">
+                  {/* Left Column: Day Label */}
+                  <td className="py-3.5 px-4 font-black text-xs text-slate-800 align-middle">
+                    <div className="flex items-center gap-2">
+                      <div className="h-2 w-2 rounded-full bg-blue-500" />
+                      <span className="text-sm font-extrabold text-slate-900">{day}</span>
+                    </div>
                   </td>
 
-                  {/* 5 Days columns */}
-                  {DAYS_OF_WEEK.map((day) => {
-                    const daySchedule = routine?.schedule?.[day];
-                    const period: PeriodSlot | undefined =
-                      daySchedule?.[slot.periodKey!];
+                  {/* Morning Periods (p1, p2, p3) */}
+                  {morningPeriods.map((slot) => {
+                    const pKey = slot.periodKey!;
+                    const period: PeriodSlot | undefined = daySchedule?.[pKey];
 
                     if (!period) {
                       return (
-                        <td key={day} className="py-2.5 px-2 text-center">
-                          <div className="bg-slate-50 border border-slate-100 rounded-2xl p-3 text-xs text-slate-300">
-                            -
-                          </div>
+                        <td key={pKey} className="py-2 px-1.5 align-middle text-center">
+                          <button
+                            type="button"
+                            onClick={() => onAddPeriodSlot?.(day, pKey)}
+                            title={`Add routine for ${day} ${slot.label}`}
+                            className="w-full min-h-[82px] bg-slate-50/60 hover:bg-blue-50/80 border border-dashed border-slate-200 hover:border-blue-400 rounded-xl flex flex-col items-center justify-center gap-1 text-slate-400 hover:text-blue-600 transition-all cursor-pointer group"
+                          >
+                            <Plus className="h-4 w-4 group-hover:scale-110 transition-transform" />
+                            <span className="text-[10px] font-semibold">Add Slot</span>
+                          </button>
                         </td>
                       );
                     }
 
-                    const themeClass =
-                      THEME_STYLES[period.theme] || THEME_STYLES.blue;
+                    const themeClass = THEME_STYLES[period.theme] || THEME_STYLES.blue;
 
                     return (
-                      <td key={day} className="py-2.5 px-2 align-middle">
-                        <div
-                          onClick={() =>
-                            onEditPeriod?.(
-                              day,
-                              slot.time,
-                              slot.periodKey!,
-                              period
-                            )
-                          }
-                          title="Click to edit this period"
-                          className={`group/period relative border rounded-2xl p-3.5 transition-all duration-150 shadow-2xs flex flex-col justify-between h-[88px] text-left cursor-pointer hover:shadow-md hover:scale-[1.02] active:scale-98 ${themeClass}`}
-                        >
-                          {/* Subject Title & Edit Button */}
-                          <div className="flex items-start justify-between gap-1.5">
-                            <span className="font-bold text-slate-900 text-xs truncate">
-                              {period.subject}
-                            </span>
-                            <div className="flex items-center justify-center h-5 w-5 rounded-md bg-white/90 border border-black/5 text-slate-600 hover:text-blue-600 shadow-2xs shrink-0">
-                              <Edit3 className="h-3 w-3" />
+                      <td key={pKey} className="py-2 px-1.5 align-middle">
+                        {period.isGroupPeriod && period.groupSlots && period.groupSlots.length > 0 ? (
+                          <div
+                            onClick={() => onEditPeriod?.(day, slot.time, pKey, period)}
+                            title={`Click to edit Group Period (${period.groupSlots.length} Groups)`}
+                            className="border border-blue-200/90 bg-gradient-to-b from-blue-50/50 via-white to-slate-50/60 rounded-xl p-2 transition-all duration-150 shadow-2xs hover:shadow-md hover:border-blue-400 hover:scale-[1.01] active:scale-[0.99] flex flex-col justify-between min-h-[88px] text-left cursor-pointer space-y-1"
+                          >
+                            <div className="space-y-1 w-full">
+                              {period.groupSlots.map((grp, idx) => {
+                                const isSci = grp.group.toLowerCase().includes("sci");
+                                const isArts = grp.group.toLowerCase().includes("art") || grp.group.toLowerCase().includes("hum");
+
+                                return (
+                                  <div
+                                    key={idx}
+                                    className="flex items-center justify-between text-[11px] gap-1 bg-white/90 border border-slate-200/80 rounded-lg px-2 py-0.5 shadow-2xs"
+                                  >
+                                    <div className="flex items-center gap-1.5 truncate flex-1 min-w-0">
+                                      <span
+                                        className={`text-[9px] font-black px-1.5 py-0.2 rounded shrink-0 uppercase tracking-wider ${
+                                          isSci
+                                            ? "bg-emerald-100 text-emerald-800 border border-emerald-200"
+                                            : isArts
+                                            ? "bg-amber-100 text-amber-800 border border-amber-200"
+                                            : "bg-blue-100 text-blue-800 border border-blue-200"
+                                        }`}
+                                      >
+                                        {grp.group.slice(0, 3)}
+                                      </span>
+                                      <span className="font-extrabold text-slate-900 truncate text-[11px]">
+                                        {grp.subject}
+                                      </span>
+                                      <span className="text-slate-400 text-[10px] truncate hidden md:inline">
+                                        • {grp.teacher}
+                                      </span>
+                                    </div>
+                                    <span className="text-[10px] px-1.5 py-0.2 rounded bg-slate-100 text-slate-700 font-bold shrink-0 border border-slate-200/60">
+                                      {grp.room}
+                                    </span>
+                                  </div>
+                                );
+                              })}
                             </div>
                           </div>
-
-                          {/* Teacher Name & Room */}
-                          <div className="flex items-center justify-between text-[11px] font-medium opacity-90 mt-1">
-                            <span className="truncate pr-1">
-                              {period.teacher}
-                            </span>
-                            <span className="text-[10px] px-1.5 py-0.5 rounded bg-black/5 shrink-0 font-semibold">
-                              {period.room}
-                            </span>
+                        ) : (
+                          <div
+                            onClick={() => onEditPeriod?.(day, slot.time, pKey, period)}
+                            title={`Click to edit ${period.subject}`}
+                            className={`border rounded-xl p-3 transition-all duration-150 shadow-2xs flex flex-col justify-between min-h-[82px] text-left cursor-pointer hover:shadow-md hover:scale-[1.02] active:scale-[0.99] ${themeClass}`}
+                          >
+                            <div className="font-extrabold text-slate-900 text-xs truncate">
+                              {period.subject}
+                            </div>
+                            <div className="flex items-center justify-between text-[11px] font-medium opacity-90 mt-1">
+                              <span className="truncate pr-1 font-semibold text-slate-700">
+                                {period.teacher}
+                              </span>
+                              <span className="text-[10px] px-1.5 py-0.5 rounded bg-black/5 shrink-0 font-bold text-slate-800">
+                                {period.room}
+                              </span>
+                            </div>
                           </div>
-                        </div>
+                        )}
+                      </td>
+                    );
+                  })}
+
+                  {/* Tiffin Break Column Separator */}
+                  <td className="py-2 px-1.5 text-center align-middle bg-amber-50/20 border-x border-amber-100">
+                    <div className="py-2 px-1 text-[11px] font-bold text-amber-700/80 bg-amber-50/60 border border-amber-200/60 rounded-lg">
+                      Break
+                    </div>
+                  </td>
+
+                  {/* Afternoon Periods (p4, p5) */}
+                  {afternoonPeriods.map((slot) => {
+                    const pKey = slot.periodKey!;
+                    const period: PeriodSlot | undefined = daySchedule?.[pKey];
+
+                    if (!period) {
+                      return (
+                        <td key={pKey} className="py-2 px-1.5 align-middle text-center">
+                          <button
+                            type="button"
+                            onClick={() => onAddPeriodSlot?.(day, pKey)}
+                            title={`Add routine for ${day} ${slot.label}`}
+                            className="w-full min-h-[82px] bg-slate-50/60 hover:bg-blue-50/80 border border-dashed border-slate-200 hover:border-blue-400 rounded-xl flex flex-col items-center justify-center gap-1 text-slate-400 hover:text-blue-600 transition-all cursor-pointer group"
+                          >
+                            <Plus className="h-4 w-4 group-hover:scale-110 transition-transform" />
+                            <span className="text-[10px] font-semibold">Add Slot</span>
+                          </button>
+                        </td>
+                      );
+                    }
+
+                    const themeClass = THEME_STYLES[period.theme] || THEME_STYLES.blue;
+
+                    return (
+                      <td key={pKey} className="py-2 px-1.5 align-middle">
+                        {period.isGroupPeriod && period.groupSlots && period.groupSlots.length > 0 ? (
+                          <div
+                            onClick={() => onEditPeriod?.(day, slot.time, pKey, period)}
+                            title={`Click to edit Group Period (${period.groupSlots.length} Groups)`}
+                            className="border border-blue-200/90 bg-gradient-to-b from-blue-50/50 via-white to-slate-50/60 rounded-xl p-2 transition-all duration-150 shadow-2xs hover:shadow-md hover:border-blue-400 hover:scale-[1.01] active:scale-[0.99] flex flex-col justify-between min-h-[88px] text-left cursor-pointer space-y-1"
+                          >
+                            <div className="space-y-1 w-full">
+                              {period.groupSlots.map((grp, idx) => {
+                                const isSci = grp.group.toLowerCase().includes("sci");
+                                const isArts = grp.group.toLowerCase().includes("art") || grp.group.toLowerCase().includes("hum");
+
+                                return (
+                                  <div
+                                    key={idx}
+                                    className="flex items-center justify-between text-[11px] gap-1 bg-white/90 border border-slate-200/80 rounded-lg px-2 py-0.5 shadow-2xs"
+                                  >
+                                    <div className="flex items-center gap-1.5 truncate flex-1 min-w-0">
+                                      <span
+                                        className={`text-[9px] font-black px-1.5 py-0.2 rounded shrink-0 uppercase tracking-wider ${
+                                          isSci
+                                            ? "bg-emerald-100 text-emerald-800 border border-emerald-200"
+                                            : isArts
+                                            ? "bg-amber-100 text-amber-800 border border-amber-200"
+                                            : "bg-blue-100 text-blue-800 border border-blue-200"
+                                        }`}
+                                      >
+                                        {grp.group.slice(0, 3)}
+                                      </span>
+                                      <span className="font-extrabold text-slate-900 truncate text-[11px]">
+                                        {grp.subject}
+                                      </span>
+                                      <span className="text-slate-400 text-[10px] truncate hidden md:inline">
+                                        • {grp.teacher}
+                                      </span>
+                                    </div>
+                                    <span className="text-[10px] px-1.5 py-0.2 rounded bg-slate-100 text-slate-700 font-bold shrink-0 border border-slate-200/60">
+                                      {grp.room}
+                                    </span>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        ) : (
+                          <div
+                            onClick={() => onEditPeriod?.(day, slot.time, pKey, period)}
+                            title={`Click to edit ${period.subject}`}
+                            className={`border rounded-xl p-3 transition-all duration-150 shadow-2xs flex flex-col justify-between min-h-[82px] text-left cursor-pointer hover:shadow-md hover:scale-[1.02] active:scale-[0.99] ${themeClass}`}
+                          >
+                            <div className="font-extrabold text-slate-900 text-xs truncate">
+                              {period.subject}
+                            </div>
+                            <div className="flex items-center justify-between text-[11px] font-medium opacity-90 mt-1">
+                              <span className="truncate pr-1 font-semibold text-slate-700">
+                                {period.teacher}
+                              </span>
+                              <span className="text-[10px] px-1.5 py-0.5 rounded bg-black/5 shrink-0 font-bold text-slate-800">
+                                {period.room}
+                              </span>
+                            </div>
+                          </div>
+                        )}
                       </td>
                     );
                   })}

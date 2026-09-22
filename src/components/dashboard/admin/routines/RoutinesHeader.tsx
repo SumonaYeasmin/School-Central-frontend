@@ -34,10 +34,10 @@ export function RoutinesHeader({ onAddRoutine }: RoutinesHeaderProps) {
         {/* 3. Add Routine Button */}
         <Button
           onClick={onAddRoutine}
-          className="bg-[#0f2c4a] hover:bg-[#163e66] text-white font-medium px-4 py-2.5 rounded-xl shadow-xs transition-all flex items-center gap-2 self-start sm:self-auto cursor-pointer"
+          className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2.5 rounded-xl shadow-md shadow-blue-600/20 hover:shadow-lg hover:shadow-blue-600/30 transition-all flex items-center gap-2 self-start sm:self-auto cursor-pointer text-sm"
         >
-          <Plus className="h-4 w-4" />
-          <span>Add routine</span>
+          <Plus className="h-4 w-4 stroke-[2.5]" />
+          <span>Add Routine</span>
         </Button>
       </div>
     </div>

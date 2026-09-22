@@ -140,7 +140,13 @@ export function SectionSelector({
           Select Section Routine:
         </span>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3.5 pt-1">
+        <div
+          className={`grid gap-3.5 pt-1 ${
+            activeClassTab === "ALL"
+              ? "grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4"
+              : "grid-cols-1 sm:grid-cols-2"
+          }`}
+        >
           {filteredRoutines.map((routine) => {
             const isSelected = routine.id === selectedId;
 

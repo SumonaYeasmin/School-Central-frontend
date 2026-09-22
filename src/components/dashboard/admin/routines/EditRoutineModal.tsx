@@ -61,6 +61,39 @@ export function EditRoutineModal({
     });
   };
 
+  const handleGroupSlotChange = (
+    periodKey: "p1" | "p2" | "p3" | "p4" | "p5",
+    groupIndex: number,
+    field: "subject" | "teacher" | "room",
+    value: string
+  ) => {
+    setFormData((prev) => {
+      if (!prev) return prev;
+      const currentPeriod = prev.schedule?.[activeDay]?.[periodKey];
+      if (!currentPeriod?.groupSlots) return prev;
+
+      const updatedGroups = [...currentPeriod.groupSlots];
+      updatedGroups[groupIndex] = {
+        ...updatedGroups[groupIndex],
+        [field]: value,
+      };
+
+      return {
+        ...prev,
+        schedule: {
+          ...prev.schedule,
+          [activeDay]: {
+            ...prev.schedule?.[activeDay],
+            [periodKey]: {
+              ...currentPeriod,
+              groupSlots: updatedGroups,
+            },
+          },
+        },
+      };
+    });
+  };
+
   const handleSave = () => {
     if (formData) {
       onSaveRoutine(formData);
@@ -74,13 +107,13 @@ export function EditRoutineModal({
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="sm:max-w-2xl bg-white rounded-3xl p-6 shadow-2xl border border-slate-200 max-h-[90vh] overflow-y-auto">
         <DialogHeader className="space-y-1 text-left">
-          <DialogTitle className="text-xl font-bold text-slate-900 flex items-center gap-2">
+          <DialogTitle className="text-xl font-black text-slate-900 flex items-center gap-2">
             <span>✏️ Update Routine Schedule</span>
             <span className="text-blue-600 font-extrabold text-base bg-blue-50 px-2.5 py-0.5 rounded-lg border border-blue-200">
               {routine.fullName || `${routine.grade} · ${routine.section}`}
             </span>
           </DialogTitle>
-          <DialogDescription className="text-xs text-slate-500">
+          <DialogDescription className="text-xs text-slate-500 font-medium">
             Select a weekday below and update the subject, teacher, and room for each period slot.
           </DialogDescription>
         </DialogHeader>
@@ -120,6 +153,61 @@ export function EditRoutineModal({
             const pKey = slot.periodKey!;
             const period = currentDaySchedule?.[pKey];
 
+            if (period?.isGroupPeriod && period?.groupSlots && period.groupSlots.length > 0) {
+              return (
+                <div
+                  key={pKey}
+                  className="bg-blue-50/30 border border-blue-200/80 rounded-2xl p-3.5 space-y-2.5 text-left"
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-blue-900 bg-white border border-blue-200 py-0.5 px-2.5 rounded-lg shadow-2xs">
+                      {slot.label} ({slot.time}) · 3-Group Electives
+                    </span>
+                  </div>
+
+                  <div className="space-y-2">
+                    {period.groupSlots.map((grp, gIdx) => (
+                      <div
+                        key={gIdx}
+                        className="grid grid-cols-1 sm:grid-cols-4 gap-2 items-center bg-white border border-slate-200/70 p-2 rounded-xl"
+                      >
+                        <span className="text-xs font-bold text-slate-800 sm:col-span-1">
+                          {grp.group}:
+                        </span>
+                        <Input
+                          type="text"
+                          value={grp.subject}
+                          onChange={(e) =>
+                            handleGroupSlotChange(pKey, gIdx, "subject", e.target.value)
+                          }
+                          placeholder="Subject"
+                          className="bg-slate-50 text-xs h-8 rounded-lg"
+                        />
+                        <Input
+                          type="text"
+                          value={grp.teacher}
+                          onChange={(e) =>
+                            handleGroupSlotChange(pKey, gIdx, "teacher", e.target.value)
+                          }
+                          placeholder="Teacher"
+                          className="bg-slate-50 text-xs h-8 rounded-lg"
+                        />
+                        <Input
+                          type="text"
+                          value={grp.room}
+                          onChange={(e) =>
+                            handleGroupSlotChange(pKey, gIdx, "room", e.target.value)
+                          }
+                          placeholder="Room / Lab"
+                          className="bg-slate-50 text-xs h-8 rounded-lg"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              );
+            }
+
             return (
               <div
                 key={pKey}
@@ -142,7 +230,7 @@ export function EditRoutineModal({
                       onChange={(e) =>
                         handlePeriodChange(pKey, "subject", e.target.value)
                       }
-                      className="bg-white rounded-xl text-xs h-8"
+                      className="bg-white rounded-xl text-xs h-8 font-semibold"
                       placeholder="Enter subject name"
                     />
                   </div>
@@ -172,7 +260,7 @@ export function EditRoutineModal({
                       onChange={(e) =>
                         handlePeriodChange(pKey, "room", e.target.value)
                       }
-                      className="bg-white rounded-xl text-xs h-8"
+                      className="bg-white rounded-xl text-xs h-8 font-semibold"
                       placeholder="e.g. Room 101, Lab 01"
                     />
                   </div>
