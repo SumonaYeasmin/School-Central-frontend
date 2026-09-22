@@ -6,8 +6,9 @@ import { AdminResultFilterCard, FilterOption } from "./AdminResultFilterCard";
 import { AdminResultStatsCards } from "./AdminResultStatsCards";
 import { AdminResultSheetTable } from "./AdminResultSheetTable";
 import { AdminResultSidebarSummary } from "./AdminResultSidebarSummary";
+import { AdminStudentMarksheetView } from "./AdminStudentMarksheetView";
 import { AdminStudentSheetItem } from "./AdminStudentMarksheetModal";
-import { CheckCircle2, AlertCircle } from "lucide-react";
+import { CheckCircle2, AlertCircle, FileSpreadsheet, GraduationCap } from "lucide-react";
 import { getClasses, getSubjects, getStudents } from "@/src/services/academicService";
 import { getExams, ExamItem, publishExamResult, unpublishExamResult } from "@/src/services/examService";
 import { getResults } from "@/src/services/resultService";
@@ -29,6 +30,9 @@ const DEMO_ADMIN_RESULTS: AdminStudentSheetItem[] = [
 ];
 
 export function AdminResultsView() {
+  // Navigation tab state: "class_sheet" vs "student_marksheet"
+  const [activeTab, setActiveTab] = useState<"class_sheet" | "student_marksheet">("class_sheet");
+
   // Raw Academic Data State
   const [classesList, setClassesList] = useState<any[]>([]);
   const [subjectsList, setSubjectsList] = useState<any[]>([]);
@@ -398,6 +402,35 @@ export function AdminResultsView() {
         isPublishing={isPublishing}
       />
 
+      {/* 2. Professional Tab Switcher: Class Result Sheet vs Student Marksheet */}
+      <div className="flex items-center gap-2 p-1.5 bg-slate-100/90 rounded-2xl border border-slate-200/80 w-fit">
+        <button
+          type="button"
+          onClick={() => setActiveTab("class_sheet")}
+          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer ${
+            activeTab === "class_sheet"
+              ? "bg-white text-blue-600 shadow-xs border border-slate-200/60"
+              : "text-slate-600 hover:text-slate-900 hover:bg-slate-200/50"
+          }`}
+        >
+          <FileSpreadsheet className="h-4 w-4" />
+          <span>Class Result Sheet</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setActiveTab("student_marksheet")}
+          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer ${
+            activeTab === "student_marksheet"
+              ? "bg-white text-blue-600 shadow-xs border border-slate-200/60"
+              : "text-slate-600 hover:text-slate-900 hover:bg-slate-200/50"
+          }`}
+        >
+          <GraduationCap className="h-4 w-4" />
+          <span>Student Marksheet</span>
+        </button>
+      </div>
+
       {/* Notification Toast */}
       {notification && (
         <div
@@ -447,66 +480,82 @@ export function AdminResultsView() {
         </div>
       )}
 
-      {/* 2. 4-Column Stats Summary Cards (Placed at TOP before filter search) */}
-      <AdminResultStatsCards
-        totalStudents={totalStudents}
-        marksEntered={marksEntered}
-        pendingCount={pendingCount}
-        averageMarks={averageMarks}
-      />
-
-      {/* 3. Filter Bar Card with Explicit Search Button */}
-      <AdminResultFilterCard
-        exams={exams.map((e) => ({ id: e.id, name: e.name, year: e.year }))}
-        selectedExamId={selectedExamId}
-        onExamChange={setSelectedExamId}
-        classes={availableClasses}
-        selectedClassId={selectedClassId}
-        onClassChange={handleClassChange}
-        sections={availableSections}
-        selectedSectionId={selectedSectionId}
-        onSectionChange={handleSectionChange}
-        subjects={availableSubjects}
-        selectedSubjectId={selectedSubjectId}
-        onSubjectChange={handleSubjectChange}
-        onSearch={handleSearch}
-        isSearching={isLoadingStudents}
-        isFetchingFilters={isFetchingFilters}
-      />
-
-      {/* 4. Main Grid: Left 2 Cols (Table) + Right 1 Col (Sidebar Panel) */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
-        {/* Left 2 Cols: Result Sheet Table (No Pagination) */}
-        <div className="lg:col-span-2">
-          <AdminResultSheetTable
-            students={students}
-            isLoading={isLoadingStudents}
-            classNameStr={activeClassName}
-            sectionName={activeSectionName}
-            subjectName={activeSubjectName}
-            examName={activeExamName}
-            isPublished={isPublished}
-          />
-        </div>
-
-        {/* Right 1 Col: Summary Metrics, Status Note, Publish & PDF Download */}
-        <div>
-          <AdminResultSidebarSummary
-            examName={activeExamName}
-            classNameStr={activeClassName}
-            sectionName={activeSectionName}
-            subjectName={activeSubjectName}
+      {/* TAB 1: Class Result Sheet View */}
+      {activeTab === "class_sheet" && (
+        <div className="space-y-5 sm:space-y-6 animate-in fade-in duration-200">
+          {/* 4-Column Stats Summary Cards */}
+          <AdminResultStatsCards
             totalStudents={totalStudents}
-            marksRange={`${minMark} – ${maxMark}`}
+            marksEntered={marksEntered}
+            pendingCount={pendingCount}
             averageMarks={averageMarks}
-            highestMarks={`${maxMark} (${highestStudent})`}
-            lowestMarks={`${minMark} (${lowestStudent})`}
-            isPublished={isPublished}
-            onPublishToggle={handlePublishToggle}
-            isPublishing={isPublishing}
+          />
+
+          {/* Filter Bar Card with Explicit Search Button */}
+          <AdminResultFilterCard
+            exams={exams.map((e) => ({ id: e.id, name: e.name, year: e.year }))}
+            selectedExamId={selectedExamId}
+            onExamChange={setSelectedExamId}
+            classes={availableClasses}
+            selectedClassId={selectedClassId}
+            onClassChange={handleClassChange}
+            sections={availableSections}
+            selectedSectionId={selectedSectionId}
+            onSectionChange={handleSectionChange}
+            subjects={availableSubjects}
+            selectedSubjectId={selectedSubjectId}
+            onSubjectChange={handleSubjectChange}
+            onSearch={handleSearch}
+            isSearching={isLoadingStudents}
+            isFetchingFilters={isFetchingFilters}
+          />
+
+          {/* Main Grid: Left 2 Cols (Table) + Right 1 Col (Sidebar Panel) */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+            {/* Left 2 Cols: Result Sheet Table (No Pagination) */}
+            <div className="lg:col-span-2">
+              <AdminResultSheetTable
+                students={students}
+                isLoading={isLoadingStudents}
+                classNameStr={activeClassName}
+                sectionName={activeSectionName}
+                subjectName={activeSubjectName}
+                examName={activeExamName}
+                isPublished={isPublished}
+              />
+            </div>
+
+            {/* Right 1 Col: Summary Metrics, Status Note, Publish & PDF Download */}
+            <div>
+              <AdminResultSidebarSummary
+                examName={activeExamName}
+                classNameStr={activeClassName}
+                sectionName={activeSectionName}
+                subjectName={activeSubjectName}
+                totalStudents={totalStudents}
+                marksRange={`${minMark} – ${maxMark}`}
+                averageMarks={averageMarks}
+                highestMarks={`${maxMark} (${highestStudent})`}
+                lowestMarks={`${minMark} (${lowestStudent})`}
+                isPublished={isPublished}
+                onPublishToggle={handlePublishToggle}
+                isPublishing={isPublishing}
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* TAB 2: Individual Student Marksheet View */}
+      {activeTab === "student_marksheet" && (
+        <div className="animate-in fade-in duration-200">
+          <AdminStudentMarksheetView
+            classes={classesList}
+            exams={exams}
+            isFetchingFilters={isFetchingFilters}
           />
         </div>
-      </div>
+      )}
     </div>
   );
 }
