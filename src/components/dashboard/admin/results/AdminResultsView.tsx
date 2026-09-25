@@ -395,6 +395,10 @@ export function AdminResultsView() {
       : "–";
   const marksRangeStr =
     marksList.length > 0 ? `${minMark} – ${maxMark}` : "–";
+  const highestMarksStr =
+    marksList.length > 0 ? `${maxMark} (${highestStudent})` : "–";
+  const lowestMarksStr =
+    marksList.length > 0 ? `${minMark} (${lowestStudent})` : "–";
 
   return (
     <div className="space-y-5 sm:space-y-6 container mx-auto pb-12">
@@ -537,10 +541,10 @@ export function AdminResultsView() {
                 sectionName={activeSectionName}
                 subjectName={activeSubjectName}
                 totalStudents={totalStudents}
-                marksRange={`${minMark} – ${maxMark}`}
+                marksRange={marksRangeStr}
                 averageMarks={averageMarks}
-                highestMarks={`${maxMark} (${highestStudent})`}
-                lowestMarks={`${minMark} (${lowestStudent})`}
+                highestMarks={highestMarksStr}
+                lowestMarks={lowestMarksStr}
                 isPublished={isPublished}
                 onPublishToggle={handlePublishToggle}
                 isPublishing={isPublishing}
