@@ -14,6 +14,8 @@ import {
   CheckCircle2,
   Compass,
   Play,
+  Layers,
+  FileText,
 } from "lucide-react";
 import { Button } from "@/src/components/ui/button";
 
@@ -225,7 +227,7 @@ export default function HomePage() {
       </section>
 
       {/* ================= 4. About Our School Section ================= */}
-      <section id="about" className="py-12 sm:py-16 bg-white">
+      <section id="about" className="py-12 sm:py-16 bg-white border-b border-slate-100">
         <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-14 items-center">
             {/* Left Column: Story, Mission & Vision, Read More */}
@@ -323,6 +325,116 @@ export default function HomePage() {
                     <span className="text-white/95">Grow</span> <br />
                     <span className="text-white">Succeed</span>
                   </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ================= 5. Academic Information (Classes & Subjects) Section ================= */}
+      <section id="academic" className="py-14 sm:py-20 bg-slate-50/70 border-b border-slate-100">
+        <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+            {/* Left Column: Heading & Intro */}
+            <div className="lg:col-span-5 space-y-5">
+              {/* Badge */}
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-50 border border-blue-200/80 text-blue-600 text-xs sm:text-sm font-semibold shadow-2xs">
+                <School className="h-3.5 w-3.5" />
+                <span>Academic Information</span>
+              </div>
+
+              {/* Title */}
+              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight leading-tight">
+                Classes & Subjects
+              </h2>
+
+              {/* Description */}
+              <p className="text-sm sm:text-base text-slate-600 font-normal leading-relaxed">
+                We offer classes from 6 to 10 with a well-structured curriculum and a wide range of subjects to ensure holistic development of our students.
+              </p>
+
+              {/* Action Button */}
+              <div className="pt-1">
+                <button
+                  type="button"
+                  className="h-11 px-7 rounded-full bg-white hover:bg-blue-50/60 border border-blue-600 text-blue-600 font-semibold text-sm inline-flex items-center gap-2 shadow-2xs transition-all cursor-pointer active:scale-95"
+                >
+                  <span>View Academic Details</span>
+                  <ArrowRight className="h-4 w-4" />
+                </button>
+              </div>
+            </div>
+
+            {/* Right Column: Academic Card with 4 Info Grid + Study Books Photo */}
+            <div className="lg:col-span-7">
+              <div className="bg-white rounded-3xl border border-slate-200/80 shadow-md shadow-slate-100 p-6 sm:p-7 flex flex-col md:flex-row items-center gap-6">
+                {/* 2x2 Info Grid */}
+                <div className="grid grid-cols-2 gap-x-6 gap-y-6 flex-1 w-full">
+                  {/* Classes */}
+                  <div className="flex items-start gap-3">
+                    <div className="h-11 w-11 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+                      <BookOpen className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <p className="text-xs font-semibold text-slate-500">Classes</p>
+                      <p className="text-sm sm:text-base font-bold text-slate-900 mt-0.5">
+                        6 - 10
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Sections */}
+                  <div className="flex items-start gap-3">
+                    <div className="h-11 w-11 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+                      <Layers className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <p className="text-xs font-semibold text-slate-500">Sections</p>
+                      <p className="text-sm sm:text-base font-bold text-slate-900 mt-0.5">
+                        A, B, C
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Subjects */}
+                  <div className="flex items-start gap-3">
+                    <div className="h-11 w-11 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+                      <FileText className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <p className="text-xs font-semibold text-slate-500">Subjects</p>
+                      <p className="text-sm font-bold text-slate-900 mt-0.5 leading-snug">
+                        Science / Arts / Commerce
+                      </p>
+                      <p className="text-[11px] text-slate-400 font-medium mt-0.5">
+                        (Grade 9-10)
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Academic Year */}
+                  <div className="flex items-start gap-3">
+                    <div className="h-11 w-11 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+                      <Calendar className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <p className="text-xs font-semibold text-slate-500">Academic Year</p>
+                      <p className="text-sm sm:text-base font-bold text-slate-900 mt-0.5">
+                        2026
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Right Books and Pencils Image */}
+                <div className="relative w-full md:w-[200px] lg:w-[230px] h-[170px] sm:h-[185px] rounded-2xl overflow-hidden shrink-0 border border-slate-100 shadow-2xs">
+                  <Image
+                    src="/images/academic-books.jpg"
+                    alt="Academic Study Books and Colored Pencils"
+                    fill
+                    className="object-cover hover:scale-105 transition-transform duration-500"
+                  />
                 </div>
               </div>
             </div>
