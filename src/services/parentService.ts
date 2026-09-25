@@ -61,11 +61,38 @@ export const removeStudentFromParent = async (
   return response.data;
 };
 
+export interface ChildGuardianInfo {
+  id: string;
+  name: string;
+  relation: string;
+  phone: string;
+  email?: string | null;
+  address?: string | null;
+  isPrimary: boolean;
+}
+
+export interface ChildClassTeacherInfo {
+  name: string;
+  designation: string;
+  phone: string;
+  email?: string | null;
+}
+
+export interface ChildSubjectInfo {
+  id: string;
+  name: string;
+  code?: string | null;
+  isCompulsory: boolean;
+  isOptional: boolean;
+}
+
 export interface ParentChildInfo {
   id: string;
   studentId: string;
   name: string;
   gender: string;
+  dateOfBirth?: string | null;
+  admissionDate?: string | null;
   photo?: string | null;
   class: string;
   classId: string;
@@ -76,6 +103,9 @@ export interface ParentChildInfo {
   relation: string;
   isPrimaryContact: boolean;
   status: string;
+  classTeacher?: ChildClassTeacherInfo | null;
+  guardians?: ChildGuardianInfo[];
+  subjects?: ChildSubjectInfo[];
 }
 
 export interface MyChildrenResponse {

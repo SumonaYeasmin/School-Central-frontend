@@ -43,7 +43,7 @@ export function ParentOverviewView() {
 
   return (
     <div className="min-h-screen bg-slate-50/50 p-4 sm:p-6 lg:p-8 font-sans">
-      <div className="container mx-auto max-w-7xl space-y-8">
+      <div className="container mx-auto space-y-8">
         {/* Hero Welcome Banner */}
         <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-900 via-slate-900 to-indigo-950 p-6 sm:p-8 lg:p-10 text-white shadow-xl border border-indigo-800/40">
           <div className="absolute right-0 top-0 h-72 w-72 rounded-full bg-indigo-500/10 blur-3xl pointer-events-none" />
@@ -88,12 +88,12 @@ export function ParentOverviewView() {
           </div>
 
           <div className="rounded-3xl bg-white border border-slate-200/80 p-5 shadow-xs flex items-center gap-4">
-            <div className="h-12 w-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold">
-              <Clock className="h-6 w-6" />
+            <div className="h-12 w-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold">
+              <Calendar className="h-6 w-6" />
             </div>
             <div>
-              <div className="text-2xl font-black text-slate-900">96.4%</div>
-              <div className="text-xs text-slate-500 font-medium">Avg. Attendance</div>
+              <div className="text-2xl font-black text-slate-900">2026</div>
+              <div className="text-xs text-slate-500 font-medium">Academic Session</div>
             </div>
           </div>
 

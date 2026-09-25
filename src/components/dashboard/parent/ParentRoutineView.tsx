@@ -81,7 +81,7 @@ export function ParentRoutineView() {
 
   return (
     <div className="min-h-screen bg-slate-50/50 p-4 sm:p-6 lg:p-8 font-sans">
-      <div className="container mx-auto max-w-7xl space-y-8">
+      <div className="container mx-auto space-y-8">
         {/* Header Banner */}
         <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-950 via-slate-900 to-indigo-900 p-6 sm:p-8 text-white shadow-xl border border-indigo-800/40 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
           <div className="space-y-2">
