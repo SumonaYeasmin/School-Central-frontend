@@ -30,6 +30,7 @@
     "react-dom": "19.2.8",
     "react-hook-form": "^7.88.0",
     "react-hot-toast": "^2.6.1",
+    "recharts": "^3.10.1",
     "shadcn": "^4.21.0",
     "tailwind-animate": "^0.2.10",
     "tailwind-merge": "^3.7.0",

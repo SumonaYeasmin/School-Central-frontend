@@ -11,17 +11,32 @@ import {
   MOCK_ROUTINES,
   SectionRoutine,
   PeriodSlot,
+  getSubjectThemeColor,
 } from "@/src/components/dashboard/admin/routines/mockRoutines";
 import { getClasses, getSubjects, getTeachers } from "@/src/services/academicService";
 import { getRoutines } from "@/src/services/routineService";
 import { CheckCircle2, AlertCircle } from "lucide-react";
 
+// Helper to sort routines numerically by grade (Class 6 to Class 10) and then by section
+const sortRoutinesList = (list: SectionRoutine[]): SectionRoutine[] => {
+  return [...list].sort((a, b) => {
+    const gradeA = parseInt(a.grade.replace(/\D/g, ""), 10) || 0;
+    const gradeB = parseInt(b.grade.replace(/\D/g, ""), 10) || 0;
+    if (gradeA !== gradeB) return gradeA - gradeB;
+    return a.section.localeCompare(b.section);
+  });
+};
+
 export default function ClassRoutinesPage() {
-  // 1. Live Routine State
-  const [routines, setRoutines] = useState<SectionRoutine[]>(MOCK_ROUTINES);
-  const [selectedSectionId, setSelectedSectionId] = useState<string>(
-    routines[0]?.id || "c6-a"
-  );
+  const initialSortedRoutines = sortRoutinesList(MOCK_ROUTINES);
+  const defaultClass6Section =
+    initialSortedRoutines.find((r) => r.grade.toLowerCase().includes("6"))?.id ||
+    initialSortedRoutines[0]?.id ||
+    "c6-a";
+
+  // 1. Live Routine State (Sorted Class 6 to 10)
+  const [routines, setRoutines] = useState<SectionRoutine[]>(initialSortedRoutines);
+  const [selectedSectionId, setSelectedSectionId] = useState<string>(defaultClass6Section);
 
   // 2. Database Academic State
   const [dbClasses, setDbClasses] = useState<any[]>([]);
@@ -137,12 +152,17 @@ export default function ClassRoutinesPage() {
             );
 
             if (targetRoutine && targetRoutine.schedule?.[dayKey]) {
-              targetRoutine.schedule[dayKey][pKey] = {
-                subject: dbItem.subject?.name || "Subject",
-                teacher: dbItem.teacher?.name || "Teacher",
-                room: dbItem.roomNumber || targetRoutine.room || "Room 101",
-                theme: "blue",
-              };
+              const existingSlot = targetRoutine.schedule[dayKey][pKey];
+              // Preserve multi-group departmental periods for Class 9 and 10
+              if (!existingSlot?.isGroupPeriod) {
+                const subName = dbItem.subject?.name || "Subject";
+                targetRoutine.schedule[dayKey][pKey] = {
+                  subject: subName,
+                  teacher: dbItem.teacher?.name || "Teacher",
+                  room: dbItem.roomNumber || targetRoutine.room || "Room 101",
+                  theme: getSubjectThemeColor(subName),
+                };
+              }
             }
           });
 

@@ -8,6 +8,7 @@ import {
   TIME_SLOTS,
   DAYS_OF_WEEK,
   PeriodSlot,
+  getSubjectThemeColor,
 } from "./mockRoutines";
 
 interface WeeklyTimetableProps {
@@ -171,7 +172,10 @@ export function WeeklyTimetable({
                       );
                     }
 
-                    const themeClass = THEME_STYLES[period.theme] || THEME_STYLES.blue;
+                    const themeClass =
+                      THEME_STYLES[period.theme] ||
+                      THEME_STYLES[getSubjectThemeColor(period.subject)] ||
+                      THEME_STYLES.blue;
 
                     return (
                       <td key={pKey} className="py-2 px-1.5 align-middle">
@@ -269,7 +273,10 @@ export function WeeklyTimetable({
                       );
                     }
 
-                    const themeClass = THEME_STYLES[period.theme] || THEME_STYLES.blue;
+                    const themeClass =
+                      THEME_STYLES[period.theme] ||
+                      THEME_STYLES[getSubjectThemeColor(period.subject)] ||
+                      THEME_STYLES.blue;
 
                     return (
                       <td key={pKey} className="py-2 px-1.5 align-middle">

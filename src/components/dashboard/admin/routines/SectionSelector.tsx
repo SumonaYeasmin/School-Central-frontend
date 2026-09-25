@@ -23,15 +23,26 @@ export function SectionSelector({
 
   const activeGrade = currentRoutine?.grade || "Class 6";
 
-  // Unique classes list
+  // Helper to sort classes in natural numerical order (Class 6, Class 7, Class 8, Class 9, Class 10)
+  const sortGradeNames = (a: string, b: string): number => {
+    const numA = parseInt(a.replace(/\D/g, ""), 10) || 0;
+    const numB = parseInt(b.replace(/\D/g, ""), 10) || 0;
+    if (numA !== numB) return numA - numB;
+    return a.localeCompare(b);
+  };
+
+  // Unique classes list sorted numerically (Class 6 -> Class 10)
   const classesList = useMemo(() => {
     const list = Array.from(new Set(routines.map((r) => r.grade)));
-    return list.length > 0 ? list : Array.from(CLASSES_LIST);
+    const baseList = list.length > 0 ? list : Array.from(CLASSES_LIST);
+    return [...baseList].sort(sortGradeNames);
   }, [routines]);
 
-  // Sections belonging to the currently selected class
+  // Sections belonging to the currently selected class (sorted alphabetically e.g. Section A, Section B)
   const classSections = useMemo(() => {
-    return routines.filter((r) => r.grade === activeGrade);
+    return routines
+      .filter((r) => r.grade === activeGrade)
+      .sort((a, b) => a.section.localeCompare(b.section));
   }, [routines, activeGrade]);
 
   // Handle Class change (maintains same section letter if available, or selects first)
