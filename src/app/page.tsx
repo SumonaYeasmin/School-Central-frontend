@@ -38,8 +38,12 @@ import {
   SelectValue,
 } from "@/src/components/ui/select";
 import { getExams, ExamItem } from "@/src/services/examService";
+import { getStudents } from "@/src/services/studentService";
+import { getTeachers } from "@/src/services/teacherService";
+import { getClasses } from "@/src/services/academicService";
 import { PublicResultModal } from "@/src/components/modules/home/PublicResultModal";
 import { PublicFooter } from "@/src/components/modules/home/PublicFooter";
+import { Teacher } from "@/src/types/teacher";
 
 export default function HomePage() {
   const navLinks = [
@@ -54,34 +58,39 @@ export default function HomePage() {
     { label: "Contact", href: "#contact" },
   ];
 
-  const stats = [
+  // Dynamic Database State
+  const [totalStudents, setTotalStudents] = useState<number | null>(null);
+  const [totalTeachers, setTotalTeachers] = useState<number | null>(null);
+  const [totalClasses, setTotalClasses] = useState<number | null>(null);
+  const [classesRange, setClassesRange] = useState<string>("6 - 10");
+  const [dbTeachersList, setDbTeachersList] = useState<Teacher[]>([]);
+  const [isLoadingStats, setIsLoadingStats] = useState<boolean>(true);
+
+  // Fallback demo teachers if DB has none yet
+  const fallbackTeachers = [
     {
-      id: "students",
-      value: "1,250+",
-      label: "Total Students",
-      icon: Users,
-      iconBg: "bg-blue-50 text-blue-600 border border-blue-100",
+      id: "tch-1",
+      name: "Md. Rahman",
+      subject: "Mathematics",
+      image: "/images/teacher-1.jpg",
     },
     {
-      id: "teachers",
-      value: "85+",
-      label: "Teachers & Staff",
-      icon: UserCheck,
-      iconBg: "bg-indigo-50 text-indigo-600 border border-indigo-100",
+      id: "tch-2",
+      name: "Farhana Akter",
+      subject: "English",
+      image: "/images/teacher-2.jpg",
     },
     {
-      id: "classes",
-      value: "10",
-      label: "Classes (6 - 10)",
-      icon: BookOpen,
-      iconBg: "bg-emerald-50 text-emerald-600 border border-emerald-100",
+      id: "tch-3",
+      name: "Tanjina Islam",
+      subject: "Science",
+      image: "/images/teacher-3.jpg",
     },
     {
-      id: "established",
-      value: "1998",
-      label: "Established",
-      icon: Calendar,
-      iconBg: "bg-amber-50 text-amber-600 border border-amber-100",
+      id: "tch-4",
+      name: "Abdul Karim",
+      subject: "Bangla",
+      image: "/images/teacher-4.jpg",
     },
   ];
 
@@ -116,33 +125,6 @@ export default function HomePage() {
     },
   ];
 
-  const teachers = [
-    {
-      id: "tch-1",
-      name: "Md. Rahman",
-      subject: "Mathematics",
-      image: "/images/teacher-1.jpg",
-    },
-    {
-      id: "tch-2",
-      name: "Farhana Akter",
-      subject: "English",
-      image: "/images/teacher-2.jpg",
-    },
-    {
-      id: "tch-3",
-      name: "Tanjina Islam",
-      subject: "Science",
-      image: "/images/teacher-3.jpg",
-    },
-    {
-      id: "tch-4",
-      name: "Abdul Karim",
-      subject: "Bangla",
-      image: "/images/teacher-4.jpg",
-    },
-  ];
-
   // State for result modal and quick search widget
   const [isResultModalOpen, setIsResultModalOpen] = useState<boolean>(false);
   const [exams, setExams] = useState<ExamItem[]>([]);
@@ -151,7 +133,42 @@ export default function HomePage() {
   const [quickYear, setQuickYear] = useState<string>("2026");
 
   useEffect(() => {
-    getExams()
+    setIsLoadingStats(true);
+
+    // 1. Fetch Students count from DB
+    const fetchStudents = getStudents()
+      .then((res: any) => {
+        const list = Array.isArray(res) ? res : res?.data || [];
+        setTotalStudents(list.length);
+      })
+      .catch((err) => console.error("Error loading students count:", err));
+
+    // 2. Fetch Teachers count and list from DB
+    const fetchTeachers = getTeachers()
+      .then((res: any) => {
+        const list = Array.isArray(res) ? res : res?.data || [];
+        setTotalTeachers(list.length);
+        if (list.length > 0) {
+          setDbTeachersList(list);
+        }
+      })
+      .catch((err) => console.error("Error loading teachers count:", err));
+
+    // 3. Fetch Classes count and info from DB
+    const fetchClasses = getClasses()
+      .then((res: any) => {
+        const list = Array.isArray(res) ? res : res?.data || [];
+        setTotalClasses(list.length);
+        if (list.length > 0) {
+          const first = list[0]?.name || "1";
+          const last = list[list.length - 1]?.name || "10";
+          setClassesRange(`${first} - ${last}`);
+        }
+      })
+      .catch((err) => console.error("Error loading classes count:", err));
+
+    // 4. Fetch Exams for quick search dropdown
+    const fetchExams = getExams()
       .then((data) => {
         if (Array.isArray(data) && data.length > 0) {
           setExams(data);
@@ -160,12 +177,61 @@ export default function HomePage() {
         }
       })
       .catch((err) => console.error("Error loading exams:", err));
+
+    Promise.allSettled([fetchStudents, fetchTeachers, fetchClasses, fetchExams]).finally(
+      () => {
+        setIsLoadingStats(false);
+      }
+    );
   }, []);
 
   const handleQuickSearch = (e: React.FormEvent) => {
     e.preventDefault();
     setIsResultModalOpen(true);
   };
+
+  // Dynamic 4 Stats Data
+  const stats = [
+    {
+      id: "students",
+      value: totalStudents !== null ? `${totalStudents}` : "1,250+",
+      label: "Total Students",
+      icon: Users,
+      iconBg: "bg-blue-50 text-blue-600 border border-blue-100",
+    },
+    {
+      id: "teachers",
+      value: totalTeachers !== null ? `${totalTeachers}` : "85+",
+      label: "Teachers & Staff",
+      icon: UserCheck,
+      iconBg: "bg-indigo-50 text-indigo-600 border border-indigo-100",
+    },
+    {
+      id: "classes",
+      value: totalClasses !== null ? `${totalClasses}` : "10",
+      label: `Classes (${classesRange})`,
+      icon: BookOpen,
+      iconBg: "bg-emerald-50 text-emerald-600 border border-emerald-100",
+    },
+    {
+      id: "established",
+      value: "1998",
+      label: "Established",
+      icon: Calendar,
+      iconBg: "bg-amber-50 text-amber-600 border border-amber-100",
+    },
+  ];
+
+  // Teachers to render: DB teachers or fallback
+  const displayTeachers =
+    dbTeachersList.length > 0
+      ? dbTeachersList.slice(0, 4).map((t, idx) => ({
+          id: t.id || `tch-${idx}`,
+          name: t.name,
+          subject: t.department || t.designation || "Faculty",
+          image: `/images/teacher-${(idx % 4) + 1}.jpg`,
+        }))
+      : fallbackTeachers;
 
   return (
     <div className="min-h-screen bg-slate-50/40 font-sans flex flex-col selection:bg-blue-100 selection:text-blue-900 text-slate-800">
@@ -307,7 +373,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ================= 3. Floating Stats Bar (Soft Pastel Badges) ================= */}
+      {/* ================= 3. Floating Stats Bar (Dynamic Database Connected) ================= */}
       <section className="relative z-20 max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 -mt-8 sm:-mt-10 mb-10 w-full">
         <div className="bg-white rounded-3xl border border-slate-200/80 shadow-xl shadow-slate-200/40 p-6 sm:p-7 backdrop-blur-sm">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 divide-y md:divide-y-0 md:divide-x divide-slate-100">
@@ -481,7 +547,7 @@ export default function HomePage() {
 
               {/* Description */}
               <p className="text-sm sm:text-base text-slate-600 font-normal leading-relaxed">
-                We offer classes from 6 to 10 with a well-structured curriculum and a wide range of subjects to ensure holistic development of our students.
+                We offer classes from {classesRange} with a well-structured curriculum and a wide range of subjects to ensure holistic development of our students.
               </p>
 
               {/* Action Button */}
@@ -509,7 +575,7 @@ export default function HomePage() {
                     <div>
                       <p className="text-xs font-semibold text-slate-500">Classes</p>
                       <p className="text-sm sm:text-base font-bold text-slate-900 mt-0.5">
-                        6 - 10
+                        {classesRange}
                       </p>
                     </div>
                   </div>
@@ -755,7 +821,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ================= 7. Our Teachers Section ================= */}
+      {/* ================= 7. Our Teachers Section (Dynamic DB / Fallback) ================= */}
       <section id="teachers" className="py-14 sm:py-20 bg-slate-50/70 border-b border-slate-100">
         <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
           <div className="bg-white rounded-3xl border border-slate-200/80 shadow-md shadow-slate-100/80 p-6 sm:p-8">
@@ -782,7 +848,7 @@ export default function HomePage() {
             {/* Teachers 4-Card Grid with Right Carousel Arrow */}
             <div className="relative">
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
-                {teachers.map((t) => (
+                {displayTeachers.map((t) => (
                   <div
                     key={t.id}
                     className="bg-white rounded-2xl border border-slate-200/70 shadow-2xs hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col group hover:-translate-y-1.5"
@@ -799,10 +865,10 @@ export default function HomePage() {
 
                     {/* Info */}
                     <div className="p-3.5 sm:p-4 text-center bg-white border-t border-slate-100">
-                      <h4 className="text-sm sm:text-base font-bold text-slate-900 group-hover:text-blue-600 transition-colors">
+                      <h4 className="text-sm sm:text-base font-bold text-slate-900 group-hover:text-blue-600 transition-colors truncate px-1">
                         {t.name}
                       </h4>
-                      <p className="text-xs text-slate-500 font-medium mt-0.5">
+                      <p className="text-xs text-slate-500 font-medium mt-0.5 truncate px-1">
                         {t.subject}
                       </p>
                     </div>
