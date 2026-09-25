@@ -7,5 +7,6 @@ export interface UserInfo {
   role: UserRole;
   avatar?: string;
   phoneNumber?: string;
+  phone?: string;
   createdAt?: string;
 }

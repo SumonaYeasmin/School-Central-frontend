@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { UserInfo, UserRole } from "@/src/types/user.interface";
 import { NavItem, getNavItemsByRole } from "@/src/lib/navitems.config";
@@ -26,7 +27,28 @@ export function DashboardNavbarContent({ user, navItems: initialNavItems }: Dash
     ? "PARENT"
     : user.role;
 
-  const activeUser = mockUsers[activeRole] || user;
+  const fallbackUser = mockUsers[activeRole] || user;
+  const [activeUser, setActiveUser] = useState<UserInfo>(fallbackUser);
+
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem("userInfo");
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (parsed?.email) {
+          setActiveUser({
+            ...fallbackUser,
+            name: parsed.name || fallbackUser.name,
+            email: parsed.email || fallbackUser.email,
+            role: activeRole,
+          });
+          return;
+        }
+      }
+    } catch {}
+    setActiveUser(fallbackUser);
+  }, [activeRole]);
+
   const activeNavItems = getNavItemsByRole(activeRole) || initialNavItems;
 
   return (

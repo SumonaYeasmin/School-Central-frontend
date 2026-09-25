@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import {
   Mail,
   Lock,
@@ -10,11 +11,10 @@ import {
   EyeOff,
   ArrowRight,
   Loader2,
-  ShieldCheck,
-  GraduationCap,
-  School,
   AlertCircle,
   ArrowLeft,
+  School,
+  CheckCircle2,
 } from "lucide-react";
 import { Button } from "@/src/components/ui/button";
 import { Input } from "@/src/components/ui/input";
@@ -29,28 +29,11 @@ export default function LoginPage() {
   const [rememberMe, setRememberMe] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
-  const [activeRoleTab, setActiveRoleTab] = useState<"ADMIN" | "TEACHER" | "PARENT">("ADMIN");
-
-  // Quick fill helper for testing/demo
-  const handleQuickFill = (role: "ADMIN" | "TEACHER" | "PARENT") => {
-    setActiveRoleTab(role);
-    setErrorMsg(null);
-    if (role === "ADMIN") {
-      setEmail("admin@school.com");
-      setPassword("123456");
-    } else if (role === "TEACHER") {
-      setEmail("teacher@school.com");
-      setPassword("123456");
-    } else {
-      setEmail("parent@school.com");
-      setPassword("123456");
-    }
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email.trim() || !password.trim()) {
-      setErrorMsg("Please enter both email address and password.");
+      setErrorMsg("Please enter both your email address and password.");
       return;
     }
 
@@ -65,10 +48,13 @@ export default function LoginPage() {
 
       if (res && res.user) {
         const userRole = res.user.role;
+        // Automatic redirection based on logged-in user's role
         if (userRole === "ADMIN") {
           router.push("/admin/dashboard");
         } else if (userRole === "TEACHER") {
           router.push("/teacher/dashboard");
+        } else if (userRole === "PARENT") {
+          router.push("/dashboard/overview");
         } else {
           router.push("/dashboard/overview");
         }
@@ -79,7 +65,7 @@ export default function LoginPage() {
       const msg =
         err?.response?.data?.message ||
         err?.message ||
-        "Invalid credentials. Please check your email and password.";
+        "Invalid email or password. Please check your credentials and try again.";
       setErrorMsg(msg);
     } finally {
       setIsLoading(false);
@@ -88,71 +74,37 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen w-full flex flex-col items-center justify-center bg-slate-50/80 font-sans p-4 sm:p-6 relative selection:bg-blue-600 selection:text-white">
-      
+      {/* Background Decorative Blur */}
+      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[350px] bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
+
       {/* Back to Home Link */}
-      <div className="w-full max-w-[500px] mb-3 flex items-center justify-between">
+      <div className="w-full max-w-[460px] mb-4 flex items-center justify-between relative z-10">
         <Link
           href="/"
-          className="inline-flex items-center gap-2 text-xs font-bold text-slate-500 hover:text-slate-900 transition-colors group px-3 py-1.5 rounded-full hover:bg-white border border-transparent hover:border-slate-200"
+          className="inline-flex items-center gap-2 text-xs font-bold text-slate-500 hover:text-slate-900 transition-colors group px-3.5 py-1.5 rounded-full bg-white/80 hover:bg-white border border-slate-200/80 shadow-2xs"
         >
           <ArrowLeft className="h-3.5 w-3.5 group-hover:-translate-x-1 transition-transform" />
           <span>Back to Home</span>
         </Link>
       </div>
 
-      {/* Main Login Card (Dark/Navy Form Card on White Page) */}
-      <div className="w-full max-w-[500px] bg-[#070b14] border border-slate-800/90 rounded-3xl p-6 sm:p-8 shadow-2xl shadow-slate-900/15 text-slate-100 space-y-6">
-        
-        {/* Title Header */}
-        <div className="space-y-1.5">
-          <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
-            Sign In to Your Account
-          </h1>
-          <p className="text-xs sm:text-sm text-slate-400 font-normal">
-            Enter your official credentials to access your dashboard.
-          </p>
-        </div>
-
-        {/* Role Tabs */}
-        <div className="p-1 rounded-2xl bg-[#0c1322] border border-slate-800/90 grid grid-cols-3 gap-1.5 shadow-inner">
-          <button
-            type="button"
-            onClick={() => handleQuickFill("ADMIN")}
-            className={`py-2 px-3 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
-              activeRoleTab === "ADMIN"
-                ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-600/30"
-                : "text-slate-400 hover:text-white"
-            }`}
-          >
-            <ShieldCheck className="h-4 w-4" />
-            <span>Admin</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => handleQuickFill("TEACHER")}
-            className={`py-2 px-3 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
-              activeRoleTab === "TEACHER"
-                ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-600/30"
-                : "text-slate-400 hover:text-white"
-            }`}
-          >
-            <GraduationCap className="h-4 w-4" />
-            <span>Teacher</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => handleQuickFill("PARENT")}
-            className={`py-2 px-3 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
-              activeRoleTab === "PARENT"
-                ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-600/30"
-                : "text-slate-400 hover:text-white"
-            }`}
-          >
-            <School className="h-4 w-4" />
-            <span>Parent</span>
-          </button>
+      {/* Main Login Card */}
+      <div className="w-full max-w-[460px] bg-[#070b14] border border-slate-800/90 rounded-3xl p-6 sm:p-9 shadow-2xl shadow-slate-900/20 text-slate-100 space-y-6 relative z-10">
+        {/* Brand & Header */}
+        <div className="flex flex-col items-center text-center space-y-3">
+          <div className="h-14 w-14 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-500 p-0.5 shadow-lg shadow-blue-500/25 flex items-center justify-center">
+            <div className="h-full w-full bg-[#0a101d] rounded-[14px] flex items-center justify-center">
+              <School className="h-7 w-7 text-blue-400" />
+            </div>
+          </div>
+          <div className="space-y-1">
+            <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
+              Sign In
+            </h1>
+            <p className="text-xs sm:text-sm text-slate-400">
+              Enter your email and password to access your dashboard
+            </p>
+          </div>
         </div>
 
         {/* Error Alert */}
@@ -164,21 +116,22 @@ export default function LoginPage() {
         )}
 
         {/* Login Form */}
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4.5">
           {/* Email Address */}
           <div className="space-y-1.5">
             <label className="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
               <Mail className="h-3.5 w-3.5 text-blue-400" />
-              <span>EMAIL ADDRESS</span>
+              <span>Email Address</span>
             </label>
             <div className="relative">
               <Input
                 type="email"
-                placeholder="name@school.com"
+                placeholder="Enter your email address"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="h-11 sm:h-12 rounded-xl border-slate-800 bg-[#0a101d] text-white text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500/25 placeholder:text-slate-500 pl-4"
                 required
+                autoComplete="email"
               />
             </div>
           </div>
@@ -188,11 +141,11 @@ export default function LoginPage() {
             <div className="flex items-center justify-between">
               <label className="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
                 <Lock className="h-3.5 w-3.5 text-blue-400" />
-                <span>PASSWORD</span>
+                <span>Password</span>
               </label>
               <button
                 type="button"
-                onClick={() => alert("Please contact administrator to reset password.")}
+                onClick={() => alert("Please contact your school administrator to reset your password.")}
                 className="text-xs font-semibold text-blue-400 hover:text-blue-300 transition-colors"
               >
                 Forgot password?
@@ -201,11 +154,12 @@ export default function LoginPage() {
             <div className="relative">
               <Input
                 type={showPassword ? "text" : "password"}
-                placeholder="••••••••"
+                placeholder="Enter your password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="h-11 sm:h-12 rounded-xl border-slate-800 bg-[#0a101d] text-white text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500/25 placeholder:text-slate-500 pl-4 pr-11"
                 required
+                autoComplete="current-password"
               />
               <button
                 type="button"
@@ -238,62 +192,30 @@ export default function LoginPage() {
           <Button
             type="submit"
             disabled={isLoading}
-            className="w-full h-11 sm:h-12 rounded-xl bg-gradient-to-r from-blue-600 via-blue-500 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold text-sm shadow-xl shadow-blue-600/30 transition-all cursor-pointer flex items-center justify-center gap-2 active:scale-[0.99] disabled:opacity-70 mt-2"
+            className="w-full h-11 sm:h-12 rounded-xl bg-gradient-to-r from-blue-600 via-blue-500 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold text-sm shadow-xl shadow-blue-600/30 transition-all cursor-pointer flex items-center justify-center gap-2 active:scale-[0.99] disabled:opacity-70 mt-3"
           >
             {isLoading ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin" />
-                <span>Authenticating...</span>
+                <span>Signing in...</span>
               </>
             ) : (
               <>
-                <span>Sign In to Dashboard</span>
+                <span>Sign In</span>
                 <ArrowRight className="h-4 w-4" />
               </>
             )}
           </Button>
         </form>
 
-        {/* Demo Accounts Card */}
-        <div className="p-4 rounded-2xl bg-[#0a101d] border border-slate-800/90 space-y-2.5">
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
-              DEMO ACCOUNTS (CLICK TO FILL)
-            </span>
-            <span className="text-xs text-blue-400 font-mono font-bold">
-              Pass: 123456
-            </span>
-          </div>
-          <div className="grid grid-cols-3 gap-2 text-center">
-            <button
-              type="button"
-              onClick={() => handleQuickFill("ADMIN")}
-              className="py-2 px-2 rounded-xl bg-[#111a2e] hover:bg-slate-800 text-slate-300 text-xs font-medium transition-colors border border-slate-800 hover:border-slate-700 cursor-pointer truncate"
-              title="admin@school.com"
-            >
-              admin@school.com
-            </button>
-            <button
-              type="button"
-              onClick={() => handleQuickFill("TEACHER")}
-              className="py-2 px-2 rounded-xl bg-[#111a2e] hover:bg-slate-800 text-slate-300 text-xs font-medium transition-colors border border-slate-800 hover:border-slate-700 cursor-pointer truncate"
-              title="teacher@school.com"
-            >
-              teacher@school.com
-            </button>
-            <button
-              type="button"
-              onClick={() => handleQuickFill("PARENT")}
-              className="py-2 px-2 rounded-xl bg-[#111a2e] hover:bg-slate-800 text-slate-300 text-xs font-medium transition-colors border border-slate-800 hover:border-slate-700 cursor-pointer truncate"
-              title="parent@school.com"
-            >
-              parent@school.com
-            </button>
-          </div>
+        {/* Portal Notice */}
+        <div className="pt-2 border-t border-slate-800/80 text-center">
+          <p className="text-[11px] text-slate-400 flex items-center justify-center gap-1.5">
+            <CheckCircle2 className="h-3.5 w-3.5 text-blue-400" />
+            <span>Secure role-based portal for Admin, Teachers & Parents</span>
+          </p>
         </div>
-
       </div>
-
     </div>
   );
 }
