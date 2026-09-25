@@ -45,19 +45,26 @@ export function SectionSelector({
       .sort((a, b) => a.section.localeCompare(b.section));
   }, [routines, activeGrade]);
 
-  // Handle Class change (maintains same section letter if available, or selects first)
+  // Handle Class change: Always switch directly to Section A of the newly selected class
   const handleClassChange = (grade: string) => {
-    const currentSectionLetter = currentRoutine?.section;
-    const sameSectionInNewClass = routines.find(
-      (r) => r.grade === grade && r.section === currentSectionLetter
+    // Find Section A for this class
+    const sectionA = routines.find(
+      (r) =>
+        r.grade === grade &&
+        (r.section.toLowerCase() === "section a" ||
+          r.section.toLowerCase().includes("a") ||
+          r.id.toLowerCase().endsWith("-a"))
     );
-    if (sameSectionInNewClass) {
-      onSelectSection(sameSectionInNewClass.id);
-    } else {
-      const firstSection = routines.find((r) => r.grade === grade);
-      if (firstSection) {
-        onSelectSection(firstSection.id);
-      }
+
+    if (sectionA) {
+      onSelectSection(sectionA.id);
+      return;
+    }
+
+    // Fallback to first available section of that class
+    const firstSection = routines.find((r) => r.grade === grade);
+    if (firstSection) {
+      onSelectSection(firstSection.id);
     }
   };
 

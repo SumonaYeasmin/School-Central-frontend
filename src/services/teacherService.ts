@@ -77,11 +77,16 @@ export const getTeacherAssignmentStudents = async (
 export const getMyAssignments = async (
   email?: string
 ): Promise<{ teacher?: Teacher; assignments: TeacherAssignment[] }> => {
-  const params: Record<string, string> = {};
-  if (email) params.email = email;
-  const response = await api.get("/teachers/my-assignments", { params });
-  if (Array.isArray(response.data)) {
-    return { assignments: response.data };
+  try {
+    const params: Record<string, string> = {};
+    if (email) params.email = email;
+    const response = await api.get("/teachers/my-assignments", { params });
+    if (Array.isArray(response.data)) {
+      return { assignments: response.data };
+    }
+    return response.data || { assignments: [] };
+  } catch (err: any) {
+    console.warn("Could not fetch my-assignments:", err?.message || err);
+    return { assignments: [] };
   }
-  return response.data;
 };

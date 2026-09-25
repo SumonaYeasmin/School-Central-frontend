@@ -34,24 +34,60 @@ export default function ClassRoutinesPage() {
     initialSortedRoutines[0]?.id ||
     "c6-a";
 
-  // 1. Live Routine State (Sorted Class 6 to 10)
+  // 1. Live Routine State (Initialized identically on server and client to avoid SSR hydration error)
   const [routines, setRoutines] = useState<SectionRoutine[]>(initialSortedRoutines);
-  const [selectedSectionId, setSelectedSectionId] = useState<string>(defaultClass6Section);
 
-  // 2. Database Academic State
+  // 2. Selected Section Tab (Default Class 6 on SSR, updated on client mount from localStorage)
+  const [selectedSectionId, setSelectedSectionId] = useState<string>(defaultClass6Section);
+  const [isMounted, setIsMounted] = useState<boolean>(false);
+
+  // Sync with localStorage on client mount (avoids hydration mismatch)
+  useEffect(() => {
+    setIsMounted(true);
+    if (typeof window !== "undefined") {
+      try {
+        const savedTab = localStorage.getItem("admin_selected_routine_id");
+        if (savedTab && initialSortedRoutines.some((r) => r.id === savedTab)) {
+          setSelectedSectionId(savedTab);
+        }
+
+        const savedCustom = localStorage.getItem("admin_custom_routines");
+        if (savedCustom) {
+          const parsed = JSON.parse(savedCustom);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            setRoutines(sortRoutinesList(parsed));
+          }
+        }
+      } catch (err) {
+        console.warn("Could not read custom routines from cache:", err);
+      }
+    }
+  }, []);
+
+  // Handler for changing active Class/Section tab with persistence
+  const handleSelectSection = (id: string) => {
+    setSelectedSectionId(id);
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.setItem("admin_selected_routine_id", id);
+      } catch {}
+    }
+  };
+
+  // 3. Database Academic State (For dynamic modal dropdowns)
   const [dbClasses, setDbClasses] = useState<any[]>([]);
   const [dbTeachers, setDbTeachers] = useState<any[]>([]);
   const [dbSubjects, setDbSubjects] = useState<any[]>([]);
   const [isLoadingAcademicData, setIsLoadingAcademicData] = useState<boolean>(true);
 
-  // 3. Notification Toast
+  // 4. Notification Toast
   const [notification, setNotification] = useState<{
     type: "success" | "error";
     message: string;
     description?: string;
   } | null>(null);
 
-  // 4. Modals State
+  // 5. Modals State
   const [editModal, setEditModal] = useState<{
     isOpen: boolean;
     day: string;
@@ -85,33 +121,14 @@ export default function ClassRoutinesPage() {
     });
   };
 
-  // Helper to convert DB Routine Day to TitleCase (e.g. "SUNDAY" -> "Sunday")
-  const formatDayName = (dayStr: string): keyof SectionRoutine["schedule"] => {
-    const capitalized = dayStr.charAt(0).toUpperCase() + dayStr.slice(1).toLowerCase();
-    return (["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday"].includes(capitalized)
-      ? capitalized
-      : "Sunday") as keyof SectionRoutine["schedule"];
-  };
-
-  // Helper to determine periodKey (p1 to p5) from startTime
-  const getPeriodKeyFromTime = (startTime: string): "p1" | "p2" | "p3" | "p4" | "p5" => {
-    const hour = parseInt(startTime.split(":")[0], 10);
-    if (hour <= 10) return "p1";
-    if (hour === 11) return "p2";
-    if (hour === 12) return "p3";
-    if (hour === 14) return "p4";
-    return "p5";
-  };
-
-  // 5. Fetch DB Academic Filters (Classes, Sections, Teachers, Subjects & Routines)
+  // 6. Fetch DB Academic Filters (Classes, Sections, Teachers, Subjects) for Add/Edit Modals
   const initializeRoutinesPage = useCallback(async () => {
     setIsLoadingAcademicData(true);
     try {
-      const [classesRes, teachersRes, subjectsRes, routinesRes] = await Promise.allSettled([
+      const [classesRes, teachersRes, subjectsRes] = await Promise.allSettled([
         getClasses(),
         getTeachers(),
         getSubjects(),
-        getRoutines(),
       ]);
 
       if (classesRes.status === "fulfilled" && Array.isArray(classesRes.value)) {
@@ -125,52 +142,8 @@ export default function ClassRoutinesPage() {
       if (subjectsRes.status === "fulfilled" && Array.isArray(subjectsRes.value)) {
         setDbSubjects(subjectsRes.value);
       }
-
-      // If DB has routines, merge them into routines state
-      if (
-        routinesRes.status === "fulfilled" &&
-        routinesRes.value?.routines &&
-        Array.isArray(routinesRes.value.routines) &&
-        routinesRes.value.routines.length > 0
-      ) {
-        const dbRoutineList = routinesRes.value.routines;
-
-        setRoutines((prevRoutines) => {
-          const updated = [...prevRoutines];
-
-          dbRoutineList.forEach((dbItem: any) => {
-            const dayKey = formatDayName(dbItem.day);
-            const pKey = getPeriodKeyFromTime(dbItem.startTime);
-
-            // Find matching section routine by classId / sectionId or name
-            const targetRoutine = updated.find(
-              (r) =>
-                r.id === dbItem.sectionId ||
-                r.id === dbItem.classId ||
-                r.fullName?.toLowerCase().includes(dbItem.class?.name?.toLowerCase()) ||
-                r.grade?.toLowerCase() === dbItem.class?.name?.toLowerCase()
-            );
-
-            if (targetRoutine && targetRoutine.schedule?.[dayKey]) {
-              const existingSlot = targetRoutine.schedule[dayKey][pKey];
-              // Preserve multi-group departmental periods for Class 9 and 10
-              if (!existingSlot?.isGroupPeriod) {
-                const subName = dbItem.subject?.name || "Subject";
-                targetRoutine.schedule[dayKey][pKey] = {
-                  subject: subName,
-                  teacher: dbItem.teacher?.name || "Teacher",
-                  room: dbItem.roomNumber || targetRoutine.room || "Room 101",
-                  theme: getSubjectThemeColor(subName),
-                };
-              }
-            }
-          });
-
-          return updated;
-        });
-      }
     } catch (err: any) {
-      console.warn("Could not fetch DB routines, using live template:", err);
+      console.warn("Could not fetch academic metadata:", err);
     } finally {
       setIsLoadingAcademicData(false);
     }
@@ -184,7 +157,7 @@ export default function ClassRoutinesPage() {
   const selectedRoutine =
     routines.find((r) => r.id === selectedSectionId) || routines[0];
 
-  // 6. Single Period Edit Handler
+  // 7. Single Period Edit Handler
   const handleOpenEdit = (
     day: string,
     timeSlot: string,
@@ -205,8 +178,8 @@ export default function ClassRoutinesPage() {
     periodKey: "p1" | "p2" | "p3" | "p4" | "p5",
     updatedData: PeriodSlot
   ) => {
-    setRoutines((prev) =>
-      prev.map((routine) => {
+    setRoutines((prev) => {
+      const updated = prev.map((routine) => {
         if (routine.id !== selectedSectionId) return routine;
         return {
           ...routine,
@@ -218,8 +191,16 @@ export default function ClassRoutinesPage() {
             },
           },
         };
-      })
-    );
+      });
+
+      if (typeof window !== "undefined") {
+        try {
+          localStorage.setItem("admin_custom_routines", JSON.stringify(updated));
+        } catch {}
+      }
+
+      return updated;
+    });
 
     setNotification({
       type: "success",
@@ -232,13 +213,21 @@ export default function ClassRoutinesPage() {
     }, 4000);
   };
 
-  // 7. Full Routine Save Handler
+  // 8. Full Routine Save Handler
   const handleSaveFullRoutine = (updatedRoutine: SectionRoutine) => {
-    setRoutines((prev) =>
-      prev.map((routine) =>
+    setRoutines((prev) => {
+      const updated = prev.map((routine) =>
         routine.id === updatedRoutine.id ? updatedRoutine : routine
-      )
-    );
+      );
+
+      if (typeof window !== "undefined") {
+        try {
+          localStorage.setItem("admin_custom_routines", JSON.stringify(updated));
+        } catch {}
+      }
+
+      return updated;
+    });
 
     setNotification({
       type: "success",
@@ -251,17 +240,15 @@ export default function ClassRoutinesPage() {
     }, 4000);
   };
 
-  // 8. Add Routine Slot Handler
+  // 9. Add Routine Slot Handler
   const handleAddPeriod = (
     sectionId: string,
     day: string,
     periodKey: "p1" | "p2" | "p3" | "p4" | "p5",
-    data: PeriodSlot,
-    createdDbItem?: any
+    data: PeriodSlot
   ) => {
-    setRoutines((prev) =>
-      prev.map((routine) => {
-        // Match by sectionId or class match
+    setRoutines((prev) => {
+      const updated = prev.map((routine) => {
         if (routine.id !== sectionId && !sectionId.includes(routine.id)) return routine;
         return {
           ...routine,
@@ -273,13 +260,21 @@ export default function ClassRoutinesPage() {
             },
           },
         };
-      })
-    );
+      });
 
-    // If matching section was found, switch to it
+      if (typeof window !== "undefined") {
+        try {
+          localStorage.setItem("admin_custom_routines", JSON.stringify(updated));
+        } catch {}
+      }
+
+      return updated;
+    });
+
+    // If matching section was found, switch to it and persist
     const matched = routines.find((r) => r.id === sectionId);
     if (matched) {
-      setSelectedSectionId(sectionId);
+      handleSelectSection(sectionId);
     }
 
     setNotification({
@@ -349,7 +344,7 @@ export default function ClassRoutinesPage() {
       <SectionSelector
         routines={routines}
         selectedId={selectedSectionId}
-        onSelectSection={setSelectedSectionId}
+        onSelectSection={handleSelectSection}
       />
 
       {/* 3. Full Weekly Timetable Schedule Matrix (Horizontal Periods & Vertical Weekdays) */}
