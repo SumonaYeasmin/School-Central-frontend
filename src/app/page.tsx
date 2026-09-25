@@ -18,10 +18,14 @@ import {
   Layers,
   FileText,
   Bell,
-  Award,
   ChevronRight,
-  Loader2,
   GraduationCap,
+  MessageSquare,
+  MapPin,
+  Phone,
+  Mail,
+  ShieldCheck,
+  Award,
 } from "lucide-react";
 import { Button } from "@/src/components/ui/button";
 import { Input } from "@/src/components/ui/input";
@@ -33,8 +37,8 @@ import {
   SelectValue,
 } from "@/src/components/ui/select";
 import { getExams, ExamItem } from "@/src/services/examService";
-import { getStudentExamResult } from "@/src/services/resultService";
 import { PublicResultModal } from "@/src/components/modules/home/PublicResultModal";
+import { PublicFooter } from "@/src/components/modules/home/PublicFooter";
 
 export default function HomePage() {
   const navLinks = [
@@ -111,13 +115,39 @@ export default function HomePage() {
     },
   ];
 
+  const teachers = [
+    {
+      id: "tch-1",
+      name: "Md. Rahman",
+      subject: "Mathematics",
+      image: "/images/teacher-1.jpg",
+    },
+    {
+      id: "tch-2",
+      name: "Farhana Akter",
+      subject: "English",
+      image: "/images/teacher-2.jpg",
+    },
+    {
+      id: "tch-3",
+      name: "Tanjina Islam",
+      subject: "Science",
+      image: "/images/teacher-3.jpg",
+    },
+    {
+      id: "tch-4",
+      name: "Abdul Karim",
+      subject: "Bangla",
+      image: "/images/teacher-4.jpg",
+    },
+  ];
+
   // State for result modal and quick search widget
   const [isResultModalOpen, setIsResultModalOpen] = useState<boolean>(false);
   const [exams, setExams] = useState<ExamItem[]>([]);
   const [quickExamId, setQuickExamId] = useState<string>("");
   const [quickStudentId, setQuickStudentId] = useState<string>("");
   const [quickYear, setQuickYear] = useState<string>("2026");
-  const [isSearchingResult, setIsSearchingResult] = useState<boolean>(false);
 
   useEffect(() => {
     getExams()
@@ -329,6 +359,22 @@ export default function HomePage() {
                 Greenfield High School was established in 1998 with a vision to provide quality education to every student. Over the years, we have grown into a trusted institution known for academic excellence, discipline and a supportive learning environment.
               </p>
 
+              {/* Institutional Codes & Accreditation Badges */}
+              <div className="flex flex-wrap items-center gap-2 pt-1">
+                <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-50/90 border border-blue-200/70 text-xs font-bold text-blue-700 shadow-2xs">
+                  <ShieldCheck className="h-3.5 w-3.5 text-blue-600" />
+                  <span>EIIN: 132456</span>
+                </div>
+                <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-50/90 border border-amber-200/70 text-xs font-bold text-amber-700 shadow-2xs">
+                  <Award className="h-3.5 w-3.5 text-amber-600" />
+                  <span>School Code: 4021</span>
+                </div>
+                <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-50/90 border border-emerald-200/70 text-xs font-bold text-emerald-700 shadow-2xs">
+                  <GraduationCap className="h-3.5 w-3.5 text-emerald-600" />
+                  <span>Dinajpur Board</span>
+                </div>
+              </div>
+
               {/* Mission & Vision 2-Column Cards */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
                 {/* Our Mission */}
@@ -524,7 +570,7 @@ export default function HomePage() {
       </section>
 
       {/* ================= 6. Latest Notices & Student Result Dual Section ================= */}
-      <section id="notice" className="py-14 sm:py-20 bg-white">
+      <section id="notice" className="py-14 sm:py-20 bg-white border-b border-slate-100">
         <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* 1. Left Card: Latest Notices */}
@@ -705,6 +751,213 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* ================= 7. Our Teachers Section ================= */}
+      <section id="teachers" className="py-14 sm:py-20 bg-slate-50/70 border-b border-slate-100">
+        <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="bg-white rounded-3xl border border-slate-200/80 shadow-md shadow-slate-100 p-6 sm:p-8">
+            {/* Header */}
+            <div className="flex items-center justify-between pb-6 border-b border-slate-100 mb-6">
+              <div className="flex items-center gap-3">
+                <div className="h-11 w-11 rounded-2xl bg-slate-900 text-white flex items-center justify-center shrink-0 shadow-xs">
+                  <Users className="h-5 w-5" />
+                </div>
+                <h3 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+                  Our Teachers
+                </h3>
+              </div>
+
+              <Link
+                href="#teachers-all"
+                className="text-xs sm:text-sm font-bold text-blue-600 hover:text-blue-700 flex items-center gap-1 group"
+              >
+                <span>View All</span>
+                <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-0.5 transition-transform" />
+              </Link>
+            </div>
+
+            {/* Teachers 4-Card Grid with Right Carousel Arrow */}
+            <div className="relative">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
+                {teachers.map((t) => (
+                  <div
+                    key={t.id}
+                    className="bg-white rounded-2xl border border-slate-200/70 shadow-2xs hover:shadow-lg transition-all overflow-hidden flex flex-col group hover:-translate-y-1"
+                  >
+                    {/* Portrait Photo */}
+                    <div className="relative h-44 sm:h-52 w-full bg-slate-100 overflow-hidden">
+                      <Image
+                        src={t.image}
+                        alt={t.name}
+                        fill
+                        className="object-cover object-top group-hover:scale-105 transition-transform duration-500 ease-out"
+                      />
+                    </div>
+
+                    {/* Info */}
+                    <div className="p-3.5 sm:p-4 text-center bg-white border-t border-slate-50">
+                      <h4 className="text-sm sm:text-base font-bold text-slate-900 group-hover:text-blue-600 transition-colors">
+                        {t.name}
+                      </h4>
+                      <p className="text-xs text-slate-500 font-medium mt-0.5">
+                        {t.subject}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Right Carousel Arrow Indicator */}
+              <button
+                type="button"
+                className="hidden lg:flex absolute -right-3.5 top-1/2 -translate-y-1/2 h-9 w-9 rounded-full bg-white border border-slate-200 shadow-md items-center justify-center text-slate-400 hover:text-blue-600 hover:scale-110 transition-all cursor-pointer z-10"
+                title="Next Teachers"
+              >
+                <ChevronRight className="h-4 w-4" />
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ================= 8. Get In Touch & Contact Banner (With WhatsApp Direct Chat) ================= */}
+      <section id="contact" className="relative bg-slate-900 text-white overflow-hidden py-14 sm:py-18">
+        {/* Background Campus Photo with Deep Navy Overlay */}
+        <div className="absolute inset-0 z-0">
+          <Image
+            src="/images/hero-campus.jpg"
+            alt="Campus Background"
+            fill
+            className="object-cover opacity-20 filter blur-xs"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-900/95 to-slate-900/90" />
+        </div>
+
+        <div className="relative z-10 max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+            {/* Left: Heading, Intro & Quick WhatsApp CTA */}
+            <div className="lg:col-span-6 space-y-4">
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 border border-white/15 text-blue-300 text-xs sm:text-sm font-semibold backdrop-blur-xs">
+                <MessageSquare className="h-3.5 w-3.5" />
+                <span>Get In Touch</span>
+              </div>
+
+              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight leading-tight">
+                We&apos;d love to hear from you!
+              </h2>
+
+              <p className="text-xs sm:text-sm text-slate-300 font-normal leading-relaxed max-w-lg">
+                Have questions regarding admissions, academics, or school activities? Reach out to us directly or start a quick WhatsApp chat.
+              </p>
+
+              {/* Instant WhatsApp Action Button */}
+              <div className="pt-2">
+                <a
+                  href="https://wa.me/8801712345678?text=Hello%20Greenfield%20High%20School%2C%20I%20have%20an%20inquiry"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2.5 px-6 py-3 rounded-full bg-[#25D366] hover:bg-[#20bd5a] text-white font-bold text-xs sm:text-sm shadow-lg shadow-[#25D366]/25 transition-all active:scale-95 cursor-pointer group"
+                >
+                  <svg className="h-4 w-4 fill-current group-hover:scale-110 transition-transform" viewBox="0 0 24 24">
+                    <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z" />
+                  </svg>
+                  <span>Chat on WhatsApp</span>
+                  <span className="flex h-2 w-2 relative">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-white"></span>
+                  </span>
+                </a>
+              </div>
+            </div>
+
+            {/* Right: Contact Details 2x2 Grid (Address, Phone, WhatsApp, Email) */}
+            <div className="lg:col-span-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-5">
+                {/* Address Card */}
+                <div className="flex items-start gap-3.5 p-4 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors">
+                  <div className="h-10 w-10 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center shrink-0">
+                    <MapPin className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <p className="text-xs font-bold text-white uppercase tracking-wider">
+                      Campus Address
+                    </p>
+                    <p className="text-xs sm:text-sm text-slate-300 mt-1 font-medium leading-snug">
+                      Dinajpur, Bangladesh
+                    </p>
+                  </div>
+                </div>
+
+                {/* Phone Call Card */}
+                <a
+                  href="tel:+8801712345678"
+                  className="flex items-start gap-3.5 p-4 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 hover:border-blue-400/40 transition-colors group cursor-pointer"
+                >
+                  <div className="h-10 w-10 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                    <Phone className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <p className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
+                      <span>Phone Support</span>
+                    </p>
+                    <p className="text-xs sm:text-sm text-slate-300 mt-1 font-medium group-hover:text-blue-300 transition-colors">
+                      +880 1712 345678
+                    </p>
+                  </div>
+                </a>
+
+                {/* WhatsApp Chat Card */}
+                <a
+                  href="https://wa.me/8801712345678?text=Hello%20Greenfield%20High%20School%2C%20I%20have%20an%20inquiry"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-start gap-3.5 p-4 rounded-2xl bg-[#25D366]/10 border border-[#25D366]/20 hover:bg-[#25D366]/20 hover:border-[#25D366]/40 transition-colors group cursor-pointer"
+                >
+                  <div className="h-10 w-10 rounded-xl bg-[#25D366]/20 text-[#25D366] flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                    <svg className="h-5 w-5 fill-current" viewBox="0 0 24 24">
+                      <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <p className="text-xs font-bold text-white uppercase tracking-wider">
+                        WhatsApp Chat
+                      </p>
+                      <span className="inline-flex items-center px-1.5 py-0.2 rounded-full text-[10px] font-bold bg-[#25D366]/20 text-[#25D366]">
+                        Online
+                      </span>
+                    </div>
+                    <p className="text-xs sm:text-sm text-slate-300 mt-1 font-medium group-hover:text-emerald-300 transition-colors">
+                      +880 1712 345678
+                    </p>
+                  </div>
+                </a>
+
+                {/* Email Card */}
+                <a
+                  href="mailto:info@greenfieldhs.edu.bd"
+                  className="flex items-start gap-3.5 p-4 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 hover:border-blue-400/40 transition-colors group cursor-pointer"
+                >
+                  <div className="h-10 w-10 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                    <Mail className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <p className="text-xs font-bold text-white uppercase tracking-wider">
+                      Official Email
+                    </p>
+                    <p className="text-xs sm:text-sm text-slate-300 mt-1 font-medium break-all group-hover:text-blue-300 transition-colors">
+                      info@greenfieldhs.edu.bd
+                    </p>
+                  </div>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ================= 9. Bottom Footer ================= */}
+      <PublicFooter onOpenResultModal={() => setIsResultModalOpen(true)} />
 
       {/* Online Result Modal Popup */}
       <PublicResultModal
