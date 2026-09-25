@@ -38,9 +38,16 @@ import { getStudentExamResult } from "@/src/services/resultService";
 interface PublicResultModalProps {
   isOpen: boolean;
   onClose: () => void;
+  initialStudentQuery?: string;
+  initialExamId?: string;
 }
 
-export function PublicResultModal({ isOpen, onClose }: PublicResultModalProps) {
+export function PublicResultModal({
+  isOpen,
+  onClose,
+  initialStudentQuery = "",
+  initialExamId = "",
+}: PublicResultModalProps) {
   const [exams, setExams] = useState<ExamItem[]>([]);
   const [selectedExamId, setSelectedExamId] = useState<string>("");
   const [studentQuery, setStudentQuery] = useState<string>("");
@@ -52,12 +59,45 @@ export function PublicResultModal({ isOpen, onClose }: PublicResultModalProps) {
   useEffect(() => {
     if (isOpen) {
       setIsLoadingExams(true);
+      setErrorMsg(null);
+      setResultData(null);
+
+      const queryToSearch = initialStudentQuery.trim();
+      setStudentQuery(queryToSearch);
+
       getExams()
-        .then((data) => {
+        .then(async (data) => {
           if (Array.isArray(data) && data.length > 0) {
             setExams(data);
             const published = data.find((e) => e.status === "PUBLISHED");
-            setSelectedExamId(published ? published.id : data[0].id);
+            const targetExamId =
+              initialExamId && data.some((e) => e.id === initialExamId)
+                ? initialExamId
+                : published
+                ? published.id
+                : data[0].id;
+
+            setSelectedExamId(targetExamId);
+
+            // If a student query was provided from the homepage search, perform search immediately!
+            if (queryToSearch && targetExamId) {
+              setIsSearching(true);
+              try {
+                const res = await getStudentExamResult(queryToSearch, targetExamId, true);
+                if (res && res.student) {
+                  setResultData(res);
+                } else {
+                  setErrorMsg("No results found for the given Student ID / Roll.");
+                }
+              } catch (err: any) {
+                const msg =
+                  err?.response?.data?.message ||
+                  "Result not published yet or student ID not found in database.";
+                setErrorMsg(msg);
+              } finally {
+                setIsSearching(false);
+              }
+            }
           }
         })
         .catch((err) => console.error("Error loading exams:", err))
@@ -67,7 +107,7 @@ export function PublicResultModal({ isOpen, onClose }: PublicResultModalProps) {
       setErrorMsg(null);
       setStudentQuery("");
     }
-  }, [isOpen]);
+  }, [isOpen, initialStudentQuery, initialExamId]);
 
   const handleSearch = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();

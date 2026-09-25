@@ -566,17 +566,6 @@ export default function HomePage() {
               <p className="text-sm sm:text-base text-slate-600 font-normal leading-relaxed">
                 We offer classes from {classesRange} with a well-structured curriculum and a wide range of subjects to ensure holistic development of our students.
               </p>
-
-              {/* Action Button */}
-              <div className="pt-1">
-                <button
-                  type="button"
-                  className="h-11 px-7 rounded-full bg-white hover:bg-blue-50/60 border border-blue-600 text-blue-600 font-semibold text-sm inline-flex items-center gap-2 shadow-2xs transition-all cursor-pointer active:scale-95"
-                >
-                  <span>View Academic Details</span>
-                  <ArrowRight className="h-4 w-4" />
-                </button>
-              </div>
             </div>
 
             {/* Right Column: Academic Card with 4 Info Grid + Study Books Photo */}
@@ -735,15 +724,6 @@ export default function HomePage() {
                       Student Result
                     </h3>
                   </div>
-
-                  <button
-                    type="button"
-                    onClick={() => setIsResultModalOpen(true)}
-                    className="text-xs sm:text-sm font-bold text-blue-600 hover:text-blue-700 flex items-center gap-1 group cursor-pointer"
-                  >
-                    <span>View Result</span>
-                    <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-0.5 transition-transform" />
-                  </button>
                 </div>
 
                 {/* Promo Card: Check Your Result */}
@@ -1045,6 +1025,8 @@ export default function HomePage() {
       <PublicResultModal
         isOpen={isResultModalOpen}
         onClose={() => setIsResultModalOpen(false)}
+        initialStudentQuery={quickStudentId}
+        initialExamId={quickExamId}
       />
     </div>
   );
