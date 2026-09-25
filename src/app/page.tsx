@@ -63,6 +63,7 @@ export default function HomePage() {
   const [totalTeachers, setTotalTeachers] = useState<number | null>(null);
   const [totalClasses, setTotalClasses] = useState<number | null>(null);
   const [classesRange, setClassesRange] = useState<string>("6 - 10");
+  const [sectionsDisplay, setSectionsDisplay] = useState<string>("A, B");
   const [dbTeachersList, setDbTeachersList] = useState<Teacher[]>([]);
   const [isLoadingStats, setIsLoadingStats] = useState<boolean>(true);
 
@@ -163,6 +164,22 @@ export default function HomePage() {
           const first = list[0]?.name || "1";
           const last = list[list.length - 1]?.name || "10";
           setClassesRange(`${first} - ${last}`);
+
+          // Extract unique sections from classes
+          const sectionSet = new Set<string>();
+          list.forEach((cls: any) => {
+            if (Array.isArray(cls.sections)) {
+              cls.sections.forEach((sec: any) => {
+                const secName = typeof sec === "string" ? sec : sec?.name;
+                if (secName) sectionSet.add(secName.trim().toUpperCase());
+              });
+            }
+          });
+          if (sectionSet.size > 0) {
+            setSectionsDisplay(Array.from(sectionSet).sort().join(", "));
+          } else {
+            setSectionsDisplay("A, B");
+          }
         }
       })
       .catch((err) => console.error("Error loading classes count:", err));
@@ -588,7 +605,7 @@ export default function HomePage() {
                     <div>
                       <p className="text-xs font-semibold text-slate-500">Sections</p>
                       <p className="text-sm sm:text-base font-bold text-slate-900 mt-0.5">
-                        A, B, C
+                        {sectionsDisplay}
                       </p>
                     </div>
                   </div>
