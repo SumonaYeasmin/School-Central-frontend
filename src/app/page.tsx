@@ -51,10 +51,8 @@ export default function HomePage() {
     { label: "About", href: "#about" },
     { label: "Academic", href: "#academic" },
     { label: "Teachers", href: "#teachers" },
-    { label: "Students", href: "#students" },
     { label: "Notice", href: "#notice" },
     { label: "Result", href: "#result" },
-    { label: "Gallery", href: "#gallery" },
     { label: "Contact", href: "#contact" },
   ];
 
@@ -311,42 +309,35 @@ export default function HomePage() {
               ))}
             </nav>
 
-            {/* Right: Search Icon & Login Button */}
+            {/* Right: Login Button */}
             <div className="flex items-center gap-3">
-              <button
-                type="button"
-                onClick={() => setIsResultModalOpen(true)}
-                className="p-2.5 rounded-full text-slate-500 hover:text-blue-600 hover:bg-blue-50/70 transition-all cursor-pointer"
-                title="Search Result"
-              >
-                <Search className="h-4 w-4" />
-              </button>
-
-              <Button
-                type="button"
-                className="h-9 px-6 rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold text-sm shadow-sm shadow-blue-500/25 transition-all cursor-pointer hover:shadow-md active:scale-95"
-              >
-                Login
-              </Button>
+              <Link href="/login">
+                <Button
+                  type="button"
+                  className="h-9 px-6 rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold text-sm shadow-sm shadow-blue-500/25 transition-all cursor-pointer hover:shadow-md active:scale-95"
+                >
+                  Login
+                </Button>
+              </Link>
             </div>
           </div>
         </div>
       </header>
 
       {/* ================= 2. Hero Section (Soft Eye-Catching Atmosphere) ================= */}
-      <section id="home" className="relative w-full overflow-hidden bg-gradient-to-b from-white via-blue-50/30 to-white min-h-[540px] lg:min-h-[600px] flex items-center border-b border-slate-100">
+      <section id="home" className="relative w-full overflow-hidden bg-white min-h-[580px] lg:min-h-[660px] flex items-center border-b border-slate-100 pb-12 sm:pb-16">
         {/* Background School Campus Image */}
         <div className="absolute inset-0 z-0">
           <Image
-            src="/images/hero-campus.jpg"
-            alt="School Campus"
+            src="/images/greenfield-campus-clean.jpg"
+            alt="Greenfield High School Campus"
             fill
             priority
-            className="object-cover object-right lg:object-[80%_center]"
+            className="object-cover object-[75%_bottom] md:object-[68%_bottom] lg:object-[62%_bottom]"
           />
 
-          {/* Left-to-right soft translucent gradient blend */}
-          <div className="absolute inset-0 bg-gradient-to-r from-white via-white/95 via-50% md:via-45% to-white/20 lg:to-transparent" />
+          {/* Left-only gradient for text contrast - Right half has 0% overlay (100% full photo clarity) */}
+          <div className="absolute inset-y-0 left-0 w-full sm:w-[65%] md:w-[50%] lg:w-[45%] bg-gradient-to-r from-white via-white/95 via-75% to-transparent" />
         </div>
 
         {/* Hero Left Content Container */}
