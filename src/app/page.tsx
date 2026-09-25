@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -16,8 +17,24 @@ import {
   Play,
   Layers,
   FileText,
+  Bell,
+  Award,
+  ChevronRight,
+  Loader2,
+  GraduationCap,
 } from "lucide-react";
 import { Button } from "@/src/components/ui/button";
+import { Input } from "@/src/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/src/components/ui/select";
+import { getExams, ExamItem } from "@/src/services/examService";
+import { getStudentExamResult } from "@/src/services/resultService";
+import { PublicResultModal } from "@/src/components/modules/home/PublicResultModal";
 
 export default function HomePage() {
   const navLinks = [
@@ -63,6 +80,62 @@ export default function HomePage() {
     },
   ];
 
+  const notices = [
+    {
+      id: "not-1",
+      day: "12",
+      month: "Sep",
+      title: "Half Yearly Examination Notice",
+      description: "Examination will be held from 25 September 2026...",
+    },
+    {
+      id: "not-2",
+      day: "10",
+      month: "Sep",
+      title: "School Holiday Notice",
+      description: "School will remain closed on 15 September 2026...",
+    },
+    {
+      id: "not-3",
+      day: "05",
+      month: "Sep",
+      title: "Parent Meeting Notice",
+      description: "All parents are requested to attend the meeting...",
+    },
+    {
+      id: "not-4",
+      day: "02",
+      month: "Sep",
+      title: "Annual Sports Day Notice",
+      description: "Sports Day will be held on 20 September 2026...",
+    },
+  ];
+
+  // State for result modal and quick search widget
+  const [isResultModalOpen, setIsResultModalOpen] = useState<boolean>(false);
+  const [exams, setExams] = useState<ExamItem[]>([]);
+  const [quickExamId, setQuickExamId] = useState<string>("");
+  const [quickStudentId, setQuickStudentId] = useState<string>("");
+  const [quickYear, setQuickYear] = useState<string>("2026");
+  const [isSearchingResult, setIsSearchingResult] = useState<boolean>(false);
+
+  useEffect(() => {
+    getExams()
+      .then((data) => {
+        if (Array.isArray(data) && data.length > 0) {
+          setExams(data);
+          const published = data.find((e) => e.status === "PUBLISHED");
+          setQuickExamId(published ? published.id : data[0].id);
+        }
+      })
+      .catch((err) => console.error("Error loading exams:", err));
+  }, []);
+
+  const handleQuickSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsResultModalOpen(true);
+  };
+
   return (
     <div className="min-h-screen bg-white font-sans flex flex-col selection:bg-blue-100 selection:text-blue-900">
       {/* ================= 1. Top Navbar Header ================= */}
@@ -98,6 +171,12 @@ export default function HomePage() {
                 <Link
                   key={link.label}
                   href={link.href}
+                  onClick={(e) => {
+                    if (link.label === "Result") {
+                      e.preventDefault();
+                      setIsResultModalOpen(true);
+                    }
+                  }}
                   className={`relative py-2 text-sm transition-colors ${
                     link.active
                       ? "text-blue-600 font-semibold"
@@ -116,8 +195,9 @@ export default function HomePage() {
             <div className="flex items-center gap-3">
               <button
                 type="button"
+                onClick={() => setIsResultModalOpen(true)}
                 className="p-2.5 rounded-full text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors cursor-pointer"
-                title="Search"
+                title="Search Result"
               >
                 <Search className="h-4 w-4" />
               </button>
@@ -183,6 +263,7 @@ export default function HomePage() {
               {/* Outlined Pill Button */}
               <button
                 type="button"
+                onClick={() => setIsResultModalOpen(true)}
                 className="h-11 px-6 rounded-full bg-white/80 hover:bg-white border border-blue-600 text-blue-600 font-semibold text-sm flex items-center gap-2 shadow-2xs transition-all cursor-pointer active:scale-95"
               >
                 <span>View Result</span>
@@ -441,6 +522,195 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* ================= 6. Latest Notices & Student Result Dual Section ================= */}
+      <section id="notice" className="py-14 sm:py-20 bg-white">
+        <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {/* 1. Left Card: Latest Notices */}
+            <div className="bg-white rounded-3xl border border-slate-200/80 shadow-md shadow-slate-100 p-6 sm:p-7 flex flex-col justify-between">
+              <div>
+                {/* Header */}
+                <div className="flex items-center justify-between pb-5 border-b border-slate-100">
+                  <div className="flex items-center gap-3">
+                    <div className="h-11 w-11 rounded-2xl bg-teal-600 text-white flex items-center justify-center shrink-0 shadow-xs">
+                      <Bell className="h-5 w-5" />
+                    </div>
+                    <h3 className="text-lg sm:text-xl font-bold text-slate-900">
+                      Latest Notices
+                    </h3>
+                  </div>
+
+                  <Link
+                    href="#notices-all"
+                    className="text-xs sm:text-sm font-bold text-blue-600 hover:text-blue-700 flex items-center gap-1 group"
+                  >
+                    <span>View All</span>
+                    <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-0.5 transition-transform" />
+                  </Link>
+                </div>
+
+                {/* Notices List */}
+                <div className="divide-y divide-slate-100">
+                  {notices.map((n) => (
+                    <div
+                      key={n.id}
+                      className="py-3.5 flex items-center gap-4 hover:bg-slate-50/70 rounded-xl px-2 transition-colors cursor-pointer group"
+                    >
+                      {/* Date Badge */}
+                      <div className="flex flex-col items-center justify-center w-11 h-11 rounded-xl bg-slate-50 border border-slate-100 shrink-0 text-center">
+                        <span className="text-sm font-black text-slate-800 leading-none">
+                          {n.day}
+                        </span>
+                        <span className="text-[10px] font-semibold text-slate-400 uppercase mt-0.5">
+                          {n.month}
+                        </span>
+                      </div>
+
+                      {/* Content */}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-1.5">
+                          <span className="h-2 w-2 rounded-full bg-teal-500 shrink-0" />
+                          <h4 className="text-xs sm:text-sm font-bold text-slate-900 group-hover:text-blue-600 transition-colors truncate">
+                            {n.title}
+                          </h4>
+                        </div>
+                        <p className="text-xs text-slate-500 truncate mt-0.5 pl-3.5">
+                          {n.description}
+                        </p>
+                      </div>
+
+                      {/* Chevron Arrow */}
+                      <div className="text-slate-300 group-hover:text-blue-600 transition-colors shrink-0">
+                        <ChevronRight className="h-4 w-4" />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* 2. Right Card: Student Result Search */}
+            <div id="result" className="bg-white rounded-3xl border border-slate-200/80 shadow-md shadow-slate-100 p-6 sm:p-7 flex flex-col justify-between">
+              <div>
+                {/* Header */}
+                <div className="flex items-center justify-between pb-5 border-b border-slate-100">
+                  <div className="flex items-center gap-3">
+                    <div className="h-11 w-11 rounded-2xl bg-slate-900 text-white flex items-center justify-center shrink-0 shadow-xs">
+                      <GraduationCap className="h-5 w-5" />
+                    </div>
+                    <h3 className="text-lg sm:text-xl font-bold text-slate-900">
+                      Student Result
+                    </h3>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => setIsResultModalOpen(true)}
+                    className="text-xs sm:text-sm font-bold text-blue-600 hover:text-blue-700 flex items-center gap-1 group cursor-pointer"
+                  >
+                    <span>View Result</span>
+                    <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-0.5 transition-transform" />
+                  </button>
+                </div>
+
+                {/* Promo Card: Check Your Result */}
+                <div className="mt-4 p-4 rounded-2xl bg-blue-50/70 border border-blue-100/80 flex items-center gap-3.5">
+                  <div className="h-11 w-11 rounded-2xl bg-blue-600/15 text-blue-600 flex items-center justify-center shrink-0">
+                    <div className="h-6 w-6 rounded-lg bg-blue-600 text-white flex items-center justify-center shadow-xs">
+                      <FileSpreadsheet className="h-3.5 w-3.5" />
+                    </div>
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-bold text-slate-900">
+                      Check Your Result
+                    </h4>
+                    <p className="text-xs text-slate-500 mt-0.5">
+                      View your exam result quickly and easily.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Form Inputs Grid: Select Exam, Roll/Student ID, Year */}
+                <form onSubmit={handleQuickSearch} className="mt-5 space-y-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-12 gap-3">
+                    {/* Select Exam */}
+                    <div className="sm:col-span-5 space-y-1.5">
+                      <label className="text-xs font-semibold text-slate-600">
+                        Select Exam
+                      </label>
+                      <Select
+                        value={quickExamId}
+                        onValueChange={setQuickExamId}
+                      >
+                        <SelectTrigger className="w-full h-10 rounded-xl border-slate-200 text-xs sm:text-sm bg-white">
+                          <SelectValue placeholder="Choose exam" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {exams.map((ex) => (
+                            <SelectItem key={ex.id} value={ex.id}>
+                              {ex.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {/* Roll / Student ID */}
+                    <div className="sm:col-span-4 space-y-1.5">
+                      <label className="text-xs font-semibold text-slate-600">
+                        Roll / Student ID
+                      </label>
+                      <Input
+                        type="text"
+                        placeholder="Enter roll or student ID"
+                        value={quickStudentId}
+                        onChange={(e) => setQuickStudentId(e.target.value)}
+                        className="h-10 rounded-xl border-slate-200 text-xs sm:text-sm bg-white"
+                      />
+                    </div>
+
+                    {/* Year */}
+                    <div className="sm:col-span-3 space-y-1.5">
+                      <label className="text-xs font-semibold text-slate-600">
+                        Year
+                      </label>
+                      <Select
+                        value={quickYear}
+                        onValueChange={setQuickYear}
+                      >
+                        <SelectTrigger className="w-full h-10 rounded-xl border-slate-200 text-xs sm:text-sm bg-white">
+                          <SelectValue placeholder="2026" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="2026">2026</SelectItem>
+                          <SelectItem value="2025">2025</SelectItem>
+                          <SelectItem value="2024">2024</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+
+                  {/* Search Result Button */}
+                  <Button
+                    type="submit"
+                    className="w-full h-11 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm shadow-md shadow-blue-600/25 transition-all cursor-pointer flex items-center justify-center gap-2 active:scale-[0.99]"
+                  >
+                    <Search className="h-4 w-4" />
+                    <span>Search Result</span>
+                  </Button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Online Result Modal Popup */}
+      <PublicResultModal
+        isOpen={isResultModalOpen}
+        onClose={() => setIsResultModalOpen(false)}
+      />
     </div>
   );
 }
