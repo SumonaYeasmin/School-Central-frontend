@@ -18,7 +18,6 @@ import { getMyAssignments } from "@/src/services/teacherService";
 import { TeacherAssignment, Teacher } from "@/src/types/teacher";
 import { ClassCard } from "./ClassCard";
 import { ClassOverviewStats } from "./ClassOverviewStats";
-import { StudentsRosterModal } from "./StudentsRosterModal";
 
 export function MyClassesView() {
   const [teacher, setTeacher] = useState<Teacher | null>(null);
@@ -26,8 +25,6 @@ export function MyClassesView() {
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedClassFilter, setSelectedClassFilter] = useState("ALL");
-  const [activeModalAssignment, setActiveModalAssignment] =
-    useState<TeacherAssignment | null>(null);
 
   useEffect(() => {
     fetchAssignments();
@@ -85,7 +82,7 @@ export function MyClassesView() {
   });
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto space-y-6 sm:space-y-8 font-sans animate-in fade-in duration-300">
+    <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6 sm:space-y-8 font-sans animate-in fade-in duration-300">
       {/* ================= Header Banner ================= */}
       <div className="bg-gradient-to-r from-blue-900 via-indigo-900 to-slate-950 rounded-3xl p-6 sm:p-8 text-white relative overflow-hidden shadow-xl border border-blue-900/40">
         <div className="absolute top-0 right-0 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
@@ -99,7 +96,7 @@ export function MyClassesView() {
               My Assigned Classes
             </h1>
             <p className="text-sm text-slate-300 max-w-2xl font-normal">
-              View your assigned classroom sections, manage students roster, and quickly enter term grades.
+              View your assigned classroom sections, manage student rosters, and monitor student academic performance.
             </p>
           </div>
 
@@ -204,18 +201,10 @@ export function MyClassesView() {
             <ClassCard
               key={assignment.id}
               assignment={assignment}
-              onViewStudents={(a) => setActiveModalAssignment(a)}
             />
           ))}
         </div>
       )}
-
-      {/* ================= Students Roster Modal ================= */}
-      <StudentsRosterModal
-        isOpen={!!activeModalAssignment}
-        onClose={() => setActiveModalAssignment(null)}
-        assignment={activeModalAssignment}
-      />
     </div>
   );
 }

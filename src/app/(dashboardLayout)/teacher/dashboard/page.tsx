@@ -61,7 +61,7 @@ export default function TeacherDashboardPage() {
   const uniqueSubjects = new Set(assignments.map((a) => a.subject.id)).size;
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto space-y-6 sm:space-y-8 font-sans animate-in fade-in duration-300">
+    <div className="p-4 sm:p-6 lg:p-8 container mx-auto space-y-6 sm:space-y-8 font-sans animate-in fade-in duration-300">
       {/* Welcome Hero Banner */}
       <div className="bg-gradient-to-r from-blue-900 via-indigo-900 to-slate-950 rounded-3xl p-6 sm:p-8 text-white relative overflow-hidden shadow-xl border border-blue-900/40">
         <div className="absolute top-0 right-0 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />

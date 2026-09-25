@@ -1,25 +1,13 @@
-"use client";
-
 import Link from "next/link";
 import { Badge } from "@/src/components/ui/badge";
-import { Button } from "@/src/components/ui/button";
-import {
-  School,
-  BookOpen,
-  Users,
-  FileSpreadsheet,
-  BarChart3,
-  ArrowUpRight,
-  Sparkles,
-} from "lucide-react";
+import { School, BookOpen, Users, ArrowRight } from "lucide-react";
 import { TeacherAssignment } from "@/src/types/teacher";
 
 interface ClassCardProps {
   assignment: TeacherAssignment;
-  onViewStudents: (assignment: TeacherAssignment) => void;
 }
 
-export function ClassCard({ assignment, onViewStudents }: ClassCardProps) {
+export function ClassCard({ assignment }: ClassCardProps) {
   const { class: schoolClass, section, subject, studentCount } = assignment;
 
   // Color theme generator based on class name
@@ -92,24 +80,15 @@ export function ClassCard({ assignment, onViewStudents }: ClassCardProps) {
         </div>
       </div>
 
-      {/* Footer Action Buttons */}
-      <div className="p-4 sm:p-5 pt-3 bg-slate-50/50 border-t border-slate-100 grid grid-cols-2 gap-2">
-        <Button
-          type="button"
-          onClick={() => onViewStudents(assignment)}
-          variant="outline"
-          className="w-full h-10 rounded-xl border-slate-300 hover:bg-white hover:border-blue-300 text-slate-700 font-bold text-xs transition-colors cursor-pointer flex items-center justify-center gap-1.5 shadow-2xs"
-        >
-          <Users className="h-3.5 w-3.5 text-blue-600" />
-          <span>View Students</span>
-        </Button>
-
+      {/* Footer Action Button */}
+      <div className="p-4 sm:p-5 pt-3 bg-slate-50/50 border-t border-slate-100">
         <Link
-          href={`/teacher/dashboard/results/enter-marks?classId=${schoolClass.id}&sectionId=${section.id}&subjectId=${subject.id}`}
-          className="w-full h-10 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs transition-colors cursor-pointer flex items-center justify-center gap-1.5 shadow-md shadow-blue-600/20 active:scale-[0.98]"
+          href={`/teacher/dashboard/classes/${assignment.id}`}
+          className="w-full h-11 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs transition-all cursor-pointer flex items-center justify-center gap-2 shadow-md shadow-blue-600/20 active:scale-[0.98]"
         >
-          <FileSpreadsheet className="h-3.5 w-3.5" />
-          <span>Enter Marks</span>
+          <Users className="h-4 w-4" />
+          <span>View Enrolled Students</span>
+          <ArrowRight className="h-3.5 w-3.5" />
         </Link>
       </div>
     </div>
