@@ -1,5 +1,6 @@
 import { DashboardSidebar } from "@/src/components/modules/Dashboard/DashboardSidebar";
 import { DashboardNavbar } from "@/src/components/modules/Dashboard/DashboardNavbar";
+import { RoleGuard } from "@/src/components/auth/RoleGuard";
 
 export default function DashboardLayout({
   children,
@@ -16,7 +17,7 @@ export default function DashboardLayout({
         <DashboardNavbar />
 
         <main className="flex-1 p-4 md:p-6 lg:p-8 overflow-y-auto">
-          {children}
+          <RoleGuard>{children}</RoleGuard>
         </main>
       </div>
     </div>

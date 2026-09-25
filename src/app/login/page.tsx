@@ -2,8 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import Image from "next/image";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   Mail,
   Lock,
@@ -15,6 +14,10 @@ import {
   ArrowLeft,
   School,
   CheckCircle2,
+  ShieldCheck,
+  GraduationCap,
+  Users,
+  Sparkles,
 } from "lucide-react";
 import { Button } from "@/src/components/ui/button";
 import { Input } from "@/src/components/ui/input";
@@ -22,6 +25,8 @@ import { loginUser } from "@/src/services/auth/authService";
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirectUrl = searchParams.get("redirect");
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -29,6 +34,12 @@ export default function LoginPage() {
   const [rememberMe, setRememberMe] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  const handleFillDemo = (demoEmail: string, demoPass: string) => {
+    setEmail(demoEmail);
+    setPassword(demoPass);
+    setErrorMsg(null);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -48,6 +59,19 @@ export default function LoginPage() {
 
       if (res && res.user) {
         const userRole = res.user.role;
+
+        // If redirect URL is given and role matches, prioritize redirect
+        if (redirectUrl) {
+          if (
+            (redirectUrl.startsWith("/admin") && userRole === "ADMIN") ||
+            (redirectUrl.startsWith("/teacher") && (userRole === "TEACHER" || userRole === "ADMIN")) ||
+            (redirectUrl.startsWith("/dashboard") && (userRole === "PARENT" || userRole === "ADMIN"))
+          ) {
+            router.push(redirectUrl);
+            return;
+          }
+        }
+
         // Automatic redirection based on logged-in user's role
         if (userRole === "ADMIN") {
           router.push("/admin/dashboard");
@@ -78,7 +102,7 @@ export default function LoginPage() {
       <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[350px] bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
 
       {/* Back to Home Link */}
-      <div className="w-full max-w-[460px] mb-4 flex items-center justify-between relative z-10">
+      <div className="w-full max-w-[480px] mb-4 flex items-center justify-between relative z-10">
         <Link
           href="/"
           className="inline-flex items-center gap-2 text-xs font-bold text-slate-500 hover:text-slate-900 transition-colors group px-3.5 py-1.5 rounded-full bg-white/80 hover:bg-white border border-slate-200/80 shadow-2xs"
@@ -86,23 +110,27 @@ export default function LoginPage() {
           <ArrowLeft className="h-3.5 w-3.5 group-hover:-translate-x-1 transition-transform" />
           <span>Back to Home</span>
         </Link>
+
+        <span className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">
+          Auth System v2.0
+        </span>
       </div>
 
       {/* Main Login Card */}
-      <div className="w-full max-w-[460px] bg-[#070b14] border border-slate-800/90 rounded-3xl p-6 sm:p-9 shadow-2xl shadow-slate-900/20 text-slate-100 space-y-6 relative z-10">
+      <div className="w-full max-w-[480px] bg-[#070b14] border border-slate-800/90 rounded-3xl p-6 sm:p-8 shadow-2xl shadow-slate-900/20 text-slate-100 space-y-5 relative z-10">
         {/* Brand & Header */}
-        <div className="flex flex-col items-center text-center space-y-3">
-          <div className="h-14 w-14 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-500 p-0.5 shadow-lg shadow-blue-500/25 flex items-center justify-center">
+        <div className="flex flex-col items-center text-center space-y-2.5">
+          <div className="h-13 w-13 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-500 p-0.5 shadow-lg shadow-blue-500/25 flex items-center justify-center">
             <div className="h-full w-full bg-[#0a101d] rounded-[14px] flex items-center justify-center">
-              <School className="h-7 w-7 text-blue-400" />
+              <School className="h-6 w-6 text-blue-400" />
             </div>
           </div>
           <div className="space-y-1">
-            <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
-              Sign In
+            <h1 className="text-2xl font-black text-white tracking-tight">
+              Sign In to School Central
             </h1>
-            <p className="text-xs sm:text-sm text-slate-400">
-              Enter your email and password to access your dashboard
+            <p className="text-xs text-slate-400">
+              Role-protected access for Admin, Teachers & Parents
             </p>
           </div>
         </div>
@@ -116,20 +144,20 @@ export default function LoginPage() {
         )}
 
         {/* Login Form */}
-        <form onSubmit={handleSubmit} className="space-y-4.5">
+        <form onSubmit={handleSubmit} className="space-y-4">
           {/* Email or Phone or ID */}
           <div className="space-y-1.5">
             <label className="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
               <Mail className="h-3.5 w-3.5 text-blue-400" />
-              <span>Email Address or Phone</span>
+              <span>Email, Teacher ID or Phone</span>
             </label>
             <div className="relative">
               <Input
                 type="text"
-                placeholder="Enter email or phone number"
+                placeholder="Enter email or teacher ID"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="h-11 sm:h-12 rounded-xl border-slate-800 bg-[#0a101d] text-white text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500/25 placeholder:text-slate-500 pl-4"
+                className="h-11 rounded-xl border-slate-800 bg-[#0a101d] text-white text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500/25 placeholder:text-slate-500 pl-4"
                 required
                 autoComplete="username"
               />
@@ -145,8 +173,8 @@ export default function LoginPage() {
               </label>
               <button
                 type="button"
-                onClick={() => alert("Please contact your school administrator to reset your password.")}
-                className="text-xs font-semibold text-blue-400 hover:text-blue-300 transition-colors"
+                onClick={() => alert("Demo Password: 123456\nOr contact administrator.")}
+                className="text-xs font-semibold text-blue-400 hover:text-blue-300 transition-colors cursor-pointer"
               >
                 Forgot password?
               </button>
@@ -157,7 +185,7 @@ export default function LoginPage() {
                 placeholder="Enter your password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="h-11 sm:h-12 rounded-xl border-slate-800 bg-[#0a101d] text-white text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500/25 placeholder:text-slate-500 pl-4 pr-11"
+                className="h-11 rounded-xl border-slate-800 bg-[#0a101d] text-white text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500/25 placeholder:text-slate-500 pl-4 pr-11"
                 required
                 autoComplete="current-password"
               />
@@ -176,8 +204,8 @@ export default function LoginPage() {
           </div>
 
           {/* Remember Me */}
-          <div className="flex items-center justify-between pt-1">
-            <label className="flex items-center gap-2.5 cursor-pointer select-none text-xs text-slate-300 font-medium">
+          <div className="flex items-center justify-between pt-0.5">
+            <label className="flex items-center gap-2 cursor-pointer select-none text-xs text-slate-300 font-medium">
               <input
                 type="checkbox"
                 checked={rememberMe}
@@ -192,7 +220,7 @@ export default function LoginPage() {
           <Button
             type="submit"
             disabled={isLoading}
-            className="w-full h-11 sm:h-12 rounded-xl bg-gradient-to-r from-blue-600 via-blue-500 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold text-sm shadow-xl shadow-blue-600/30 transition-all cursor-pointer flex items-center justify-center gap-2 active:scale-[0.99] disabled:opacity-70 mt-3"
+            className="w-full h-11 rounded-xl bg-gradient-to-r from-blue-600 via-blue-500 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold text-sm shadow-xl shadow-blue-600/30 transition-all cursor-pointer flex items-center justify-center gap-2 active:scale-[0.99] disabled:opacity-70 mt-2"
           >
             {isLoading ? (
               <>
@@ -201,7 +229,7 @@ export default function LoginPage() {
               </>
             ) : (
               <>
-                <span>Sign In</span>
+                <span>Sign In Securely</span>
                 <ArrowRight className="h-4 w-4" />
               </>
             )}
@@ -212,7 +240,7 @@ export default function LoginPage() {
         <div className="pt-2 border-t border-slate-800/80 text-center">
           <p className="text-[11px] text-slate-400 flex items-center justify-center gap-1.5">
             <CheckCircle2 className="h-3.5 w-3.5 text-blue-400" />
-            <span>Secure role-based portal for Admin, Teachers & Parents</span>
+            <span>Guarded role routing: Admin ➔ /admin | Teacher ➔ /teacher | Parent ➔ /dashboard</span>
           </p>
         </div>
       </div>

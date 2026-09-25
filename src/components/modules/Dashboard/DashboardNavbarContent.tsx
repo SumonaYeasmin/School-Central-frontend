@@ -18,8 +18,8 @@ interface DashboardNavbarContentProps {
 export function DashboardNavbarContent({ user, navItems: initialNavItems }: DashboardNavbarContentProps) {
   const pathname = usePathname();
 
-  // Dynamically resolve active portal and user from URL path
-  const activeRole: UserRole = pathname.startsWith("/teacher")
+  // Portal navigation role based on pathname
+  const portalRole: UserRole = pathname.startsWith("/teacher")
     ? "TEACHER"
     : pathname.startsWith("/admin")
     ? "ADMIN"
@@ -27,8 +27,7 @@ export function DashboardNavbarContent({ user, navItems: initialNavItems }: Dash
     ? "PARENT"
     : user.role;
 
-  const fallbackUser = mockUsers[activeRole] || user;
-  const [activeUser, setActiveUser] = useState<UserInfo>(fallbackUser);
+  const [activeUser, setActiveUser] = useState<UserInfo>(user);
 
   useEffect(() => {
     try {
@@ -37,19 +36,21 @@ export function DashboardNavbarContent({ user, navItems: initialNavItems }: Dash
         const parsed = JSON.parse(stored);
         if (parsed?.email) {
           setActiveUser({
-            ...fallbackUser,
-            name: parsed.name || fallbackUser.name,
-            email: parsed.email || fallbackUser.email,
-            role: activeRole,
+            id: parsed.id || user.id,
+            name: parsed.name || user.name,
+            email: parsed.email,
+            role: (parsed.role as UserRole) || user.role,
+            avatar: parsed.avatar || user.avatar,
+            phone: parsed.phone,
           });
           return;
         }
       }
     } catch {}
-    setActiveUser(fallbackUser);
-  }, [activeRole]);
+    setActiveUser(user);
+  }, [user]);
 
-  const activeNavItems = getNavItemsByRole(activeRole) || initialNavItems;
+  const activeNavItems = getNavItemsByRole(portalRole) || initialNavItems;
 
   return (
     <header className="sticky top-0 z-30 h-14 sm:h-16 w-full border-b border-slate-200 bg-white/80 backdrop-blur-md px-4 lg:px-6 flex items-center justify-between gap-4">

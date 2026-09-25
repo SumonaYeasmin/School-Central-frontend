@@ -68,7 +68,7 @@ export function DashboardSidebarContent({
             <span className="font-bold text-slate-900 text-lg tracking-tight">School Central</span>
             <Sparkles className="h-3.5 w-3.5 text-blue-500" />
           </div>
-          <span className="text-xs font-semibold text-blue-600">{getPortalLabel(user.role)}</span>
+          <span className="text-xs font-semibold text-blue-600">{getPortalLabel(activeRole)}</span>
         </div>
       </div>
 

@@ -23,8 +23,9 @@ export const loginUser = async (credentials: LoginPayload): Promise<AuthResponse
   const data: AuthResponse = response.data;
 
   if (data?.accessToken) {
-    // Save access token to cookie
+    // Save access token and userRole to cookies for Next.js Middleware route guarding
     document.cookie = `accessToken=${data.accessToken}; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Lax`;
+    document.cookie = `userRole=${data.user.role}; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Lax`;
     localStorage.setItem("userRole", data.user.role);
     localStorage.setItem("userInfo", JSON.stringify(data.user));
   }
@@ -34,8 +35,9 @@ export const loginUser = async (credentials: LoginPayload): Promise<AuthResponse
 
 export const logoutUser = () => {
   document.cookie = "accessToken=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;";
+  document.cookie = "userRole=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;";
   localStorage.removeItem("userRole");
   localStorage.removeItem("userInfo");
   // eslint-disable-next-line @next/next/no-location-assign-relative-destination
-  window.location.href = "/";
+  window.location.href = "/login";
 };
