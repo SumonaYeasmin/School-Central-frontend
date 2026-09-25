@@ -251,8 +251,14 @@ export function EnrolledStudentsView({ assignmentId }: EnrolledStudentsViewProps
               </thead>
               <tbody className="divide-y divide-slate-100 text-slate-700 font-medium">
                 {filteredStudents.map((st) => {
-                  const primaryParent =
-                    st.parents?.find((p) => p.isPrimary)?.parent || st.parents?.[0]?.parent;
+                  const parentEntry =
+                    st.parents?.find((p: any) => p.isPrimary) || st.parents?.[0];
+                  const parentName =
+                    (parentEntry as any)?.parent?.name || (parentEntry as any)?.name;
+                  const parentPhone =
+                    (parentEntry as any)?.parent?.phone || (parentEntry as any)?.phone;
+                  const relation =
+                    (parentEntry as any)?.relation || (parentEntry as any)?.parent?.relation;
                   return (
                     <tr key={st.id} className="hover:bg-blue-50/40 transition-colors">
                       <td className="py-4 px-6 text-center font-mono font-bold text-blue-700 bg-blue-50/20 text-base">
@@ -292,15 +298,22 @@ export function EnrolledStudentsView({ assignmentId }: EnrolledStudentsViewProps
                         </Badge>
                       </td>
                       <td className="py-4 px-6 text-xs text-slate-500 hidden md:table-cell">
-                        {primaryParent ? (
+                        {parentName && parentPhone ? (
                           <div className="space-y-0.5">
-                            <p className="font-bold text-slate-800">{primaryParent.name}</p>
+                            <div className="flex items-center gap-1.5">
+                              <p className="font-bold text-slate-800">{parentName}</p>
+                              {relation && (
+                                <span className="text-[10px] font-semibold uppercase px-1.5 py-0.2 bg-slate-100 text-slate-500 rounded-md">
+                                  {relation}
+                                </span>
+                              )}
+                            </div>
                             <a
-                              href={`tel:${primaryParent.phone}`}
+                              href={`tel:${parentPhone}`}
                               className="text-blue-600 hover:text-blue-700 flex items-center gap-1 font-mono text-xs font-semibold hover:underline"
                             >
                               <Phone className="h-3 w-3" />
-                              {primaryParent.phone}
+                              {parentPhone}
                             </a>
                           </div>
                         ) : (
