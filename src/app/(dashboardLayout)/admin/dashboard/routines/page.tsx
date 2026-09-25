@@ -45,7 +45,7 @@ export default function ClassRoutinesPage() {
     periodData?: PeriodSlot;
   }>({
     isOpen: false,
-    day: "Monday",
+    day: "Sunday",
     timeSlot: "10:00–11:00",
     periodKey: "p1",
   });
@@ -70,12 +70,12 @@ export default function ClassRoutinesPage() {
     });
   };
 
-  // Helper to convert DB Routine Day to TitleCase (e.g. "MONDAY" -> "Monday")
+  // Helper to convert DB Routine Day to TitleCase (e.g. "SUNDAY" -> "Sunday")
   const formatDayName = (dayStr: string): keyof SectionRoutine["schedule"] => {
     const capitalized = dayStr.charAt(0).toUpperCase() + dayStr.slice(1).toLowerCase();
-    return (["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"].includes(capitalized)
+    return (["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday"].includes(capitalized)
       ? capitalized
-      : "Monday") as keyof SectionRoutine["schedule"];
+      : "Sunday") as keyof SectionRoutine["schedule"];
   };
 
   // Helper to determine periodKey (p1 to p5) from startTime

@@ -31,11 +31,11 @@ export interface SectionRoutine {
   room: string; // "Room 101"
   studentCount: number; // 32
   schedule: {
+    Sunday: DaySchedule;
     Monday: DaySchedule;
     Tuesday: DaySchedule;
     Wednesday: DaySchedule;
     Thursday: DaySchedule;
-    Friday: DaySchedule;
   };
 }
 
@@ -48,7 +48,7 @@ export const TIME_SLOTS = [
   { time: "3:00–4:00", periodKey: "p5" as const, label: "Period 5" },
 ];
 
-export const DAYS_OF_WEEK = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"] as const;
+export const DAYS_OF_WEEK = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday"] as const;
 
 export const CLASSES_LIST = ["Class 6", "Class 7", "Class 8", "Class 9", "Class 10"] as const;
 
@@ -73,936 +73,1742 @@ export const GROUP_SUBJECT_PRESETS = {
 };
 
 export const AVAILABLE_ROOMS = [
-  // Science & Specialized Labs
   "Physics Lab",
   "Chemistry Lab",
   "Biology Lab",
   "Science Lab 01",
   "Science Lab 02",
   "ICT / Computer Lab",
-  // 1st Floor Classrooms
   "Room 101",
   "Room 102",
   "Room 103",
   "Room 104",
   "Room 105",
-  // 2nd Floor Classrooms
   "Room 201",
   "Room 202",
   "Room 203",
   "Room 204",
   "Room 205",
-  // 3rd Floor Classrooms
   "Room 301",
   "Room 302",
   "Room 303",
-  // Other School Facilities
+  "Room 401",
+  "Room 402",
+  "Room 501",
+  "Room 502",
   "Library Room",
-  "Multi-purpose Hall",
   "Auditorium",
 ];
 
 export const MOCK_ROUTINES: SectionRoutine[] = [
-  // ==================== CLASS 6 ====================
-  // 1. Class 6 · Section A
   {
-    id: "c6-a",
-    grade: "Class 6",
-    section: "Section A",
-    fullName: "Class 6 · Section A",
-    classTeacher: "Priya Nair",
-    room: "Room 101",
-    studentCount: 32,
-    schedule: {
-      Monday: {
-        p1: { subject: "Bangla", teacher: "Priya Nair", room: "Room 101", theme: "amber" },
-        p2: { subject: "Mathematics", teacher: "Maya Chen", room: "Room 101", theme: "blue" },
-        p3: { subject: "English", teacher: "Jon Bell", room: "Room 101", theme: "purple" },
-        p4: { subject: "General Science", teacher: "Rafael Ortiz", room: "Lab 01", theme: "emerald" },
-        p5: { subject: "Art & Craft", teacher: "Helen Moore", room: "Studio 01", theme: "amber" },
+    "id": "c10-a",
+    "grade": "Class 10",
+    "section": "Section A",
+    "fullName": "Class 10 · Section A",
+    "classTeacher": "Anisur Rahman",
+    "room": "Room 501",
+    "studentCount": 24,
+    "schedule": {
+      "Sunday": {
+        "p1": {
+          "subject": "গণিত",
+          "teacher": "Anisur Rahman",
+          "room": "Room 501",
+          "theme": "blue"
+        },
+        "p2": {
+          "subject": "পদার্থবিজ্ঞান",
+          "teacher": "Rafael Ortiz",
+          "room": "Room 501",
+          "theme": "emerald"
+        },
+        "p3": {
+          "subject": "হিসাববিজ্ঞান",
+          "teacher": "Robert Kiyosaki",
+          "room": "Room 501",
+          "theme": "emerald"
+        },
+        "p4": {
+          "subject": "জীববিজ্ঞান",
+          "teacher": "Dr. Charles Darwin",
+          "room": "Room 501",
+          "theme": "emerald"
+        },
+        "p5": {
+          "subject": "তথ্য ও যোগাযোগ প্রযুক্তি",
+          "teacher": "Nasreen Akter",
+          "room": "Room 501",
+          "theme": "purple"
+        }
       },
-      Tuesday: {
-        p1: { subject: "English", teacher: "Jon Bell", room: "Room 101", theme: "purple" },
-        p2: { subject: "Social Studies", teacher: "Priya Nair", room: "Room 101", theme: "amber" },
-        p3: { subject: "Mathematics", teacher: "Maya Chen", room: "Room 101", theme: "blue" },
-        p4: { subject: "ICT Basics", teacher: "Sarah Jenkins", room: "Computer Lab", theme: "purple" },
-        p5: { subject: "Physical Education", teacher: "Sam Reed", room: "Playground", theme: "emerald" },
+      "Monday": {
+        "p1": {
+          "subject": "English For Today",
+          "teacher": "Priya Nair",
+          "room": "Room 501",
+          "theme": "purple"
+        },
+        "p2": {
+          "subject": "রসায়ন",
+          "teacher": "Marie Curie",
+          "room": "Room 501",
+          "theme": "gray"
+        },
+        "p3": {
+          "subject": "বাংলাদেশ ও বিশ্বপরিচয়",
+          "teacher": "Kabir Ahmed",
+          "room": "Room 501",
+          "theme": "amber"
+        },
+        "p4": {
+          "subject": "ভূগোল ও পরিবেশ",
+          "teacher": "Sarah Jenkins",
+          "room": "Room 501",
+          "theme": "rose"
+        },
+        "p5": {
+          "subject": "শারীরিক শিক্ষা, স্বাস্থ্যবিজ্ঞান ও খেলাধুলা",
+          "teacher": "Subrata Roy",
+          "room": "Room 501",
+          "theme": "emerald"
+        }
       },
-      Wednesday: {
-        p1: { subject: "General Science", teacher: "Rafael Ortiz", room: "Lab 01", theme: "emerald" },
-        p2: { subject: "Bangla", teacher: "Priya Nair", room: "Room 101", theme: "amber" },
-        p3: { subject: "English", teacher: "Jon Bell", room: "Room 101", theme: "purple" },
-        p4: { subject: "Mathematics", teacher: "Maya Chen", room: "Room 101", theme: "blue" },
-        p5: { subject: "Library Session", teacher: "Nora Ellis", room: "Library", theme: "emerald" },
+      "Tuesday": {
+        "p1": {
+          "subject": "জীববিজ্ঞান",
+          "teacher": "Dr. Charles Darwin",
+          "room": "Room 501",
+          "theme": "emerald"
+        },
+        "p2": {
+          "subject": "তথ্য ও যোগাযোগ প্রযুক্তি",
+          "teacher": "Nasreen Akter",
+          "room": "Room 501",
+          "theme": "purple"
+        },
+        "p3": {
+          "subject": "ধর্ম ও নৈতিক শিক্ষা",
+          "teacher": "Mahbubur Rahman",
+          "room": "Room 501",
+          "theme": "amber"
+        },
+        "p4": {
+          "subject": "উচ্চতর গণিত",
+          "teacher": "Akash",
+          "room": "Room 501",
+          "theme": "blue"
+        },
+        "p5": {
+          "subject": "বাংলা সাহিত্য",
+          "teacher": "Farhana Sultana",
+          "room": "Room 501",
+          "theme": "amber"
+        }
       },
-      Thursday: {
-        p1: { subject: "Mathematics", teacher: "Maya Chen", room: "Room 101", theme: "blue" },
-        p2: { subject: "General Science", teacher: "Rafael Ortiz", room: "Lab 01", theme: "emerald" },
-        p3: { subject: "Social Studies", teacher: "Priya Nair", room: "Room 101", theme: "amber" },
-        p4: { subject: "Bangla Grammar", teacher: "Priya Nair", room: "Room 101", theme: "amber" },
-        p5: { subject: "Music & Rhymes", teacher: "Mina Park", room: "Music Room", theme: "purple" },
+      "Wednesday": {
+        "p1": {
+          "subject": "ভূগোল ও পরিবেশ",
+          "teacher": "Sarah Jenkins",
+          "room": "Room 501",
+          "theme": "rose"
+        },
+        "p2": {
+          "subject": "শারীরিক শিক্ষা, স্বাস্থ্যবিজ্ঞান ও খেলাধুলা",
+          "teacher": "Subrata Roy",
+          "room": "Room 501",
+          "theme": "emerald"
+        },
+        "p3": {
+          "subject": "গণিত",
+          "teacher": "Anisur Rahman",
+          "room": "Room 501",
+          "theme": "blue"
+        },
+        "p4": {
+          "subject": "পদার্থবিজ্ঞান",
+          "teacher": "Rafael Ortiz",
+          "room": "Room 501",
+          "theme": "emerald"
+        },
+        "p5": {
+          "subject": "হিসাববিজ্ঞান",
+          "teacher": "Robert Kiyosaki",
+          "room": "Room 501",
+          "theme": "emerald"
+        }
       },
-      Friday: {
-        p1: { subject: "English Spoken", teacher: "Jon Bell", room: "Room 101", theme: "purple" },
-        p2: { subject: "Mathematics", teacher: "Maya Chen", room: "Room 101", theme: "blue" },
-        p3: { subject: "Health & Hygiene", teacher: "Sam Reed", room: "Room 101", theme: "emerald" },
-        p4: { subject: "Science Fun Lab", teacher: "Rafael Ortiz", room: "Lab 01", theme: "emerald" },
-        p5: { subject: "Club Activity", teacher: "Faculty", room: "Hall 01", theme: "purple" },
-      },
-    },
+      "Thursday": {
+        "p1": {
+          "subject": "উচ্চতর গণিত",
+          "teacher": "Akash",
+          "room": "Room 501",
+          "theme": "blue"
+        },
+        "p2": {
+          "subject": "বাংলা সাহিত্য",
+          "teacher": "Farhana Sultana",
+          "room": "Room 501",
+          "theme": "amber"
+        },
+        "p3": {
+          "subject": "English For Today",
+          "teacher": "Priya Nair",
+          "room": "Room 501",
+          "theme": "purple"
+        },
+        "p4": {
+          "subject": "রসায়ন",
+          "teacher": "Marie Curie",
+          "room": "Room 501",
+          "theme": "gray"
+        },
+        "p5": {
+          "subject": "বাংলাদেশ ও বিশ্বপরিচয়",
+          "teacher": "Kabir Ahmed",
+          "room": "Room 501",
+          "theme": "amber"
+        }
+      }
+    }
   },
-
-  // 2. Class 6 · Section B
   {
-    id: "c6-b",
-    grade: "Class 6",
-    section: "Section B",
-    fullName: "Class 6 · Section B",
-    classTeacher: "Jon Bell",
-    room: "Room 102",
-    studentCount: 30,
-    schedule: {
-      Monday: {
-        p1: { subject: "English", teacher: "Jon Bell", room: "Room 102", theme: "purple" },
-        p2: { subject: "Bangla", teacher: "Farhana Sultana", room: "Room 102", theme: "amber" },
-        p3: { subject: "Mathematics", teacher: "Maya Chen", room: "Room 102", theme: "blue" },
-        p4: { subject: "ICT Basics", teacher: "Sarah Jenkins", room: "Computer Lab", theme: "purple" },
-        p5: { subject: "Physical Education", teacher: "Sam Reed", room: "Playground", theme: "emerald" },
+    "id": "c10-b",
+    "grade": "Class 10",
+    "section": "Section B",
+    "fullName": "Class 10 · Section B",
+    "classTeacher": "Farhana Sultana",
+    "room": "Room 502",
+    "studentCount": 24,
+    "schedule": {
+      "Sunday": {
+        "p1": {
+          "subject": "বাংলা সাহিত্য",
+          "teacher": "Farhana Sultana",
+          "room": "Room 502",
+          "theme": "amber"
+        },
+        "p2": {
+          "subject": "English For Today",
+          "teacher": "Priya Nair",
+          "room": "Room 502",
+          "theme": "purple"
+        },
+        "p3": {
+          "subject": "রসায়ন",
+          "teacher": "Marie Curie",
+          "room": "Room 502",
+          "theme": "gray"
+        },
+        "p4": {
+          "subject": "বাংলাদেশ ও বিশ্বপরিচয়",
+          "teacher": "Kabir Ahmed",
+          "room": "Room 502",
+          "theme": "amber"
+        },
+        "p5": {
+          "subject": "ভূগোল ও পরিবেশ",
+          "teacher": "Sarah Jenkins",
+          "room": "Room 502",
+          "theme": "rose"
+        }
       },
-      Tuesday: {
-        p1: { subject: "Mathematics", teacher: "Maya Chen", room: "Room 102", theme: "blue" },
-        p2: { subject: "General Science", teacher: "Rafael Ortiz", room: "Lab 01", theme: "emerald" },
-        p3: { subject: "Bangla", teacher: "Farhana Sultana", room: "Room 102", theme: "amber" },
-        p4: { subject: "English", teacher: "Jon Bell", room: "Room 102", theme: "purple" },
-        p5: { subject: "Art & Craft", teacher: "Helen Moore", room: "Studio 01", theme: "amber" },
+      "Monday": {
+        "p1": {
+          "subject": "হিসাববিজ্ঞান",
+          "teacher": "Robert Kiyosaki",
+          "room": "Room 502",
+          "theme": "emerald"
+        },
+        "p2": {
+          "subject": "জীববিজ্ঞান",
+          "teacher": "Dr. Charles Darwin",
+          "room": "Room 502",
+          "theme": "emerald"
+        },
+        "p3": {
+          "subject": "তথ্য ও যোগাযোগ প্রযুক্তি",
+          "teacher": "Nasreen Akter",
+          "room": "Room 502",
+          "theme": "purple"
+        },
+        "p4": {
+          "subject": "ধর্ম ও নৈতিক শিক্ষা",
+          "teacher": "Mahbubur Rahman",
+          "room": "Room 502",
+          "theme": "amber"
+        },
+        "p5": {
+          "subject": "উচ্চতর গণিত",
+          "teacher": "Akash",
+          "room": "Room 502",
+          "theme": "blue"
+        }
       },
-      Wednesday: {
-        p1: { subject: "Social Studies", teacher: "Priya Nair", room: "Room 102", theme: "amber" },
-        p2: { subject: "English Grammar", teacher: "Jon Bell", room: "Room 102", theme: "purple" },
-        p3: { subject: "General Science", teacher: "Rafael Ortiz", room: "Lab 01", theme: "emerald" },
-        p4: { subject: "Mathematics", teacher: "Maya Chen", room: "Room 102", theme: "blue" },
-        p5: { subject: "Music", teacher: "Mina Park", room: "Music Room", theme: "purple" },
+      "Tuesday": {
+        "p1": {
+          "subject": "বাংলাদেশ ও বিশ্বপরিচয়",
+          "teacher": "Kabir Ahmed",
+          "room": "Room 502",
+          "theme": "amber"
+        },
+        "p2": {
+          "subject": "ভূগোল ও পরিবেশ",
+          "teacher": "Sarah Jenkins",
+          "room": "Room 502",
+          "theme": "rose"
+        },
+        "p3": {
+          "subject": "শারীরিক শিক্ষা, স্বাস্থ্যবিজ্ঞান ও খেলাধুলা",
+          "teacher": "Subrata Roy",
+          "room": "Room 502",
+          "theme": "emerald"
+        },
+        "p4": {
+          "subject": "গণিত",
+          "teacher": "Anisur Rahman",
+          "room": "Room 502",
+          "theme": "blue"
+        },
+        "p5": {
+          "subject": "পদার্থবিজ্ঞান",
+          "teacher": "Rafael Ortiz",
+          "room": "Room 502",
+          "theme": "emerald"
+        }
       },
-      Thursday: {
-        p1: { subject: "Bangla", teacher: "Farhana Sultana", room: "Room 102", theme: "amber" },
-        p2: { subject: "Mathematics", teacher: "Maya Chen", room: "Room 102", theme: "blue" },
-        p3: { subject: "English", teacher: "Jon Bell", room: "Room 102", theme: "purple" },
-        p4: { subject: "General Science", teacher: "Rafael Ortiz", room: "Lab 01", theme: "emerald" },
-        p5: { subject: "Library Session", teacher: "Nora Ellis", room: "Library", theme: "emerald" },
+      "Wednesday": {
+        "p1": {
+          "subject": "ধর্ম ও নৈতিক শিক্ষা",
+          "teacher": "Mahbubur Rahman",
+          "room": "Room 502",
+          "theme": "amber"
+        },
+        "p2": {
+          "subject": "উচ্চতর গণিত",
+          "teacher": "Akash",
+          "room": "Room 502",
+          "theme": "blue"
+        },
+        "p3": {
+          "subject": "বাংলা সাহিত্য",
+          "teacher": "Farhana Sultana",
+          "room": "Room 502",
+          "theme": "amber"
+        },
+        "p4": {
+          "subject": "English For Today",
+          "teacher": "Priya Nair",
+          "room": "Room 502",
+          "theme": "purple"
+        },
+        "p5": {
+          "subject": "রসায়ন",
+          "teacher": "Marie Curie",
+          "room": "Room 502",
+          "theme": "gray"
+        }
       },
-      Friday: {
-        p1: { subject: "General Science", teacher: "Rafael Ortiz", room: "Lab 01", theme: "emerald" },
-        p2: { subject: "Social Studies", teacher: "Priya Nair", room: "Room 102", theme: "amber" },
-        p3: { subject: "Mathematics", teacher: "Maya Chen", room: "Room 102", theme: "blue" },
-        p4: { subject: "English Reading", teacher: "Jon Bell", room: "Room 102", theme: "purple" },
-        p5: { subject: "Club Activity", teacher: "Faculty", room: "Hall 01", theme: "purple" },
-      },
-    },
+      "Thursday": {
+        "p1": {
+          "subject": "গণিত",
+          "teacher": "Anisur Rahman",
+          "room": "Room 502",
+          "theme": "blue"
+        },
+        "p2": {
+          "subject": "পদার্থবিজ্ঞান",
+          "teacher": "Rafael Ortiz",
+          "room": "Room 502",
+          "theme": "emerald"
+        },
+        "p3": {
+          "subject": "হিসাববিজ্ঞান",
+          "teacher": "Robert Kiyosaki",
+          "room": "Room 502",
+          "theme": "emerald"
+        },
+        "p4": {
+          "subject": "জীববিজ্ঞান",
+          "teacher": "Dr. Charles Darwin",
+          "room": "Room 502",
+          "theme": "emerald"
+        },
+        "p5": {
+          "subject": "তথ্য ও যোগাযোগ প্রযুক্তি",
+          "teacher": "Nasreen Akter",
+          "room": "Room 502",
+          "theme": "purple"
+        }
+      }
+    }
   },
-
-  // ==================== CLASS 7 ====================
-  // 3. Class 7 · Section A
   {
-    id: "c7-a",
-    grade: "Class 7",
-    section: "Section A",
-    fullName: "Class 7 · Section A",
-    classTeacher: "Jon Bell",
-    room: "Room 103",
-    studentCount: 31,
-    schedule: {
-      Monday: {
-        p1: { subject: "English", teacher: "Jon Bell", room: "Room 103", theme: "purple" },
-        p2: { subject: "Mathematics", teacher: "Maya Chen", room: "Room 103", theme: "blue" },
-        p3: { subject: "General Science", teacher: "Rafael Ortiz", room: "Lab 01", theme: "emerald" },
-        p4: { subject: "Bangla", teacher: "Farhana Sultana", room: "Room 103", theme: "amber" },
-        p5: { subject: "Art & Design", teacher: "Helen Moore", room: "Studio 01", theme: "amber" },
+    "id": "c6-a",
+    "grade": "Class 6",
+    "section": "Section A",
+    "fullName": "Class 6 · Section A",
+    "classTeacher": "Rafael Ortiz",
+    "room": "Room 101",
+    "studentCount": 32,
+    "schedule": {
+      "Sunday": {
+        "p1": {
+          "subject": "গার্হস্থ্যবিজ্ঞান",
+          "teacher": "Rafael Ortiz",
+          "room": "Room 101",
+          "theme": "emerald"
+        },
+        "p2": {
+          "subject": "কর্ম ও জীবনমুখী শিক্ষা",
+          "teacher": "Robert Kiyosaki",
+          "room": "Room 101",
+          "theme": "emerald"
+        },
+        "p3": {
+          "subject": "গার্হস্থ্যবিজ্ঞান",
+          "teacher": "Dr. Charles Darwin",
+          "room": "Room 101",
+          "theme": "emerald"
+        },
+        "p4": {
+          "subject": "তথ্য ও যোগাযোগ প্রযুক্তি",
+          "teacher": "Nasreen Akter",
+          "room": "Room 101",
+          "theme": "purple"
+        },
+        "p5": {
+          "subject": "ধর্ম ও নৈতিক শিক্ষা",
+          "teacher": "Mahbubur Rahman",
+          "room": "Room 101",
+          "theme": "amber"
+        }
       },
-      Tuesday: {
-        p1: { subject: "Mathematics", teacher: "Maya Chen", room: "Room 103", theme: "blue" },
-        p2: { subject: "English Grammar", teacher: "Jon Bell", room: "Room 103", theme: "purple" },
-        p3: { subject: "Social Science", teacher: "Priya Nair", room: "Room 103", theme: "amber" },
-        p4: { subject: "ICT", teacher: "Sarah Jenkins", room: "Computer Lab", theme: "purple" },
-        p5: { subject: "Games & Sports", teacher: "Sam Reed", room: "Field", theme: "emerald" },
+      "Monday": {
+        "p1": {
+          "subject": "গার্হস্থ্যবিজ্ঞান",
+          "teacher": "Marie Curie",
+          "room": "Room 101",
+          "theme": "emerald"
+        },
+        "p2": {
+          "subject": "বাংলাদেশ ও বিশ্বপরিচয়",
+          "teacher": "Kabir Ahmed",
+          "room": "Room 101",
+          "theme": "amber"
+        },
+        "p3": {
+          "subject": "কৃষিশিক্ষা",
+          "teacher": "Sarah Jenkins",
+          "room": "Room 101",
+          "theme": "gray"
+        },
+        "p4": {
+          "subject": "শারীরিক শিক্ষা ও স্বাস্থ্য",
+          "teacher": "Subrata Roy",
+          "room": "Room 101",
+          "theme": "gray"
+        },
+        "p5": {
+          "subject": "গণিত",
+          "teacher": "Anisur Rahman",
+          "room": "Room 101",
+          "theme": "blue"
+        }
       },
-      Wednesday: {
-        p1: { subject: "General Science", teacher: "Rafael Ortiz", room: "Lab 01", theme: "emerald" },
-        p2: { subject: "Bangla Literature", teacher: "Farhana Sultana", room: "Room 103", theme: "amber" },
-        p3: { subject: "Mathematics", teacher: "Maya Chen", room: "Room 103", theme: "blue" },
-        p4: { subject: "English", teacher: "Jon Bell", room: "Room 103", theme: "purple" },
-        p5: { subject: "Library Session", teacher: "Nora Ellis", room: "Library", theme: "emerald" },
+      "Tuesday": {
+        "p1": {
+          "subject": "তথ্য ও যোগাযোগ প্রযুক্তি",
+          "teacher": "Nasreen Akter",
+          "room": "Room 101",
+          "theme": "purple"
+        },
+        "p2": {
+          "subject": "ধর্ম ও নৈতিক শিক্ষা",
+          "teacher": "Mahbubur Rahman",
+          "room": "Room 101",
+          "theme": "amber"
+        },
+        "p3": {
+          "subject": "গার্হস্থ্যবিজ্ঞান",
+          "teacher": "Akash",
+          "room": "Room 101",
+          "theme": "emerald"
+        },
+        "p4": {
+          "subject": "বাংলা ব্যাকরণ ও নির্মিতি",
+          "teacher": "Farhana Sultana",
+          "room": "Room 101",
+          "theme": "amber"
+        },
+        "p5": {
+          "subject": "English For Today",
+          "teacher": "Priya Nair",
+          "room": "Room 101",
+          "theme": "purple"
+        }
       },
-      Thursday: {
-        p1: { subject: "Bangla", teacher: "Farhana Sultana", room: "Room 103", theme: "amber" },
-        p2: { subject: "Science Lab", teacher: "Rafael Ortiz", room: "Lab 01", theme: "emerald" },
-        p3: { subject: "Mathematics", teacher: "Maya Chen", room: "Room 103", theme: "blue" },
-        p4: { subject: "Moral Science", teacher: "Priya Nair", room: "Room 103", theme: "amber" },
-        p5: { subject: "Music & Drama", teacher: "Mina Park", room: "Music Room", theme: "purple" },
+      "Wednesday": {
+        "p1": {
+          "subject": "শারীরিক শিক্ষা ও স্বাস্থ্য",
+          "teacher": "Subrata Roy",
+          "room": "Room 101",
+          "theme": "gray"
+        },
+        "p2": {
+          "subject": "গণিত",
+          "teacher": "Anisur Rahman",
+          "room": "Room 101",
+          "theme": "blue"
+        },
+        "p3": {
+          "subject": "গার্হস্থ্যবিজ্ঞান",
+          "teacher": "Rafael Ortiz",
+          "room": "Room 101",
+          "theme": "emerald"
+        },
+        "p4": {
+          "subject": "কর্ম ও জীবনমুখী শিক্ষা",
+          "teacher": "Robert Kiyosaki",
+          "room": "Room 101",
+          "theme": "emerald"
+        },
+        "p5": {
+          "subject": "গার্হস্থ্যবিজ্ঞান",
+          "teacher": "Dr. Charles Darwin",
+          "room": "Room 101",
+          "theme": "emerald"
+        }
       },
-      Friday: {
-        p1: { subject: "English Speaking", teacher: "Jon Bell", room: "Room 103", theme: "purple" },
-        p2: { subject: "Mathematics Quiz", teacher: "Maya Chen", room: "Room 103", theme: "blue" },
-        p3: { subject: "Science Project", teacher: "Rafael Ortiz", room: "Lab 01", theme: "emerald" },
-        p4: { subject: "ICT Lab", teacher: "Sarah Jenkins", room: "Computer Lab", theme: "purple" },
-        p5: { subject: "Co-curricular Club", teacher: "Staff", room: "Hall 02", theme: "purple" },
-      },
-    },
+      "Thursday": {
+        "p1": {
+          "subject": "বাংলা ব্যাকরণ ও নির্মিতি",
+          "teacher": "Farhana Sultana",
+          "room": "Room 101",
+          "theme": "amber"
+        },
+        "p2": {
+          "subject": "English For Today",
+          "teacher": "Priya Nair",
+          "room": "Room 101",
+          "theme": "purple"
+        },
+        "p3": {
+          "subject": "গার্হস্থ্যবিজ্ঞান",
+          "teacher": "Marie Curie",
+          "room": "Room 101",
+          "theme": "emerald"
+        },
+        "p4": {
+          "subject": "বাংলাদেশ ও বিশ্বপরিচয়",
+          "teacher": "Kabir Ahmed",
+          "room": "Room 101",
+          "theme": "amber"
+        },
+        "p5": {
+          "subject": "কৃষিশিক্ষা",
+          "teacher": "Sarah Jenkins",
+          "room": "Room 101",
+          "theme": "gray"
+        }
+      }
+    }
   },
-
-  // 4. Class 7 · Section B
   {
-    id: "c7-b",
-    grade: "Class 7",
-    section: "Section B",
-    fullName: "Class 7 · Section B",
-    classTeacher: "Rafael Ortiz",
-    room: "Room 104",
-    studentCount: 28,
-    schedule: {
-      Monday: {
-        p1: { subject: "Mathematics", teacher: "Maya Chen", room: "Room 104", theme: "blue" },
-        p2: { subject: "General Science", teacher: "Rafael Ortiz", room: "Lab 01", theme: "emerald" },
-        p3: { subject: "English", teacher: "Jon Bell", room: "Room 104", theme: "purple" },
-        p4: { subject: "Bangla", teacher: "Farhana Sultana", room: "Room 104", theme: "amber" },
-        p5: { subject: "Social Studies", teacher: "Priya Nair", room: "Room 104", theme: "amber" },
+    "id": "c6-b",
+    "grade": "Class 6",
+    "section": "Section B",
+    "fullName": "Class 6 · Section B",
+    "classTeacher": "Priya Nair",
+    "room": "Room 102",
+    "studentCount": 32,
+    "schedule": {
+      "Sunday": {
+        "p1": {
+          "subject": "English For Today",
+          "teacher": "Priya Nair",
+          "room": "Room 102",
+          "theme": "purple"
+        },
+        "p2": {
+          "subject": "গার্হস্থ্যবিজ্ঞান",
+          "teacher": "Marie Curie",
+          "room": "Room 102",
+          "theme": "emerald"
+        },
+        "p3": {
+          "subject": "বাংলাদেশ ও বিশ্বপরিচয়",
+          "teacher": "Kabir Ahmed",
+          "room": "Room 102",
+          "theme": "amber"
+        },
+        "p4": {
+          "subject": "কৃষিশিক্ষা",
+          "teacher": "Sarah Jenkins",
+          "room": "Room 102",
+          "theme": "gray"
+        },
+        "p5": {
+          "subject": "শারীরিক শিক্ষা ও স্বাস্থ্য",
+          "teacher": "Subrata Roy",
+          "room": "Room 102",
+          "theme": "gray"
+        }
       },
-      Tuesday: {
-        p1: { subject: "English", teacher: "Jon Bell", room: "Room 104", theme: "purple" },
-        p2: { subject: "Bangla", teacher: "Farhana Sultana", room: "Room 104", theme: "amber" },
-        p3: { subject: "Mathematics", teacher: "Maya Chen", room: "Room 104", theme: "blue" },
-        p4: { subject: "General Science", teacher: "Rafael Ortiz", room: "Lab 01", theme: "emerald" },
-        p5: { subject: "Art Studio", teacher: "Helen Moore", room: "Studio 01", theme: "amber" },
+      "Monday": {
+        "p1": {
+          "subject": "গার্হস্থ্যবিজ্ঞান",
+          "teacher": "Dr. Charles Darwin",
+          "room": "Room 102",
+          "theme": "emerald"
+        },
+        "p2": {
+          "subject": "তথ্য ও যোগাযোগ প্রযুক্তি",
+          "teacher": "Nasreen Akter",
+          "room": "Room 102",
+          "theme": "purple"
+        },
+        "p3": {
+          "subject": "ধর্ম ও নৈতিক শিক্ষা",
+          "teacher": "Mahbubur Rahman",
+          "room": "Room 102",
+          "theme": "amber"
+        },
+        "p4": {
+          "subject": "গার্হস্থ্যবিজ্ঞান",
+          "teacher": "Akash",
+          "room": "Room 102",
+          "theme": "emerald"
+        },
+        "p5": {
+          "subject": "বাংলা ব্যাকরণ ও নির্মিতি",
+          "teacher": "Farhana Sultana",
+          "room": "Room 102",
+          "theme": "amber"
+        }
       },
-      Wednesday: {
-        p1: { subject: "Mathematics", teacher: "Maya Chen", room: "Room 104", theme: "blue" },
-        p2: { subject: "ICT / Coding", teacher: "Sarah Jenkins", room: "Computer Lab", theme: "purple" },
-        p3: { subject: "English", teacher: "Jon Bell", room: "Room 104", theme: "purple" },
-        p4: { subject: "General Science", teacher: "Rafael Ortiz", room: "Lab 01", theme: "emerald" },
-        p5: { subject: "Physical Training", teacher: "Sam Reed", room: "Playground", theme: "emerald" },
+      "Tuesday": {
+        "p1": {
+          "subject": "কৃষিশিক্ষা",
+          "teacher": "Sarah Jenkins",
+          "room": "Room 102",
+          "theme": "gray"
+        },
+        "p2": {
+          "subject": "শারীরিক শিক্ষা ও স্বাস্থ্য",
+          "teacher": "Subrata Roy",
+          "room": "Room 102",
+          "theme": "gray"
+        },
+        "p3": {
+          "subject": "গণিত",
+          "teacher": "Anisur Rahman",
+          "room": "Room 102",
+          "theme": "blue"
+        },
+        "p4": {
+          "subject": "গার্হস্থ্যবিজ্ঞান",
+          "teacher": "Rafael Ortiz",
+          "room": "Room 102",
+          "theme": "emerald"
+        },
+        "p5": {
+          "subject": "কর্ম ও জীবনমুখী শিক্ষা",
+          "teacher": "Robert Kiyosaki",
+          "room": "Room 102",
+          "theme": "emerald"
+        }
       },
-      Thursday: {
-        p1: { subject: "General Science", teacher: "Rafael Ortiz", room: "Lab 01", theme: "emerald" },
-        p2: { subject: "English Grammar", teacher: "Jon Bell", room: "Room 104", theme: "purple" },
-        p3: { subject: "Social Studies", teacher: "Priya Nair", room: "Room 104", theme: "amber" },
-        p4: { subject: "Mathematics", teacher: "Maya Chen", room: "Room 104", theme: "blue" },
-        p5: { subject: "Library Session", teacher: "Nora Ellis", room: "Library", theme: "emerald" },
+      "Wednesday": {
+        "p1": {
+          "subject": "গার্হস্থ্যবিজ্ঞান",
+          "teacher": "Akash",
+          "room": "Room 102",
+          "theme": "emerald"
+        },
+        "p2": {
+          "subject": "বাংলা ব্যাকরণ ও নির্মিতি",
+          "teacher": "Farhana Sultana",
+          "room": "Room 102",
+          "theme": "amber"
+        },
+        "p3": {
+          "subject": "English For Today",
+          "teacher": "Priya Nair",
+          "room": "Room 102",
+          "theme": "purple"
+        },
+        "p4": {
+          "subject": "গার্হস্থ্যবিজ্ঞান",
+          "teacher": "Marie Curie",
+          "room": "Room 102",
+          "theme": "emerald"
+        },
+        "p5": {
+          "subject": "বাংলাদেশ ও বিশ্বপরিচয়",
+          "teacher": "Kabir Ahmed",
+          "room": "Room 102",
+          "theme": "amber"
+        }
       },
-      Friday: {
-        p1: { subject: "Bangla Literature", teacher: "Farhana Sultana", room: "Room 104", theme: "amber" },
-        p2: { subject: "Mathematics", teacher: "Maya Chen", room: "Room 104", theme: "blue" },
-        p3: { subject: "English", teacher: "Jon Bell", room: "Room 104", theme: "purple" },
-        p4: { subject: "Science Experiments", teacher: "Rafael Ortiz", room: "Lab 01", theme: "emerald" },
-        p5: { subject: "Club Activity", teacher: "Staff", room: "Hall 02", theme: "purple" },
-      },
-    },
+      "Thursday": {
+        "p1": {
+          "subject": "গার্হস্থ্যবিজ্ঞান",
+          "teacher": "Rafael Ortiz",
+          "room": "Room 102",
+          "theme": "emerald"
+        },
+        "p2": {
+          "subject": "কর্ম ও জীবনমুখী শিক্ষা",
+          "teacher": "Robert Kiyosaki",
+          "room": "Room 102",
+          "theme": "emerald"
+        },
+        "p3": {
+          "subject": "গার্হস্থ্যবিজ্ঞান",
+          "teacher": "Dr. Charles Darwin",
+          "room": "Room 102",
+          "theme": "emerald"
+        },
+        "p4": {
+          "subject": "তথ্য ও যোগাযোগ প্রযুক্তি",
+          "teacher": "Nasreen Akter",
+          "room": "Room 102",
+          "theme": "purple"
+        },
+        "p5": {
+          "subject": "ধর্ম ও নৈতিক শিক্ষা",
+          "teacher": "Mahbubur Rahman",
+          "room": "Room 102",
+          "theme": "amber"
+        }
+      }
+    }
   },
-
-  // ==================== CLASS 8 ====================
-  // 5. Class 8 · Section A
   {
-    id: "c8-a",
-    grade: "Class 8",
-    section: "Section A",
-    fullName: "Class 8 · Section A",
-    classTeacher: "Maya Chen",
-    room: "Room 105",
-    studentCount: 34,
-    schedule: {
-      Monday: {
-        p1: { subject: "Mathematics", teacher: "Maya Chen", room: "Room 105", theme: "blue" },
-        p2: { subject: "Higher Math Intro", teacher: "Mahmud Hasan", room: "Room 105", theme: "blue" },
-        p3: { subject: "English", teacher: "Jon Bell", room: "Room 105", theme: "purple" },
-        p4: { subject: "General Science", teacher: "Rafael Ortiz", room: "Lab 01", theme: "emerald" },
-        p5: { subject: "Bangla Literature", teacher: "Farhana Sultana", room: "Room 105", theme: "amber" },
+    "id": "c7-a",
+    "grade": "Class 7",
+    "section": "Section A",
+    "fullName": "Class 7 · Section A",
+    "classTeacher": "Robert Kiyosaki",
+    "room": "Room 201",
+    "studentCount": 28,
+    "schedule": {
+      "Sunday": {
+        "p1": {
+          "subject": "কর্ম ও জীবনমুখী শিক্ষা",
+          "teacher": "Robert Kiyosaki",
+          "room": "Room 201",
+          "theme": "emerald"
+        },
+        "p2": {
+          "subject": "বিজ্ঞান",
+          "teacher": "Dr. Charles Darwin",
+          "room": "Room 201",
+          "theme": "emerald"
+        },
+        "p3": {
+          "subject": "তথ্য ও যোগাযোগ প্রযুক্তি",
+          "teacher": "Nasreen Akter",
+          "room": "Room 201",
+          "theme": "purple"
+        },
+        "p4": {
+          "subject": "ধর্ম ও নৈতিক শিক্ষা",
+          "teacher": "Mahbubur Rahman",
+          "room": "Room 201",
+          "theme": "amber"
+        },
+        "p5": {
+          "subject": "বিজ্ঞান",
+          "teacher": "Akash",
+          "room": "Room 201",
+          "theme": "emerald"
+        }
       },
-      Tuesday: {
-        p1: { subject: "Physics Foundations", teacher: "Rafael Ortiz", room: "Lab 02", theme: "emerald" },
-        p2: { subject: "Mathematics", teacher: "Maya Chen", room: "Room 105", theme: "blue" },
-        p3: { subject: "Bangla Grammar", teacher: "Farhana Sultana", room: "Room 105", theme: "amber" },
-        p4: { subject: "ICT & Coding", teacher: "Sarah Jenkins", room: "Computer Lab", theme: "purple" },
-        p5: { subject: "Physical Training", teacher: "Sam Reed", room: "Playground", theme: "emerald" },
+      "Monday": {
+        "p1": {
+          "subject": "বাংলাদেশ ও বিশ্বপরিচয়",
+          "teacher": "Kabir Ahmed",
+          "room": "Room 201",
+          "theme": "amber"
+        },
+        "p2": {
+          "subject": "কৃষিশিক্ষা",
+          "teacher": "Sarah Jenkins",
+          "room": "Room 201",
+          "theme": "gray"
+        },
+        "p3": {
+          "subject": "শারীরিক শিক্ষা ও স্বাস্থ্য",
+          "teacher": "Subrata Roy",
+          "room": "Room 201",
+          "theme": "gray"
+        },
+        "p4": {
+          "subject": "গণিত",
+          "teacher": "Anisur Rahman",
+          "room": "Room 201",
+          "theme": "blue"
+        },
+        "p5": {
+          "subject": "বিজ্ঞান",
+          "teacher": "Rafael Ortiz",
+          "room": "Room 201",
+          "theme": "emerald"
+        }
       },
-      Wednesday: {
-        p1: { subject: "English Grammar", teacher: "Jon Bell", room: "Room 105", theme: "purple" },
-        p2: { subject: "Chemistry Foundations", teacher: "Marie Curie", room: "Chem Lab", theme: "emerald" },
-        p3: { subject: "Mathematics", teacher: "Maya Chen", room: "Room 105", theme: "blue" },
-        p4: { subject: "Social Studies", teacher: "Priya Nair", room: "Room 105", theme: "amber" },
-        p5: { subject: "Creative Arts", teacher: "Helen Moore", room: "Art Studio", theme: "amber" },
+      "Tuesday": {
+        "p1": {
+          "subject": "ধর্ম ও নৈতিক শিক্ষা",
+          "teacher": "Mahbubur Rahman",
+          "room": "Room 201",
+          "theme": "amber"
+        },
+        "p2": {
+          "subject": "বিজ্ঞান",
+          "teacher": "Akash",
+          "room": "Room 201",
+          "theme": "emerald"
+        },
+        "p3": {
+          "subject": "বাংলা ব্যাকরণ ও নির্মিতি",
+          "teacher": "Farhana Sultana",
+          "room": "Room 201",
+          "theme": "amber"
+        },
+        "p4": {
+          "subject": "English For Today",
+          "teacher": "Priya Nair",
+          "room": "Room 201",
+          "theme": "purple"
+        },
+        "p5": {
+          "subject": "বিজ্ঞান",
+          "teacher": "Marie Curie",
+          "room": "Room 201",
+          "theme": "emerald"
+        }
       },
-      Thursday: {
-        p1: { subject: "General Science", teacher: "Rafael Ortiz", room: "Lab 01", theme: "emerald" },
-        p2: { subject: "Mathematics", teacher: "Maya Chen", room: "Room 105", theme: "blue" },
-        p3: { subject: "English Spoken", teacher: "Jon Bell", room: "Room 105", theme: "purple" },
-        p4: { subject: "Moral Education", teacher: "Priya Nair", room: "Room 105", theme: "amber" },
-        p5: { subject: "Debate & Speech", teacher: "Farhana Sultana", room: "Auditorium", theme: "purple" },
+      "Wednesday": {
+        "p1": {
+          "subject": "গণিত",
+          "teacher": "Anisur Rahman",
+          "room": "Room 201",
+          "theme": "blue"
+        },
+        "p2": {
+          "subject": "বিজ্ঞান",
+          "teacher": "Rafael Ortiz",
+          "room": "Room 201",
+          "theme": "emerald"
+        },
+        "p3": {
+          "subject": "কর্ম ও জীবনমুখী শিক্ষা",
+          "teacher": "Robert Kiyosaki",
+          "room": "Room 201",
+          "theme": "emerald"
+        },
+        "p4": {
+          "subject": "বিজ্ঞান",
+          "teacher": "Dr. Charles Darwin",
+          "room": "Room 201",
+          "theme": "emerald"
+        },
+        "p5": {
+          "subject": "তথ্য ও যোগাযোগ প্রযুক্তি",
+          "teacher": "Nasreen Akter",
+          "room": "Room 201",
+          "theme": "purple"
+        }
       },
-      Friday: {
-        p1: { subject: "Higher Math Intro", teacher: "Mahmud Hasan", room: "Room 105", theme: "blue" },
-        p2: { subject: "ICT Project", teacher: "Sarah Jenkins", room: "Computer Lab", theme: "purple" },
-        p3: { subject: "Bangladesh Studies", teacher: "Priya Nair", room: "Room 105", theme: "amber" },
-        p4: { subject: "Science Experiment", teacher: "Rafael Ortiz", room: "Lab 01", theme: "emerald" },
-        p5: { subject: "Robotics & STEM", teacher: "Sarah Jenkins", room: "Innovation Lab", theme: "blue" },
-      },
-    },
+      "Thursday": {
+        "p1": {
+          "subject": "English For Today",
+          "teacher": "Priya Nair",
+          "room": "Room 201",
+          "theme": "purple"
+        },
+        "p2": {
+          "subject": "বিজ্ঞান",
+          "teacher": "Marie Curie",
+          "room": "Room 201",
+          "theme": "emerald"
+        },
+        "p3": {
+          "subject": "বাংলাদেশ ও বিশ্বপরিচয়",
+          "teacher": "Kabir Ahmed",
+          "room": "Room 201",
+          "theme": "amber"
+        },
+        "p4": {
+          "subject": "কৃষিশিক্ষা",
+          "teacher": "Sarah Jenkins",
+          "room": "Room 201",
+          "theme": "gray"
+        },
+        "p5": {
+          "subject": "শারীরিক শিক্ষা ও স্বাস্থ্য",
+          "teacher": "Subrata Roy",
+          "room": "Room 201",
+          "theme": "gray"
+        }
+      }
+    }
   },
-
-  // 6. Class 8 · Section B
   {
-    id: "c8-b",
-    grade: "Class 8",
-    section: "Section B",
-    fullName: "Class 8 · Section B",
-    classTeacher: "Mahmud Hasan",
-    room: "Room 106",
-    studentCount: 33,
-    schedule: {
-      Monday: {
-        p1: { subject: "English", teacher: "Jon Bell", room: "Room 106", theme: "purple" },
-        p2: { subject: "Mathematics", teacher: "Mahmud Hasan", room: "Room 106", theme: "blue" },
-        p3: { subject: "Bangla", teacher: "Farhana Sultana", room: "Room 106", theme: "amber" },
-        p4: { subject: "General Science", teacher: "Rafael Ortiz", room: "Lab 01", theme: "emerald" },
-        p5: { subject: "Social Studies", teacher: "Priya Nair", room: "Room 106", theme: "amber" },
+    "id": "c7-b",
+    "grade": "Class 7",
+    "section": "Section B",
+    "fullName": "Class 7 · Section B",
+    "classTeacher": "Marie Curie",
+    "room": "Room 202",
+    "studentCount": 28,
+    "schedule": {
+      "Sunday": {
+        "p1": {
+          "subject": "বিজ্ঞান",
+          "teacher": "Marie Curie",
+          "room": "Room 202",
+          "theme": "emerald"
+        },
+        "p2": {
+          "subject": "বাংলাদেশ ও বিশ্বপরিচয়",
+          "teacher": "Kabir Ahmed",
+          "room": "Room 202",
+          "theme": "amber"
+        },
+        "p3": {
+          "subject": "কৃষিশিক্ষা",
+          "teacher": "Sarah Jenkins",
+          "room": "Room 202",
+          "theme": "gray"
+        },
+        "p4": {
+          "subject": "শারীরিক শিক্ষা ও স্বাস্থ্য",
+          "teacher": "Subrata Roy",
+          "room": "Room 202",
+          "theme": "gray"
+        },
+        "p5": {
+          "subject": "গণিত",
+          "teacher": "Anisur Rahman",
+          "room": "Room 202",
+          "theme": "blue"
+        }
       },
-      Tuesday: {
-        p1: { subject: "General Science", teacher: "Rafael Ortiz", room: "Lab 01", theme: "emerald" },
-        p2: { subject: "English", teacher: "Jon Bell", room: "Room 106", theme: "purple" },
-        p3: { subject: "Mathematics", teacher: "Mahmud Hasan", room: "Room 106", theme: "blue" },
-        p4: { subject: "Bangla Grammar", teacher: "Farhana Sultana", room: "Room 106", theme: "amber" },
-        p5: { subject: "Art & Craft", teacher: "Helen Moore", room: "Studio 01", theme: "amber" },
+      "Monday": {
+        "p1": {
+          "subject": "তথ্য ও যোগাযোগ প্রযুক্তি",
+          "teacher": "Nasreen Akter",
+          "room": "Room 202",
+          "theme": "purple"
+        },
+        "p2": {
+          "subject": "ধর্ম ও নৈতিক শিক্ষা",
+          "teacher": "Mahbubur Rahman",
+          "room": "Room 202",
+          "theme": "amber"
+        },
+        "p3": {
+          "subject": "বিজ্ঞান",
+          "teacher": "Akash",
+          "room": "Room 202",
+          "theme": "emerald"
+        },
+        "p4": {
+          "subject": "বাংলা ব্যাকরণ ও নির্মিতি",
+          "teacher": "Farhana Sultana",
+          "room": "Room 202",
+          "theme": "amber"
+        },
+        "p5": {
+          "subject": "English For Today",
+          "teacher": "Priya Nair",
+          "room": "Room 202",
+          "theme": "purple"
+        }
       },
-      Wednesday: {
-        p1: { subject: "Mathematics", teacher: "Mahmud Hasan", room: "Room 106", theme: "blue" },
-        p2: { subject: "General Science", teacher: "Rafael Ortiz", room: "Lab 01", theme: "emerald" },
-        p3: { subject: "ICT & Coding", teacher: "Sarah Jenkins", room: "Computer Lab", theme: "purple" },
-        p4: { subject: "English", teacher: "Jon Bell", room: "Room 106", theme: "purple" },
-        p5: { subject: "Physical Education", teacher: "Sam Reed", room: "Field", theme: "emerald" },
+      "Tuesday": {
+        "p1": {
+          "subject": "শারীরিক শিক্ষা ও স্বাস্থ্য",
+          "teacher": "Subrata Roy",
+          "room": "Room 202",
+          "theme": "gray"
+        },
+        "p2": {
+          "subject": "গণিত",
+          "teacher": "Anisur Rahman",
+          "room": "Room 202",
+          "theme": "blue"
+        },
+        "p3": {
+          "subject": "বিজ্ঞান",
+          "teacher": "Rafael Ortiz",
+          "room": "Room 202",
+          "theme": "emerald"
+        },
+        "p4": {
+          "subject": "কর্ম ও জীবনমুখী শিক্ষা",
+          "teacher": "Robert Kiyosaki",
+          "room": "Room 202",
+          "theme": "emerald"
+        },
+        "p5": {
+          "subject": "বিজ্ঞান",
+          "teacher": "Dr. Charles Darwin",
+          "room": "Room 202",
+          "theme": "emerald"
+        }
       },
-      Thursday: {
-        p1: { subject: "Bangla Literature", teacher: "Farhana Sultana", room: "Room 106", theme: "amber" },
-        p2: { subject: "Mathematics", teacher: "Mahmud Hasan", room: "Room 106", theme: "blue" },
-        p3: { subject: "Social Studies", teacher: "Priya Nair", room: "Room 106", theme: "amber" },
-        p4: { subject: "English", teacher: "Jon Bell", room: "Room 106", theme: "purple" },
-        p5: { subject: "Library Session", teacher: "Nora Ellis", room: "Library", theme: "emerald" },
+      "Wednesday": {
+        "p1": {
+          "subject": "বাংলা ব্যাকরণ ও নির্মিতি",
+          "teacher": "Farhana Sultana",
+          "room": "Room 202",
+          "theme": "amber"
+        },
+        "p2": {
+          "subject": "English For Today",
+          "teacher": "Priya Nair",
+          "room": "Room 202",
+          "theme": "purple"
+        },
+        "p3": {
+          "subject": "বিজ্ঞান",
+          "teacher": "Marie Curie",
+          "room": "Room 202",
+          "theme": "emerald"
+        },
+        "p4": {
+          "subject": "বাংলাদেশ ও বিশ্বপরিচয়",
+          "teacher": "Kabir Ahmed",
+          "room": "Room 202",
+          "theme": "amber"
+        },
+        "p5": {
+          "subject": "কৃষিশিক্ষা",
+          "teacher": "Sarah Jenkins",
+          "room": "Room 202",
+          "theme": "gray"
+        }
       },
-      Friday: {
-        p1: { subject: "Science Lab", teacher: "Rafael Ortiz", room: "Lab 01", theme: "emerald" },
-        p2: { subject: "Mathematics", teacher: "Mahmud Hasan", room: "Room 106", theme: "blue" },
-        p3: { subject: "English Grammar", teacher: "Jon Bell", room: "Room 106", theme: "purple" },
-        p4: { subject: "ICT Practical", teacher: "Sarah Jenkins", room: "Computer Lab", theme: "purple" },
-        p5: { subject: "Club Activities", teacher: "Faculty", room: "Auditorium", theme: "purple" },
-      },
-    },
+      "Thursday": {
+        "p1": {
+          "subject": "কর্ম ও জীবনমুখী শিক্ষা",
+          "teacher": "Robert Kiyosaki",
+          "room": "Room 202",
+          "theme": "emerald"
+        },
+        "p2": {
+          "subject": "বিজ্ঞান",
+          "teacher": "Dr. Charles Darwin",
+          "room": "Room 202",
+          "theme": "emerald"
+        },
+        "p3": {
+          "subject": "তথ্য ও যোগাযোগ প্রযুক্তি",
+          "teacher": "Nasreen Akter",
+          "room": "Room 202",
+          "theme": "purple"
+        },
+        "p4": {
+          "subject": "ধর্ম ও নৈতিক শিক্ষা",
+          "teacher": "Mahbubur Rahman",
+          "room": "Room 202",
+          "theme": "amber"
+        },
+        "p5": {
+          "subject": "বিজ্ঞান",
+          "teacher": "Akash",
+          "room": "Room 202",
+          "theme": "emerald"
+        }
+      }
+    }
   },
-
-  // ==================== CLASS 9 ====================
-  // 7. Class 9 · Section A (Combined Master Routine with Sci / Arts / Com Electives)
   {
-    id: "c9-a",
-    grade: "Class 9",
-    section: "Section A",
-    fullName: "Class 9 · Section A",
-    classTeacher: "Sarah Jenkins",
-    room: "Room 107",
-    studentCount: 35,
-    schedule: {
-      Monday: {
-        p1: { subject: "General Math", teacher: "Mahmud Hasan", room: "Room 107", theme: "blue" },
-        p2: {
-          subject: "Group Electives (Physics / History / Accounting)",
-          teacher: "Multi Teachers",
-          room: "Labs & Rooms",
-          theme: "blue",
-          isGroupPeriod: true,
-          groupSlots: [
-            { group: "Science", subject: "Physics", teacher: "Rafael Ortiz", room: "Physics Lab" },
-            { group: "Arts", subject: "History & Civics", teacher: "Farhana Sultana", room: "Room 201" },
-            { group: "Commerce", subject: "Accounting", teacher: "Robert Kiyosaki", room: "Room 202" },
-          ],
+    "id": "c8-a",
+    "grade": "Class 8",
+    "section": "Section A",
+    "fullName": "Class 8 · Section A",
+    "classTeacher": "Dr. Charles Darwin",
+    "room": "Room 301",
+    "studentCount": 30,
+    "schedule": {
+      "Sunday": {
+        "p1": {
+          "subject": "বিজ্ঞান",
+          "teacher": "Dr. Charles Darwin",
+          "room": "Room 301",
+          "theme": "emerald"
         },
-        p3: {
-          subject: "Group Electives (Chemistry / Geography / Finance)",
-          teacher: "Multi Teachers",
-          room: "Labs & Rooms",
-          theme: "emerald",
-          isGroupPeriod: true,
-          groupSlots: [
-            { group: "Science", subject: "Chemistry", teacher: "Marie Curie", room: "Chem Lab" },
-            { group: "Arts", subject: "Geography", teacher: "Priya Nair", room: "Room 201" },
-            { group: "Commerce", subject: "Finance & Banking", teacher: "Robert Kiyosaki", room: "Room 202" },
-          ],
+        "p2": {
+          "subject": "তথ্য ও যোগাযোগ প্রযুক্তি",
+          "teacher": "Nasreen Akter",
+          "room": "Room 301",
+          "theme": "purple"
         },
-        p4: { subject: "English 1st Paper", teacher: "Jon Bell", room: "Room 107", theme: "purple" },
-        p5: { subject: "Bangla 1st Paper", teacher: "Farhana Sultana", room: "Room 107", theme: "amber" },
+        "p3": {
+          "subject": "ধর্ম ও নৈতিক শিক্ষা",
+          "teacher": "Mahbubur Rahman",
+          "room": "Room 301",
+          "theme": "amber"
+        },
+        "p4": {
+          "subject": "বিজ্ঞান",
+          "teacher": "Akash",
+          "room": "Room 301",
+          "theme": "emerald"
+        },
+        "p5": {
+          "subject": "বাংলা ব্যাকরণ ও নির্মিতি",
+          "teacher": "Farhana Sultana",
+          "room": "Room 301",
+          "theme": "amber"
+        }
       },
-      Tuesday: {
-        p1: {
-          subject: "Group Electives (Biology / Economics / Business Ent.)",
-          teacher: "Multi Teachers",
-          room: "Labs & Rooms",
-          theme: "emerald",
-          isGroupPeriod: true,
-          groupSlots: [
-            { group: "Science", subject: "Biology", teacher: "Dr. Charles Darwin", room: "Bio Lab" },
-            { group: "Arts", subject: "Economics", teacher: "Priya Nair", room: "Room 201" },
-            { group: "Commerce", subject: "Business Ent.", teacher: "Tanvir Ahmed", room: "Room 202" },
-          ],
+      "Monday": {
+        "p1": {
+          "subject": "কৃষিশিক্ষা",
+          "teacher": "Sarah Jenkins",
+          "room": "Room 301",
+          "theme": "gray"
         },
-        p2: {
-          subject: "Group Electives (Higher Math / Social Work / Marketing)",
-          teacher: "Multi Teachers",
-          room: "Labs & Rooms",
-          theme: "blue",
-          isGroupPeriod: true,
-          groupSlots: [
-            { group: "Science", subject: "Higher Mathematics", teacher: "Mahmud Hasan", room: "Room 107" },
-            { group: "Arts", subject: "Social Work", teacher: "Farhana Sultana", room: "Room 201" },
-            { group: "Commerce", subject: "Marketing & Sales", teacher: "Robert Kiyosaki", room: "Room 202" },
-          ],
+        "p2": {
+          "subject": "শারীরিক শিক্ষা ও স্বাস্থ্য",
+          "teacher": "Subrata Roy",
+          "room": "Room 301",
+          "theme": "gray"
         },
-        p3: { subject: "English 2nd Paper", teacher: "Jon Bell", room: "Room 107", theme: "purple" },
-        p4: { subject: "ICT Practical", teacher: "Sarah Jenkins", room: "Computer Lab", theme: "purple" },
-        p5: { subject: "Physical Education", teacher: "Sam Reed", room: "Gym", theme: "emerald" },
+        "p3": {
+          "subject": "গণিত",
+          "teacher": "Anisur Rahman",
+          "room": "Room 301",
+          "theme": "blue"
+        },
+        "p4": {
+          "subject": "বিজ্ঞান",
+          "teacher": "Rafael Ortiz",
+          "room": "Room 301",
+          "theme": "emerald"
+        },
+        "p5": {
+          "subject": "কর্ম ও জীবনমুখী শিক্ষা",
+          "teacher": "Robert Kiyosaki",
+          "room": "Room 301",
+          "theme": "emerald"
+        }
       },
-      Wednesday: {
-        p1: {
-          subject: "Group Electives (Physics Lab / Islamic History / Statistics)",
-          teacher: "Multi Teachers",
-          room: "Labs & Rooms",
-          theme: "emerald",
-          isGroupPeriod: true,
-          groupSlots: [
-            { group: "Science", subject: "Physics Lab", teacher: "Rafael Ortiz", room: "Physics Lab" },
-            { group: "Arts", subject: "Islamic History", teacher: "Farhana Sultana", room: "Room 201" },
-            { group: "Commerce", subject: "Statistics", teacher: "Robert Kiyosaki", room: "Room 202" },
-          ],
+      "Tuesday": {
+        "p1": {
+          "subject": "বিজ্ঞান",
+          "teacher": "Akash",
+          "room": "Room 301",
+          "theme": "emerald"
         },
-        p2: { subject: "General Math", teacher: "Mahmud Hasan", room: "Room 107", theme: "blue" },
-        p3: { subject: "Bangla 2nd Paper", teacher: "Farhana Sultana", room: "Room 107", theme: "amber" },
-        p4: {
-          subject: "Group Electives (Chemistry Lab / Civics / Accounting Practice)",
-          teacher: "Multi Teachers",
-          room: "Labs & Rooms",
-          theme: "emerald",
-          isGroupPeriod: true,
-          groupSlots: [
-            { group: "Science", subject: "Chemistry Lab", teacher: "Marie Curie", room: "Chem Lab" },
-            { group: "Arts", subject: "Civics & Good Gov", teacher: "Priya Nair", room: "Room 201" },
-            { group: "Commerce", subject: "Accounting Practice", teacher: "Robert Kiyosaki", room: "Room 202" },
-          ],
+        "p2": {
+          "subject": "বাংলা ব্যাকরণ ও নির্মিতি",
+          "teacher": "Farhana Sultana",
+          "room": "Room 301",
+          "theme": "amber"
         },
-        p5: { subject: "Bangladesh Studies", teacher: "Priya Nair", room: "Room 107", theme: "amber" },
+        "p3": {
+          "subject": "English For Today",
+          "teacher": "Priya Nair",
+          "room": "Room 301",
+          "theme": "purple"
+        },
+        "p4": {
+          "subject": "বিজ্ঞান",
+          "teacher": "Marie Curie",
+          "room": "Room 301",
+          "theme": "emerald"
+        },
+        "p5": {
+          "subject": "বাংলাদেশ ও বিশ্বপরিচয়",
+          "teacher": "Kabir Ahmed",
+          "room": "Room 301",
+          "theme": "amber"
+        }
       },
-      Thursday: {
-        p1: {
-          subject: "Group Electives (Higher Math / Logic / Finance)",
-          teacher: "Multi Teachers",
-          room: "Labs & Rooms",
-          theme: "blue",
-          isGroupPeriod: true,
-          groupSlots: [
-            { group: "Science", subject: "Higher Mathematics", teacher: "Mahmud Hasan", room: "Room 107" },
-            { group: "Arts", subject: "Logic & Philosophy", teacher: "Farhana Sultana", room: "Room 201" },
-            { group: "Commerce", subject: "Finance & Banking", teacher: "Robert Kiyosaki", room: "Room 202" },
-          ],
+      "Wednesday": {
+        "p1": {
+          "subject": "বিজ্ঞান",
+          "teacher": "Rafael Ortiz",
+          "room": "Room 301",
+          "theme": "emerald"
         },
-        p2: {
-          subject: "Group Electives (Biology Lab / Geography Field / Business Case)",
-          teacher: "Multi Teachers",
-          room: "Labs & Rooms",
-          theme: "emerald",
-          isGroupPeriod: true,
-          groupSlots: [
-            { group: "Science", subject: "Biology Lab", teacher: "Dr. Charles Darwin", room: "Bio Lab" },
-            { group: "Arts", subject: "Geography Map Lab", teacher: "Priya Nair", room: "Room 201" },
-            { group: "Commerce", subject: "Business Case Studies", teacher: "Tanvir Ahmed", room: "Room 202" },
-          ],
+        "p2": {
+          "subject": "কর্ম ও জীবনমুখী শিক্ষা",
+          "teacher": "Robert Kiyosaki",
+          "room": "Room 301",
+          "theme": "emerald"
         },
-        p3: { subject: "English 1st Paper", teacher: "Jon Bell", room: "Room 107", theme: "purple" },
-        p4: { subject: "Religion & Ethics", teacher: "Priya Nair", room: "Room 107", theme: "amber" },
-        p5: { subject: "Career Guidance", teacher: "Sarah Jenkins", room: "Auditorium", theme: "blue" },
+        "p3": {
+          "subject": "বিজ্ঞান",
+          "teacher": "Dr. Charles Darwin",
+          "room": "Room 301",
+          "theme": "emerald"
+        },
+        "p4": {
+          "subject": "তথ্য ও যোগাযোগ প্রযুক্তি",
+          "teacher": "Nasreen Akter",
+          "room": "Room 301",
+          "theme": "purple"
+        },
+        "p5": {
+          "subject": "ধর্ম ও নৈতিক শিক্ষা",
+          "teacher": "Mahbubur Rahman",
+          "room": "Room 301",
+          "theme": "amber"
+        }
       },
-      Friday: {
-        p1: { subject: "ICT Project", teacher: "Sarah Jenkins", room: "Computer Lab", theme: "purple" },
-        p2: {
-          subject: "Group Electives (Physics Theory / History Review / Commerce Quiz)",
-          teacher: "Multi Teachers",
-          room: "Labs & Rooms",
-          theme: "emerald",
-          isGroupPeriod: true,
-          groupSlots: [
-            { group: "Science", subject: "Physics Theory", teacher: "Rafael Ortiz", room: "Physics Lab" },
-            { group: "Arts", subject: "History Review", teacher: "Farhana Sultana", room: "Room 201" },
-            { group: "Commerce", subject: "Commerce Quiz", teacher: "Robert Kiyosaki", room: "Room 202" },
-          ],
+      "Thursday": {
+        "p1": {
+          "subject": "বিজ্ঞান",
+          "teacher": "Marie Curie",
+          "room": "Room 301",
+          "theme": "emerald"
         },
-        p3: {
-          subject: "Group Electives (Chemistry Problem / Economics Workshop / Ent. Lab)",
-          teacher: "Multi Teachers",
-          room: "Labs & Rooms",
-          theme: "emerald",
-          isGroupPeriod: true,
-          groupSlots: [
-            { group: "Science", subject: "Chemistry Problem", teacher: "Marie Curie", room: "Chem Lab" },
-            { group: "Arts", subject: "Economics Workshop", teacher: "Priya Nair", room: "Room 201" },
-            { group: "Commerce", subject: "Entrepreneurship Lab", teacher: "Tanvir Ahmed", room: "Room 202" },
-          ],
+        "p2": {
+          "subject": "বাংলাদেশ ও বিশ্বপরিচয়",
+          "teacher": "Kabir Ahmed",
+          "room": "Room 301",
+          "theme": "amber"
         },
-        p4: { subject: "General Math Tutorial", teacher: "Mahmud Hasan", room: "Room 107", theme: "blue" },
-        p5: { subject: "Club Activity", teacher: "Faculty", room: "Hall 01", theme: "purple" },
-      },
-    },
+        "p3": {
+          "subject": "কৃষিশিক্ষা",
+          "teacher": "Sarah Jenkins",
+          "room": "Room 301",
+          "theme": "gray"
+        },
+        "p4": {
+          "subject": "শারীরিক শিক্ষা ও স্বাস্থ্য",
+          "teacher": "Subrata Roy",
+          "room": "Room 301",
+          "theme": "gray"
+        },
+        "p5": {
+          "subject": "গণিত",
+          "teacher": "Anisur Rahman",
+          "room": "Room 301",
+          "theme": "blue"
+        }
+      }
+    }
   },
-
-  // 8. Class 9 · Section B (Combined Master Routine with Sci / Arts / Com Electives)
   {
-    id: "c9-b",
-    grade: "Class 9",
-    section: "Section B",
-    fullName: "Class 9 · Section B",
-    classTeacher: "Priya Nair",
-    room: "Room 108",
-    studentCount: 30,
-    schedule: {
-      Monday: {
-        p1: {
-          subject: "Group Electives (Physics / History / Accounting)",
-          teacher: "Multi Teachers",
-          room: "Labs & Rooms",
-          theme: "blue",
-          isGroupPeriod: true,
-          groupSlots: [
-            { group: "Science", subject: "Physics", teacher: "Rafael Ortiz", room: "Physics Lab" },
-            { group: "Arts", subject: "History & Civics", teacher: "Farhana Sultana", room: "Room 203" },
-            { group: "Commerce", subject: "Accounting", teacher: "Robert Kiyosaki", room: "Room 204" },
-          ],
+    "id": "c8-b",
+    "grade": "Class 8",
+    "section": "Section B",
+    "fullName": "Class 8 · Section B",
+    "classTeacher": "Kabir Ahmed",
+    "room": "Room 302",
+    "studentCount": 30,
+    "schedule": {
+      "Sunday": {
+        "p1": {
+          "subject": "বাংলাদেশ ও বিশ্বপরিচয়",
+          "teacher": "Kabir Ahmed",
+          "room": "Room 302",
+          "theme": "amber"
         },
-        p2: { subject: "General Math", teacher: "Maya Chen", room: "Room 108", theme: "blue" },
-        p3: { subject: "English 1st Paper", teacher: "Jon Bell", room: "Room 108", theme: "purple" },
-        p4: { subject: "Bangla 1st Paper", teacher: "Farhana Sultana", room: "Room 108", theme: "amber" },
-        p5: {
-          subject: "Group Electives (Chemistry / Geography / Finance)",
-          teacher: "Multi Teachers",
-          room: "Labs & Rooms",
-          theme: "emerald",
-          isGroupPeriod: true,
-          groupSlots: [
-            { group: "Science", subject: "Chemistry", teacher: "Marie Curie", room: "Chem Lab" },
-            { group: "Arts", subject: "Geography", teacher: "Priya Nair", room: "Room 203" },
-            { group: "Commerce", subject: "Finance & Banking", teacher: "Robert Kiyosaki", room: "Room 204" },
-          ],
+        "p2": {
+          "subject": "কৃষিশিক্ষা",
+          "teacher": "Sarah Jenkins",
+          "room": "Room 302",
+          "theme": "gray"
         },
+        "p3": {
+          "subject": "শারীরিক শিক্ষা ও স্বাস্থ্য",
+          "teacher": "Subrata Roy",
+          "room": "Room 302",
+          "theme": "gray"
+        },
+        "p4": {
+          "subject": "গণিত",
+          "teacher": "Anisur Rahman",
+          "room": "Room 302",
+          "theme": "blue"
+        },
+        "p5": {
+          "subject": "বিজ্ঞান",
+          "teacher": "Rafael Ortiz",
+          "room": "Room 302",
+          "theme": "emerald"
+        }
       },
-      Tuesday: {
-        p1: {
-          subject: "Group Electives (Biology / Economics / Business Ent.)",
-          teacher: "Multi Teachers",
-          room: "Labs & Rooms",
-          theme: "emerald",
-          isGroupPeriod: true,
-          groupSlots: [
-            { group: "Science", subject: "Biology", teacher: "Dr. Charles Darwin", room: "Bio Lab" },
-            { group: "Arts", subject: "Economics", teacher: "Priya Nair", room: "Room 203" },
-            { group: "Commerce", subject: "Business Ent.", teacher: "Tanvir Ahmed", room: "Room 204" },
-          ],
+      "Monday": {
+        "p1": {
+          "subject": "ধর্ম ও নৈতিক শিক্ষা",
+          "teacher": "Mahbubur Rahman",
+          "room": "Room 302",
+          "theme": "amber"
         },
-        p2: { subject: "General Science / Math", teacher: "Rafael Ortiz", room: "Lab 01", theme: "emerald" },
-        p3: {
-          subject: "Group Electives (Higher Math / Social Work / Marketing)",
-          teacher: "Multi Teachers",
-          room: "Labs & Rooms",
-          theme: "blue",
-          isGroupPeriod: true,
-          groupSlots: [
-            { group: "Science", subject: "Higher Mathematics", teacher: "Mahmud Hasan", room: "Room 108" },
-            { group: "Arts", subject: "Social Work", teacher: "Farhana Sultana", room: "Room 203" },
-            { group: "Commerce", subject: "Marketing Practice", teacher: "Robert Kiyosaki", room: "Room 204" },
-          ],
+        "p2": {
+          "subject": "বিজ্ঞান",
+          "teacher": "Akash",
+          "room": "Room 302",
+          "theme": "emerald"
         },
-        p4: { subject: "ICT Practical", teacher: "Sarah Jenkins", room: "Computer Lab", theme: "purple" },
-        p5: { subject: "English 2nd Paper", teacher: "Jon Bell", room: "Room 108", theme: "purple" },
+        "p3": {
+          "subject": "বাংলা ব্যাকরণ ও নির্মিতি",
+          "teacher": "Farhana Sultana",
+          "room": "Room 302",
+          "theme": "amber"
+        },
+        "p4": {
+          "subject": "English For Today",
+          "teacher": "Priya Nair",
+          "room": "Room 302",
+          "theme": "purple"
+        },
+        "p5": {
+          "subject": "বিজ্ঞান",
+          "teacher": "Marie Curie",
+          "room": "Room 302",
+          "theme": "emerald"
+        }
       },
-      Wednesday: {
-        p1: { subject: "General Math", teacher: "Maya Chen", room: "Room 108", theme: "blue" },
-        p2: {
-          subject: "Group Electives (Physics Lab / Islamic History / Statistics)",
-          teacher: "Multi Teachers",
-          room: "Labs & Rooms",
-          theme: "emerald",
-          isGroupPeriod: true,
-          groupSlots: [
-            { group: "Science", subject: "Physics Lab", teacher: "Rafael Ortiz", room: "Physics Lab" },
-            { group: "Arts", subject: "Islamic History", teacher: "Farhana Sultana", room: "Room 203" },
-            { group: "Commerce", subject: "Statistics", teacher: "Robert Kiyosaki", room: "Room 204" },
-          ],
+      "Tuesday": {
+        "p1": {
+          "subject": "গণিত",
+          "teacher": "Anisur Rahman",
+          "room": "Room 302",
+          "theme": "blue"
         },
-        p3: { subject: "Bangla 2nd Paper", teacher: "Farhana Sultana", room: "Room 108", theme: "amber" },
-        p4: {
-          subject: "Group Electives (Chemistry Lab / Civics / Accounting Practice)",
-          teacher: "Multi Teachers",
-          room: "Labs & Rooms",
-          theme: "emerald",
-          isGroupPeriod: true,
-          groupSlots: [
-            { group: "Science", subject: "Chemistry Lab", teacher: "Marie Curie", room: "Chem Lab" },
-            { group: "Arts", subject: "Civics & Good Gov", teacher: "Priya Nair", room: "Room 203" },
-            { group: "Commerce", subject: "Accounting Practice", teacher: "Robert Kiyosaki", room: "Room 204" },
-          ],
+        "p2": {
+          "subject": "বিজ্ঞান",
+          "teacher": "Rafael Ortiz",
+          "room": "Room 302",
+          "theme": "emerald"
         },
-        p5: { subject: "Bangladesh Studies", teacher: "Priya Nair", room: "Room 108", theme: "amber" },
+        "p3": {
+          "subject": "কর্ম ও জীবনমুখী শিক্ষা",
+          "teacher": "Robert Kiyosaki",
+          "room": "Room 302",
+          "theme": "emerald"
+        },
+        "p4": {
+          "subject": "বিজ্ঞান",
+          "teacher": "Dr. Charles Darwin",
+          "room": "Room 302",
+          "theme": "emerald"
+        },
+        "p5": {
+          "subject": "তথ্য ও যোগাযোগ প্রযুক্তি",
+          "teacher": "Nasreen Akter",
+          "room": "Room 302",
+          "theme": "purple"
+        }
       },
-      Thursday: {
-        p1: {
-          subject: "Group Electives (Higher Math / Logic / Finance)",
-          teacher: "Multi Teachers",
-          room: "Labs & Rooms",
-          theme: "blue",
-          isGroupPeriod: true,
-          groupSlots: [
-            { group: "Science", subject: "Higher Mathematics", teacher: "Mahmud Hasan", room: "Room 108" },
-            { group: "Arts", subject: "Logic & Philosophy", teacher: "Farhana Sultana", room: "Room 203" },
-            { group: "Commerce", subject: "Finance & Banking", teacher: "Robert Kiyosaki", room: "Room 204" },
-          ],
+      "Wednesday": {
+        "p1": {
+          "subject": "English For Today",
+          "teacher": "Priya Nair",
+          "room": "Room 302",
+          "theme": "purple"
         },
-        p2: { subject: "English 1st Paper", teacher: "Jon Bell", room: "Room 108", theme: "purple" },
-        p3: { subject: "General Science", teacher: "Rafael Ortiz", room: "Lab 01", theme: "emerald" },
-        p4: { subject: "Religion & Ethics", teacher: "Priya Nair", room: "Room 108", theme: "amber" },
-        p5: {
-          subject: "Group Electives (Biology Lab / Geography / Business Workshop)",
-          teacher: "Multi Teachers",
-          room: "Labs & Rooms",
-          theme: "blue",
-          isGroupPeriod: true,
-          groupSlots: [
-            { group: "Science", subject: "Biology Lab", teacher: "Dr. Charles Darwin", room: "Bio Lab" },
-            { group: "Arts", subject: "Geography Map Lab", teacher: "Priya Nair", room: "Room 203" },
-            { group: "Commerce", subject: "Business Workshop", teacher: "Robert Kiyosaki", room: "Room 204" },
-          ],
+        "p2": {
+          "subject": "বিজ্ঞান",
+          "teacher": "Marie Curie",
+          "room": "Room 302",
+          "theme": "emerald"
         },
+        "p3": {
+          "subject": "বাংলাদেশ ও বিশ্বপরিচয়",
+          "teacher": "Kabir Ahmed",
+          "room": "Room 302",
+          "theme": "amber"
+        },
+        "p4": {
+          "subject": "কৃষিশিক্ষা",
+          "teacher": "Sarah Jenkins",
+          "room": "Room 302",
+          "theme": "gray"
+        },
+        "p5": {
+          "subject": "শারীরিক শিক্ষা ও স্বাস্থ্য",
+          "teacher": "Subrata Roy",
+          "room": "Room 302",
+          "theme": "gray"
+        }
       },
-      Friday: {
-        p1: {
-          subject: "Group Electives (Physics Theory / History / Finance)",
-          teacher: "Multi Teachers",
-          room: "Labs & Rooms",
-          theme: "blue",
-          isGroupPeriod: true,
-          groupSlots: [
-            { group: "Science", subject: "Physics Problem Set", teacher: "Rafael Ortiz", room: "Physics Lab" },
-            { group: "Arts", subject: "History Review", teacher: "Farhana Sultana", room: "Room 203" },
-            { group: "Commerce", subject: "Finance Case Study", teacher: "Robert Kiyosaki", room: "Room 204" },
-          ],
+      "Thursday": {
+        "p1": {
+          "subject": "বিজ্ঞান",
+          "teacher": "Dr. Charles Darwin",
+          "room": "Room 302",
+          "theme": "emerald"
         },
-        p2: { subject: "General Math Quiz", teacher: "Maya Chen", room: "Room 108", theme: "blue" },
-        p3: { subject: "ICT Practical", teacher: "Sarah Jenkins", room: "Computer Lab", theme: "purple" },
-        p4: { subject: "Bangla Essay Writing", teacher: "Farhana Sultana", room: "Room 108", theme: "amber" },
-        p5: { subject: "Club Activity", teacher: "Faculty", room: "Hall 01", theme: "purple" },
-      },
-    },
+        "p2": {
+          "subject": "তথ্য ও যোগাযোগ প্রযুক্তি",
+          "teacher": "Nasreen Akter",
+          "room": "Room 302",
+          "theme": "purple"
+        },
+        "p3": {
+          "subject": "ধর্ম ও নৈতিক শিক্ষা",
+          "teacher": "Mahbubur Rahman",
+          "room": "Room 302",
+          "theme": "amber"
+        },
+        "p4": {
+          "subject": "বিজ্ঞান",
+          "teacher": "Akash",
+          "room": "Room 302",
+          "theme": "emerald"
+        },
+        "p5": {
+          "subject": "বাংলা ব্যাকরণ ও নির্মিতি",
+          "teacher": "Farhana Sultana",
+          "room": "Room 302",
+          "theme": "amber"
+        }
+      }
+    }
   },
-
-  // ==================== CLASS 10 ====================
-  // 9. Class 10 · Section A (Combined Master Routine with Sci / Arts / Com Electives)
   {
-    id: "c10-a",
-    grade: "Class 10",
-    section: "Section A",
-    fullName: "Class 10 · Section A",
-    classTeacher: "Rafael Ortiz",
-    room: "Room 109",
-    studentCount: 32,
-    schedule: {
-      Monday: {
-        p1: {
-          subject: "Group Electives (Physics / History / Accounting)",
-          teacher: "Multi Teachers",
-          room: "Labs & Rooms",
-          theme: "emerald",
-          isGroupPeriod: true,
-          groupSlots: [
-            { group: "Science", subject: "Physics", teacher: "Rafael Ortiz", room: "Physics Lab" },
-            { group: "Arts", subject: "History & Civics", teacher: "Farhana Sultana", room: "Room 205" },
-            { group: "Commerce", subject: "Accounting", teacher: "Robert Kiyosaki", room: "Room 206" },
-          ],
+    "id": "c9-a",
+    "grade": "Class 9",
+    "section": "Section A",
+    "fullName": "Class 9 · Section A",
+    "classTeacher": "Nasreen Akter",
+    "room": "Room 401",
+    "studentCount": 26,
+    "schedule": {
+      "Sunday": {
+        "p1": {
+          "subject": "তথ্য ও যোগাযোগ প্রযুক্তি",
+          "teacher": "Nasreen Akter",
+          "room": "Room 401",
+          "theme": "purple"
         },
-        p2: {
-          subject: "Group Electives (Chemistry / Geography / Finance)",
-          teacher: "Multi Teachers",
-          room: "Labs & Rooms",
-          theme: "emerald",
-          isGroupPeriod: true,
-          groupSlots: [
-            { group: "Science", subject: "Chemistry", teacher: "Marie Curie", room: "Chem Lab" },
-            { group: "Arts", subject: "Geography", teacher: "Priya Nair", room: "Room 205" },
-            { group: "Commerce", subject: "Finance & Banking", teacher: "Robert Kiyosaki", room: "Room 206" },
-          ],
+        "p2": {
+          "subject": "ধর্ম ও নৈতিক শিক্ষা",
+          "teacher": "Mahbubur Rahman",
+          "room": "Room 401",
+          "theme": "amber"
         },
-        p3: {
-          subject: "Group Electives (Higher Math / Economics / Business Ent.)",
-          teacher: "Multi Teachers",
-          room: "Labs & Rooms",
-          theme: "blue",
-          isGroupPeriod: true,
-          groupSlots: [
-            { group: "Science", subject: "Higher Mathematics", teacher: "Mahmud Hasan", room: "Room 109" },
-            { group: "Arts", subject: "Economics", teacher: "Priya Nair", room: "Room 205" },
-            { group: "Commerce", subject: "Business Ent.", teacher: "Tanvir Ahmed", room: "Room 206" },
-          ],
+        "p3": {
+          "subject": "উচ্চতর গণিত",
+          "teacher": "Akash",
+          "room": "Room 401",
+          "theme": "blue"
         },
-        p4: { subject: "English 1st Paper", teacher: "Jon Bell", room: "Room 109", theme: "purple" },
-        p5: { subject: "Bangla 1st Paper", teacher: "Farhana Sultana", room: "Room 109", theme: "amber" },
+        "p4": {
+          "subject": "বাংলা সাহিত্য",
+          "teacher": "Farhana Sultana",
+          "room": "Room 401",
+          "theme": "amber"
+        },
+        "p5": {
+          "subject": "English For Today",
+          "teacher": "Priya Nair",
+          "room": "Room 401",
+          "theme": "purple"
+        }
       },
-      Tuesday: {
-        p1: {
-          subject: "Group Electives (Biology / Islamic History / Statistics)",
-          teacher: "Multi Teachers",
-          room: "Labs & Rooms",
-          theme: "emerald",
-          isGroupPeriod: true,
-          groupSlots: [
-            { group: "Science", subject: "Biology", teacher: "Dr. Charles Darwin", room: "Bio Lab" },
-            { group: "Arts", subject: "Islamic History", teacher: "Farhana Sultana", room: "Room 205" },
-            { group: "Commerce", subject: "Statistics", teacher: "Robert Kiyosaki", room: "Room 206" },
-          ],
+      "Monday": {
+        "p1": {
+          "subject": "শারীরিক শিক্ষা, স্বাস্থ্যবিজ্ঞান ও খেলাধুলা",
+          "teacher": "Subrata Roy",
+          "room": "Room 401",
+          "theme": "emerald"
         },
-        p2: {
-          subject: "Group Electives (Physics Lab / Civics / Accounting Practice)",
-          teacher: "Multi Teachers",
-          room: "Labs & Rooms",
-          theme: "emerald",
-          isGroupPeriod: true,
-          groupSlots: [
-            { group: "Science", subject: "Physics Lab", teacher: "Rafael Ortiz", room: "Physics Lab" },
-            { group: "Arts", subject: "Civics & Governance", teacher: "Priya Nair", room: "Room 205" },
-            { group: "Commerce", subject: "Accounting Lab", teacher: "Robert Kiyosaki", room: "Room 206" },
-          ],
+        "p2": {
+          "subject": "গণিত",
+          "teacher": "Anisur Rahman",
+          "room": "Room 401",
+          "theme": "blue"
         },
-        p3: { subject: "General Mathematics", teacher: "Mahmud Hasan", room: "Room 109", theme: "blue" },
-        p4: { subject: "ICT / Programming", teacher: "Sarah Jenkins", room: "Computer Lab", theme: "purple" },
-        p5: { subject: "English 2nd Paper", teacher: "Jon Bell", room: "Room 109", theme: "purple" },
+        "p3": {
+          "subject": "পদার্থবিজ্ঞান",
+          "teacher": "Rafael Ortiz",
+          "room": "Room 401",
+          "theme": "emerald"
+        },
+        "p4": {
+          "subject": "হিসাববিজ্ঞান",
+          "teacher": "Robert Kiyosaki",
+          "room": "Room 401",
+          "theme": "emerald"
+        },
+        "p5": {
+          "subject": "জীববিজ্ঞান",
+          "teacher": "Dr. Charles Darwin",
+          "room": "Room 401",
+          "theme": "emerald"
+        }
       },
-      Wednesday: {
-        p1: {
-          subject: "Group Electives (Chemistry Lab / Social Science / Marketing)",
-          teacher: "Multi Teachers",
-          room: "Labs & Rooms",
-          theme: "emerald",
-          isGroupPeriod: true,
-          groupSlots: [
-            { group: "Science", subject: "Chemistry Lab", teacher: "Marie Curie", room: "Chem Lab" },
-            { group: "Arts", subject: "Social Studies Advanced", teacher: "Farhana Sultana", room: "Room 205" },
-            { group: "Commerce", subject: "Marketing Analysis", teacher: "Robert Kiyosaki", room: "Room 206" },
-          ],
+      "Tuesday": {
+        "p1": {
+          "subject": "বাংলা সাহিত্য",
+          "teacher": "Farhana Sultana",
+          "room": "Room 401",
+          "theme": "amber"
         },
-        p2: {
-          subject: "Group Electives (Higher Math Practice / Logic / Finance)",
-          teacher: "Multi Teachers",
-          room: "Labs & Rooms",
-          theme: "blue",
-          isGroupPeriod: true,
-          groupSlots: [
-            { group: "Science", subject: "Higher Math Problem Solving", teacher: "Mahmud Hasan", room: "Room 109" },
-            { group: "Arts", subject: "Logic & Philosophy", teacher: "Farhana Sultana", room: "Room 205" },
-            { group: "Commerce", subject: "Finance & Investment", teacher: "Robert Kiyosaki", room: "Room 206" },
-          ],
+        "p2": {
+          "subject": "English For Today",
+          "teacher": "Priya Nair",
+          "room": "Room 401",
+          "theme": "purple"
         },
-        p3: { subject: "Bangla 2nd Paper", teacher: "Farhana Sultana", room: "Room 109", theme: "amber" },
-        p4: { subject: "Bangladesh & Global", teacher: "Priya Nair", room: "Room 109", theme: "amber" },
-        p5: { subject: "Career Guidance & Counseling", teacher: "Maya Chen", room: "Room 109", theme: "purple" },
+        "p3": {
+          "subject": "রসায়ন",
+          "teacher": "Marie Curie",
+          "room": "Room 401",
+          "theme": "gray"
+        },
+        "p4": {
+          "subject": "বাংলাদেশ ও বিশ্বপরিচয়",
+          "teacher": "Kabir Ahmed",
+          "room": "Room 401",
+          "theme": "amber"
+        },
+        "p5": {
+          "subject": "ভূগোল ও পরিবেশ",
+          "teacher": "Sarah Jenkins",
+          "room": "Room 401",
+          "theme": "rose"
+        }
       },
-      Thursday: {
-        p1: {
-          subject: "Group Electives (Physics Theory / History Exam Prep / Accounting Problem)",
-          teacher: "Multi Teachers",
-          room: "Labs & Rooms",
-          theme: "emerald",
-          isGroupPeriod: true,
-          groupSlots: [
-            { group: "Science", subject: "Physics Problem Solving", teacher: "Rafael Ortiz", room: "Room 109" },
-            { group: "Arts", subject: "History Exam Review", teacher: "Farhana Sultana", room: "Room 205" },
-            { group: "Commerce", subject: "Accounting Problem Solving", teacher: "Robert Kiyosaki", room: "Room 206" },
-          ],
+      "Wednesday": {
+        "p1": {
+          "subject": "হিসাববিজ্ঞান",
+          "teacher": "Robert Kiyosaki",
+          "room": "Room 401",
+          "theme": "emerald"
         },
-        p2: { subject: "General Mathematics", teacher: "Mahmud Hasan", room: "Room 109", theme: "blue" },
-        p3: {
-          subject: "Group Electives (Biology Lab / Geography / Business Ent.)",
-          teacher: "Multi Teachers",
-          room: "Labs & Rooms",
-          theme: "emerald",
-          isGroupPeriod: true,
-          groupSlots: [
-            { group: "Science", subject: "Biology Lab", teacher: "Dr. Charles Darwin", room: "Bio Lab" },
-            { group: "Arts", subject: "Geography Map Reading", teacher: "Priya Nair", room: "Room 205" },
-            { group: "Commerce", subject: "Business Ent. Case Studies", teacher: "Tanvir Ahmed", room: "Room 206" },
-          ],
+        "p2": {
+          "subject": "জীববিজ্ঞান",
+          "teacher": "Dr. Charles Darwin",
+          "room": "Room 401",
+          "theme": "emerald"
         },
-        p4: { subject: "English Writing & Grammar", teacher: "Jon Bell", room: "Room 109", theme: "purple" },
-        p5: { subject: "Religion & Ethics", teacher: "Priya Nair", room: "Room 109", theme: "amber" },
+        "p3": {
+          "subject": "তথ্য ও যোগাযোগ প্রযুক্তি",
+          "teacher": "Nasreen Akter",
+          "room": "Room 401",
+          "theme": "purple"
+        },
+        "p4": {
+          "subject": "ধর্ম ও নৈতিক শিক্ষা",
+          "teacher": "Mahbubur Rahman",
+          "room": "Room 401",
+          "theme": "amber"
+        },
+        "p5": {
+          "subject": "উচ্চতর গণিত",
+          "teacher": "Akash",
+          "room": "Room 401",
+          "theme": "blue"
+        }
       },
-      Friday: {
-        p1: {
-          subject: "Group Electives (Higher Math Advanced / Economics Review / Commerce Model)",
-          teacher: "Multi Teachers",
-          room: "Labs & Rooms",
-          theme: "blue",
-          isGroupPeriod: true,
-          groupSlots: [
-            { group: "Science", subject: "Higher Math Advanced", teacher: "Mahmud Hasan", room: "Room 109" },
-            { group: "Arts", subject: "Economics Review", teacher: "Priya Nair", room: "Room 205" },
-            { group: "Commerce", subject: "Commerce Model Test", teacher: "Robert Kiyosaki", room: "Room 206" },
-          ],
+      "Thursday": {
+        "p1": {
+          "subject": "বাংলাদেশ ও বিশ্বপরিচয়",
+          "teacher": "Kabir Ahmed",
+          "room": "Room 401",
+          "theme": "amber"
         },
-        p2: {
-          subject: "Group Electives (Chemistry Research / Civics Seminar / Finance Lab)",
-          teacher: "Multi Teachers",
-          room: "Labs & Rooms",
-          theme: "emerald",
-          isGroupPeriod: true,
-          groupSlots: [
-            { group: "Science", subject: "Chemistry Research", teacher: "Marie Curie", room: "Chem Lab" },
-            { group: "Arts", subject: "Civics & Law Seminar", teacher: "Farhana Sultana", room: "Room 205" },
-            { group: "Commerce", subject: "Finance Project Lab", teacher: "Robert Kiyosaki", room: "Room 206" },
-          ],
+        "p2": {
+          "subject": "ভূগোল ও পরিবেশ",
+          "teacher": "Sarah Jenkins",
+          "room": "Room 401",
+          "theme": "rose"
         },
-        p3: { subject: "ICT Practical & Coding", teacher: "Sarah Jenkins", room: "Computer Lab", theme: "purple" },
-        p4: { subject: "Math Model Test Review", teacher: "Rafael Ortiz", room: "Room 109", theme: "blue" },
-        p5: { subject: "Study Hall & Guidance", teacher: "All Mentors", room: "Auditorium", theme: "amber" },
-      },
-    },
+        "p3": {
+          "subject": "শারীরিক শিক্ষা, স্বাস্থ্যবিজ্ঞান ও খেলাধুলা",
+          "teacher": "Subrata Roy",
+          "room": "Room 401",
+          "theme": "emerald"
+        },
+        "p4": {
+          "subject": "গণিত",
+          "teacher": "Anisur Rahman",
+          "room": "Room 401",
+          "theme": "blue"
+        },
+        "p5": {
+          "subject": "পদার্থবিজ্ঞান",
+          "teacher": "Rafael Ortiz",
+          "room": "Room 401",
+          "theme": "emerald"
+        }
+      }
+    }
   },
-
-  // 10. Class 10 · Section B (Combined Master Routine with Sci / Arts / Com Electives)
   {
-    id: "c10-b",
-    grade: "Class 10",
-    section: "Section B",
-    fullName: "Class 10 · Section B",
-    classTeacher: "Mahmud Hasan",
-    room: "Room 110",
-    studentCount: 28,
-    schedule: {
-      Monday: {
-        p1: {
-          subject: "Group Electives (Physics / History / Accounting)",
-          teacher: "Multi Teachers",
-          room: "Labs & Rooms",
-          theme: "blue",
-          isGroupPeriod: true,
-          groupSlots: [
-            { group: "Science", subject: "Physics", teacher: "Rafael Ortiz", room: "Physics Lab" },
-            { group: "Arts", subject: "History & Civics", teacher: "Farhana Sultana", room: "Room 207" },
-            { group: "Commerce", subject: "Accounting", teacher: "Robert Kiyosaki", room: "Room 208" },
-          ],
+    "id": "c9-b",
+    "grade": "Class 9",
+    "section": "Section B",
+    "fullName": "Class 9 · Section B",
+    "classTeacher": "Sarah Jenkins",
+    "room": "Room 402",
+    "studentCount": 26,
+    "schedule": {
+      "Sunday": {
+        "p1": {
+          "subject": "ভূগোল ও পরিবেশ",
+          "teacher": "Sarah Jenkins",
+          "room": "Room 402",
+          "theme": "rose"
         },
-        p2: {
-          subject: "Group Electives (Chemistry / Geography / Business Ent.)",
-          teacher: "Multi Teachers",
-          room: "Labs & Rooms",
-          theme: "amber",
-          isGroupPeriod: true,
-          groupSlots: [
-            { group: "Science", subject: "Chemistry", teacher: "Marie Curie", room: "Chem Lab" },
-            { group: "Arts", subject: "Geography", teacher: "Priya Nair", room: "Room 207" },
-            { group: "Commerce", subject: "Business Ent.", teacher: "Tanvir Ahmed", room: "Room 208" },
-          ],
+        "p2": {
+          "subject": "শারীরিক শিক্ষা, স্বাস্থ্যবিজ্ঞান ও খেলাধুলা",
+          "teacher": "Subrata Roy",
+          "room": "Room 402",
+          "theme": "emerald"
         },
-        p3: { subject: "General Math", teacher: "Mahmud Hasan", room: "Room 110", theme: "blue" },
-        p4: { subject: "English 1st Paper", teacher: "Jon Bell", room: "Room 110", theme: "purple" },
-        p5: { subject: "Bangla 1st Paper", teacher: "Farhana Sultana", room: "Room 110", theme: "amber" },
+        "p3": {
+          "subject": "গণিত",
+          "teacher": "Anisur Rahman",
+          "room": "Room 402",
+          "theme": "blue"
+        },
+        "p4": {
+          "subject": "পদার্থবিজ্ঞান",
+          "teacher": "Rafael Ortiz",
+          "room": "Room 402",
+          "theme": "emerald"
+        },
+        "p5": {
+          "subject": "হিসাববিজ্ঞান",
+          "teacher": "Robert Kiyosaki",
+          "room": "Room 402",
+          "theme": "emerald"
+        }
       },
-      Tuesday: {
-        p1: {
-          subject: "Group Electives (Biology / Economics / Finance & Banking)",
-          teacher: "Multi Teachers",
-          room: "Labs & Rooms",
-          theme: "blue",
-          isGroupPeriod: true,
-          groupSlots: [
-            { group: "Science", subject: "Biology", teacher: "Dr. Charles Darwin", room: "Bio Lab" },
-            { group: "Arts", subject: "Economics", teacher: "Priya Nair", room: "Room 207" },
-            { group: "Commerce", subject: "Finance & Banking", teacher: "Robert Kiyosaki", room: "Room 208" },
-          ],
+      "Monday": {
+        "p1": {
+          "subject": "উচ্চতর গণিত",
+          "teacher": "Akash",
+          "room": "Room 402",
+          "theme": "blue"
         },
-        p2: { subject: "General Science", teacher: "Rafael Ortiz", room: "Lab 01", theme: "emerald" },
-        p3: { subject: "General Math", teacher: "Mahmud Hasan", room: "Room 110", theme: "blue" },
-        p4: { subject: "ICT / Programming", teacher: "Sarah Jenkins", room: "Computer Lab", theme: "purple" },
-        p5: { subject: "English 2nd Paper", teacher: "Jon Bell", room: "Room 110", theme: "purple" },
+        "p2": {
+          "subject": "বাংলা সাহিত্য",
+          "teacher": "Farhana Sultana",
+          "room": "Room 402",
+          "theme": "amber"
+        },
+        "p3": {
+          "subject": "English For Today",
+          "teacher": "Priya Nair",
+          "room": "Room 402",
+          "theme": "purple"
+        },
+        "p4": {
+          "subject": "রসায়ন",
+          "teacher": "Marie Curie",
+          "room": "Room 402",
+          "theme": "gray"
+        },
+        "p5": {
+          "subject": "বাংলাদেশ ও বিশ্বপরিচয়",
+          "teacher": "Kabir Ahmed",
+          "room": "Room 402",
+          "theme": "amber"
+        }
       },
-      Wednesday: {
-        p1: {
-          subject: "Group Electives (Physics Lab / Civics / Accounting Practice)",
-          teacher: "Multi Teachers",
-          room: "Labs & Rooms",
-          theme: "blue",
-          isGroupPeriod: true,
-          groupSlots: [
-            { group: "Science", subject: "Physics Lab", teacher: "Rafael Ortiz", room: "Physics Lab" },
-            { group: "Arts", subject: "Civics & Governance", teacher: "Farhana Sultana", room: "Room 207" },
-            { group: "Commerce", subject: "Accounting Practice", teacher: "Robert Kiyosaki", room: "Room 208" },
-          ],
+      "Tuesday": {
+        "p1": {
+          "subject": "পদার্থবিজ্ঞান",
+          "teacher": "Rafael Ortiz",
+          "room": "Room 402",
+          "theme": "emerald"
         },
-        p2: { subject: "General Math Practice", teacher: "Mahmud Hasan", room: "Room 110", theme: "blue" },
-        p3: { subject: "Bangla 2nd Paper", teacher: "Farhana Sultana", room: "Room 110", theme: "amber" },
-        p4: { subject: "Bangladesh & Global", teacher: "Priya Nair", room: "Room 110", theme: "amber" },
-        p5: {
-          subject: "Group Electives (Chemistry Lab / Islamic History / Economics)",
-          teacher: "Multi Teachers",
-          room: "Labs & Rooms",
-          theme: "blue",
-          isGroupPeriod: true,
-          groupSlots: [
-            { group: "Science", subject: "Chemistry Lab", teacher: "Marie Curie", room: "Chem Lab" },
-            { group: "Arts", subject: "Islamic History", teacher: "Farhana Sultana", room: "Room 207" },
-            { group: "Commerce", subject: "Economics Applied", teacher: "Robert Kiyosaki", room: "Room 208" },
-          ],
+        "p2": {
+          "subject": "হিসাববিজ্ঞান",
+          "teacher": "Robert Kiyosaki",
+          "room": "Room 402",
+          "theme": "emerald"
         },
+        "p3": {
+          "subject": "জীববিজ্ঞান",
+          "teacher": "Dr. Charles Darwin",
+          "room": "Room 402",
+          "theme": "emerald"
+        },
+        "p4": {
+          "subject": "তথ্য ও যোগাযোগ প্রযুক্তি",
+          "teacher": "Nasreen Akter",
+          "room": "Room 402",
+          "theme": "purple"
+        },
+        "p5": {
+          "subject": "ধর্ম ও নৈতিক শিক্ষা",
+          "teacher": "Mahbubur Rahman",
+          "room": "Room 402",
+          "theme": "amber"
+        }
       },
-      Thursday: {
-        p1: {
-          subject: "Group Electives (Higher Math / Logic / Finance Practical)",
-          teacher: "Multi Teachers",
-          room: "Labs & Rooms",
-          theme: "blue",
-          isGroupPeriod: true,
-          groupSlots: [
-            { group: "Science", subject: "Higher Mathematics", teacher: "Mahmud Hasan", room: "Room 110" },
-            { group: "Arts", subject: "Logic & Philosophy", teacher: "Farhana Sultana", room: "Room 207" },
-            { group: "Commerce", subject: "Finance Practical", teacher: "Robert Kiyosaki", room: "Room 208" },
-          ],
+      "Wednesday": {
+        "p1": {
+          "subject": "রসায়ন",
+          "teacher": "Marie Curie",
+          "room": "Room 402",
+          "theme": "gray"
         },
-        p2: { subject: "General Math", teacher: "Mahmud Hasan", room: "Room 110", theme: "blue" },
-        p3: {
-          subject: "Group Electives (Biology Lab / Geography / Business Case)",
-          teacher: "Multi Teachers",
-          room: "Labs & Rooms",
-          theme: "amber",
-          isGroupPeriod: true,
-          groupSlots: [
-            { group: "Science", subject: "Biology Lab", teacher: "Dr. Charles Darwin", room: "Bio Lab" },
-            { group: "Arts", subject: "Geography Map Lab", teacher: "Priya Nair", room: "Room 207" },
-            { group: "Commerce", subject: "Business Case Studies", teacher: "Tanvir Ahmed", room: "Room 208" },
-          ],
+        "p2": {
+          "subject": "বাংলাদেশ ও বিশ্বপরিচয়",
+          "teacher": "Kabir Ahmed",
+          "room": "Room 402",
+          "theme": "amber"
         },
-        p4: { subject: "English Writing", teacher: "Jon Bell", room: "Room 110", theme: "purple" },
-        p5: { subject: "Religion & Ethics", teacher: "Priya Nair", room: "Room 110", theme: "amber" },
+        "p3": {
+          "subject": "ভূগোল ও পরিবেশ",
+          "teacher": "Sarah Jenkins",
+          "room": "Room 402",
+          "theme": "rose"
+        },
+        "p4": {
+          "subject": "শারীরিক শিক্ষা, স্বাস্থ্যবিজ্ঞান ও খেলাধুলা",
+          "teacher": "Subrata Roy",
+          "room": "Room 402",
+          "theme": "emerald"
+        },
+        "p5": {
+          "subject": "গণিত",
+          "teacher": "Anisur Rahman",
+          "room": "Room 402",
+          "theme": "blue"
+        }
       },
-      Friday: {
-        p1: {
-          subject: "Group Electives (Physics Theory / History / Commerce Model)",
-          teacher: "Multi Teachers",
-          room: "Labs & Rooms",
-          theme: "blue",
-          isGroupPeriod: true,
-          groupSlots: [
-            { group: "Science", subject: "Physics Theory Review", teacher: "Rafael Ortiz", room: "Physics Lab" },
-            { group: "Arts", subject: "History Review", teacher: "Farhana Sultana", room: "Room 207" },
-            { group: "Commerce", subject: "Commerce Model Test", teacher: "Robert Kiyosaki", room: "Room 208" },
-          ],
+      "Thursday": {
+        "p1": {
+          "subject": "তথ্য ও যোগাযোগ প্রযুক্তি",
+          "teacher": "Nasreen Akter",
+          "room": "Room 402",
+          "theme": "purple"
         },
-        p2: { subject: "Math Model Test Review", teacher: "Mahmud Hasan", room: "Room 110", theme: "blue" },
-        p3: { subject: "ICT Practical", teacher: "Sarah Jenkins", room: "Computer Lab", theme: "purple" },
-        p4: { subject: "English Final Prep", teacher: "Jon Bell", room: "Room 110", theme: "purple" },
-        p5: { subject: "Study Hall & Guidance", teacher: "All Mentors", room: "Auditorium", theme: "amber" },
-      },
-    },
-  },
+        "p2": {
+          "subject": "ধর্ম ও নৈতিক শিক্ষা",
+          "teacher": "Mahbubur Rahman",
+          "room": "Room 402",
+          "theme": "amber"
+        },
+        "p3": {
+          "subject": "উচ্চতর গণিত",
+          "teacher": "Akash",
+          "room": "Room 402",
+          "theme": "blue"
+        },
+        "p4": {
+          "subject": "বাংলা সাহিত্য",
+          "teacher": "Farhana Sultana",
+          "room": "Room 402",
+          "theme": "amber"
+        },
+        "p5": {
+          "subject": "English For Today",
+          "teacher": "Priya Nair",
+          "room": "Room 402",
+          "theme": "purple"
+        }
+      }
+    }
+  }
 ];

@@ -102,3 +102,42 @@ export const deleteRoutine = async (id: string): Promise<{ success: boolean; mes
   const response = await api.delete(`/routines/${id}`);
   return response.data;
 };
+
+// 6. Get logged-in teacher's personal weekly routine
+export interface TeacherScheduleSlot {
+  id: string;
+  startTime: string;
+  endTime: string;
+  roomNumber?: string;
+  class: string;
+  section: string;
+  subject: string;
+  subjectCode?: string;
+  classId?: string;
+  sectionId?: string;
+}
+
+export interface TeacherRoutineResponse {
+  teacher: {
+    id: string;
+    teacherId: string;
+    name: string;
+    email: string;
+    designation?: string;
+  };
+  viewMode: string;
+  totalClasses: number;
+  weeklySchedule: Record<string, TeacherScheduleSlot[]>;
+}
+
+export const getMyRoutine = async (
+  email?: string,
+  day?: string
+): Promise<TeacherRoutineResponse> => {
+  const params: Record<string, string> = {};
+  if (email) params.email = email;
+  if (day) params.day = day;
+  const response = await api.get("/routines/my-routine", { params });
+  return response.data;
+};
+

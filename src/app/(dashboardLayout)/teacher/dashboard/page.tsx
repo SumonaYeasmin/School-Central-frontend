@@ -81,6 +81,13 @@ export default function TeacherDashboardPage() {
 
           <div className="flex items-center gap-3">
             <Link
+              href="/teacher/dashboard/routines"
+              className="h-11 px-5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs transition-all flex items-center gap-2 border border-white/20"
+            >
+              <Calendar className="h-4 w-4" />
+              <span>Weekly Routine</span>
+            </Link>
+            <Link
               href="/teacher/dashboard/classes"
               className="h-11 px-5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs transition-all flex items-center gap-2 shadow-lg shadow-blue-600/30 active:scale-[0.98]"
             >
@@ -154,17 +161,33 @@ export default function TeacherDashboardPage() {
       </div>
 
       {/* Quick Action Navigation Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <Link
+          href="/teacher/dashboard/routines"
+          className="bg-white p-5 rounded-3xl border border-slate-200/90 shadow-2xs hover:shadow-lg transition-all group hover:-translate-y-1 block"
+        >
+          <div className="h-11 w-11 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center mb-3.5 group-hover:scale-110 group-hover:bg-blue-600 group-hover:text-white transition-all">
+            <Calendar className="h-5 w-5" />
+          </div>
+          <h3 className="text-base font-bold text-slate-900 mb-1 flex items-center justify-between">
+            <span>Weekly Routine</span>
+            <ArrowRight className="h-3.5 w-3.5 text-slate-400 group-hover:text-blue-600 group-hover:translate-x-1 transition-all" />
+          </h3>
+          <p className="text-xs text-slate-500 leading-relaxed">
+            View daily schedule, period timings, classrooms, and weekly sequence.
+          </p>
+        </Link>
+
         <Link
           href="/teacher/dashboard/classes"
-          className="bg-white p-6 rounded-3xl border border-slate-200/90 shadow-2xs hover:shadow-lg transition-all group hover:-translate-y-1 block"
+          className="bg-white p-5 rounded-3xl border border-slate-200/90 shadow-2xs hover:shadow-lg transition-all group hover:-translate-y-1 block"
         >
-          <div className="h-12 w-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center mb-4 group-hover:scale-110 group-hover:bg-blue-600 group-hover:text-white transition-all">
-            <School className="h-6 w-6" />
+          <div className="h-11 w-11 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center mb-3.5 group-hover:scale-110 group-hover:bg-indigo-600 group-hover:text-white transition-all">
+            <School className="h-5 w-5" />
           </div>
-          <h3 className="text-lg font-bold text-slate-900 mb-1 flex items-center justify-between">
+          <h3 className="text-base font-bold text-slate-900 mb-1 flex items-center justify-between">
             <span>My Classes</span>
-            <ArrowRight className="h-4 w-4 text-slate-400 group-hover:text-blue-600 group-hover:translate-x-1 transition-all" />
+            <ArrowRight className="h-3.5 w-3.5 text-slate-400 group-hover:text-indigo-600 group-hover:translate-x-1 transition-all" />
           </h3>
           <p className="text-xs text-slate-500 leading-relaxed">
             View all assigned classroom sections and view student rosters.
@@ -173,14 +196,14 @@ export default function TeacherDashboardPage() {
 
         <Link
           href="/teacher/dashboard/results/enter-marks"
-          className="bg-white p-6 rounded-3xl border border-slate-200/90 shadow-2xs hover:shadow-lg transition-all group hover:-translate-y-1 block"
+          className="bg-white p-5 rounded-3xl border border-slate-200/90 shadow-2xs hover:shadow-lg transition-all group hover:-translate-y-1 block"
         >
-          <div className="h-12 w-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center mb-4 group-hover:scale-110 group-hover:bg-emerald-600 group-hover:text-white transition-all">
-            <FileSpreadsheet className="h-6 w-6" />
+          <div className="h-11 w-11 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center mb-3.5 group-hover:scale-110 group-hover:bg-emerald-600 group-hover:text-white transition-all">
+            <FileSpreadsheet className="h-5 w-5" />
           </div>
-          <h3 className="text-lg font-bold text-slate-900 mb-1 flex items-center justify-between">
+          <h3 className="text-base font-bold text-slate-900 mb-1 flex items-center justify-between">
             <span>Enter Marks</span>
-            <ArrowRight className="h-4 w-4 text-slate-400 group-hover:text-emerald-600 group-hover:translate-x-1 transition-all" />
+            <ArrowRight className="h-3.5 w-3.5 text-slate-400 group-hover:text-emerald-600 group-hover:translate-x-1 transition-all" />
           </h3>
           <p className="text-xs text-slate-500 leading-relaxed">
             Record term examination scores and assess students across subjects.
@@ -189,14 +212,14 @@ export default function TeacherDashboardPage() {
 
         <Link
           href="/teacher/dashboard/results/my-student-results"
-          className="bg-white p-6 rounded-3xl border border-slate-200/90 shadow-2xs hover:shadow-lg transition-all group hover:-translate-y-1 block"
+          className="bg-white p-5 rounded-3xl border border-slate-200/90 shadow-2xs hover:shadow-lg transition-all group hover:-translate-y-1 block"
         >
-          <div className="h-12 w-12 rounded-2xl bg-violet-50 text-violet-600 flex items-center justify-center mb-4 group-hover:scale-110 group-hover:bg-violet-600 group-hover:text-white transition-all">
-            <BarChart3 className="h-6 w-6" />
+          <div className="h-11 w-11 rounded-2xl bg-violet-50 text-violet-600 flex items-center justify-center mb-3.5 group-hover:scale-110 group-hover:bg-violet-600 group-hover:text-white transition-all">
+            <BarChart3 className="h-5 w-5" />
           </div>
-          <h3 className="text-lg font-bold text-slate-900 mb-1 flex items-center justify-between">
+          <h3 className="text-base font-bold text-slate-900 mb-1 flex items-center justify-between">
             <span>Student Results</span>
-            <ArrowRight className="h-4 w-4 text-slate-400 group-hover:text-violet-600 group-hover:translate-x-1 transition-all" />
+            <ArrowRight className="h-3.5 w-3.5 text-slate-400 group-hover:text-violet-600 group-hover:translate-x-1 transition-all" />
           </h3>
           <p className="text-xs text-slate-500 leading-relaxed">
             Review grade distribution and performance analytics for your students.

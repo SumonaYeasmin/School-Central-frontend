@@ -60,3 +60,39 @@ export const removeStudentFromParent = async (
   const response = await api.delete(`/parents/${parentId}/students/${studentId}`);
   return response.data;
 };
+
+export interface ParentChildInfo {
+  id: string;
+  studentId: string;
+  name: string;
+  gender: string;
+  photo?: string | null;
+  class: string;
+  classId: string;
+  section: string;
+  sectionId: string;
+  group?: string | null;
+  roll: string;
+  relation: string;
+  isPrimaryContact: boolean;
+  status: string;
+}
+
+export interface MyChildrenResponse {
+  parentId: string;
+  parentName: string;
+  phone: string;
+  email?: string;
+  address?: string;
+  totalChildren: number;
+  children: ParentChildInfo[];
+}
+
+// 8. Fetch logged-in parent's profile and linked children
+export const getMyChildren = async (email?: string): Promise<MyChildrenResponse> => {
+  const params: Record<string, string> = {};
+  if (email) params.email = email;
+  const response = await api.get("/parents/my-children", { params });
+  return response.data;
+};
+

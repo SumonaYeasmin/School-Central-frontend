@@ -117,21 +117,21 @@ export default function LoginPage() {
 
         {/* Login Form */}
         <form onSubmit={handleSubmit} className="space-y-4.5">
-          {/* Email Address */}
+          {/* Email or Phone or ID */}
           <div className="space-y-1.5">
             <label className="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
               <Mail className="h-3.5 w-3.5 text-blue-400" />
-              <span>Email Address</span>
+              <span>Email Address or Phone</span>
             </label>
             <div className="relative">
               <Input
-                type="email"
-                placeholder="Enter your email address"
+                type="text"
+                placeholder="Enter email or phone number"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="h-11 sm:h-12 rounded-xl border-slate-800 bg-[#0a101d] text-white text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500/25 placeholder:text-slate-500 pl-4"
                 required
-                autoComplete="email"
+                autoComplete="username"
               />
             </div>
           </div>

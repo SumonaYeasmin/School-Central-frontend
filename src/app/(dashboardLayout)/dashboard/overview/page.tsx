@@ -1,8 +1,12 @@
+import { Metadata } from "next";
+import { ParentOverviewView } from "@/src/components/dashboard/parent/ParentOverviewView";
+
+export const metadata: Metadata = {
+  title: "Parent Overview | School Central",
+  description: "Parent portal dashboard overview with student metrics, routines, results, and notices.",
+};
+
 export default function ParentOverviewPage() {
-  return (
-    <div className="space-y-4">
-      <h1 className="text-2xl font-bold tracking-tight text-slate-900">Parent Dashboard</h1>
-      <p className="text-sm text-slate-500">Welcome to School Central Parent Portal.</p>
-    </div>
-  );
+  return <ParentOverviewView />;
 }
+

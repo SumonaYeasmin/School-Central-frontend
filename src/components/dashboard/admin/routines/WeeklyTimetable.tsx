@@ -26,14 +26,14 @@ interface WeeklyTimetableProps {
   ) => void;
 }
 
-// Clean pastel theme colors
+// Vibrant, modern theme styling
 const THEME_STYLES: Record<string, string> = {
-  amber: "bg-[#fef8ee] border-[#faeedb] text-[#8a4b08] hover:border-amber-400",
-  blue: "bg-[#eff6ff] border-[#dbeafe] text-[#13519c] hover:border-blue-400",
-  purple: "bg-[#faf5ff] border-[#f3e8ff] text-[#652d90] hover:border-purple-400",
-  emerald: "bg-[#f0fdf4] border-[#dcfce7] text-[#1b6b3e] hover:border-emerald-400",
-  rose: "bg-[#fff1f2] border-[#ffe4e6] text-[#9c1833] hover:border-rose-400",
-  gray: "bg-slate-50 border-slate-200 text-slate-700 hover:border-slate-300",
+  amber: "bg-gradient-to-br from-amber-50 via-orange-50/70 to-yellow-50/50 border-amber-200 border-l-[4px] border-l-amber-500 text-amber-950 hover:border-amber-400 hover:shadow-sm",
+  blue: "bg-gradient-to-br from-blue-50 via-sky-50/70 to-indigo-50/50 border-blue-200 border-l-[4px] border-l-blue-600 text-blue-950 hover:border-blue-400 hover:shadow-sm",
+  purple: "bg-gradient-to-br from-purple-50 via-violet-50/70 to-indigo-50/50 border-purple-200 border-l-[4px] border-l-purple-600 text-purple-950 hover:border-purple-400 hover:shadow-sm",
+  emerald: "bg-gradient-to-br from-emerald-50 via-teal-50/70 to-green-50/50 border-emerald-200 border-l-[4px] border-l-emerald-600 text-emerald-950 hover:border-emerald-400 hover:shadow-sm",
+  rose: "bg-gradient-to-br from-rose-50 via-pink-50/70 to-red-50/50 border-rose-200 border-l-[4px] border-l-rose-500 text-rose-950 hover:border-rose-400 hover:shadow-sm",
+  gray: "bg-slate-50 border-slate-200 border-l-[4px] border-l-slate-400 text-slate-800 hover:border-slate-300",
 };
 
 export function WeeklyTimetable({

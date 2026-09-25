@@ -26,7 +26,7 @@ export function EditRoutineModal({
   routine,
   onSaveRoutine,
 }: EditRoutineModalProps) {
-  const [activeDay, setActiveDay] = useState<(typeof DAYS_OF_WEEK)[number]>("Monday");
+  const [activeDay, setActiveDay] = useState<(typeof DAYS_OF_WEEK)[number]>("Sunday");
   const [formData, setFormData] = useState<SectionRoutine | undefined>(routine);
 
   // Sync state when routine or modal opens
