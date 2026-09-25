@@ -4,16 +4,10 @@ import Image from "next/image";
 import Link from "next/link";
 import {
   MapPin,
-  Phone,
   Mail,
   Clock,
   ArrowUp,
-  Award,
-  BookOpen,
-  GraduationCap,
-  ShieldCheck,
   ChevronRight,
-  ExternalLink,
 } from "lucide-react";
 
 interface PublicFooterProps {
