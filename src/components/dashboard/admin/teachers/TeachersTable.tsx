@@ -255,11 +255,22 @@ export function TeachersTable({
                     {/* 1. Teacher (Avatar + Name + Designation) */}
                     <td className="py-4 px-4">
                       <div className="flex items-center gap-3.5">
-                        <div
-                          className={`flex h-10 w-10 items-center justify-center rounded-2xl ${avatar.bg} ${avatar.text} font-bold text-xs shrink-0 shadow-2xs`}
-                        >
-                          {getInitials(teacher.name)}
-                        </div>
+                        {teacher.photo ? (
+                          <div className="h-10 w-10 rounded-2xl overflow-hidden shrink-0 border border-slate-200 shadow-2xs">
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img
+                              src={teacher.photo}
+                              alt={teacher.name}
+                              className="h-full w-full object-cover"
+                            />
+                          </div>
+                        ) : (
+                          <div
+                            className={`flex h-10 w-10 items-center justify-center rounded-2xl ${avatar.bg} ${avatar.text} font-bold text-xs shrink-0 shadow-2xs`}
+                          >
+                            {getInitials(teacher.name)}
+                          </div>
+                        )}
                         <div>
                           <Link
                             href={`/admin/dashboard/teachers/${teacher.id}`}

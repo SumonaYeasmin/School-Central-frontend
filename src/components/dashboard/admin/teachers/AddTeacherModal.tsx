@@ -21,6 +21,10 @@ import {
   Loader2,
   UserPlus,
   RefreshCw,
+  Camera,
+  Upload,
+  Link as LinkIcon,
+  Trash2,
 } from "lucide-react";
 import { CreateTeacherDto } from "@/src/types/teacher";
 
@@ -57,6 +61,8 @@ export function AddTeacherModal({
 }: AddTeacherModalProps) {
   const [name, setName] = useState("");
   const [teacherId, setTeacherId] = useState("");
+  const [photo, setPhoto] = useState("");
+  const [photoInputType, setPhotoInputType] = useState<"upload" | "url">("upload");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [designation, setDesignation] = useState("Senior Teacher");
@@ -85,6 +91,7 @@ export function AddTeacherModal({
   const resetForm = () => {
     setName("");
     setTeacherId("");
+    setPhoto("");
     setPhone("");
     setEmail("");
     setDesignation("Senior Teacher");
@@ -97,6 +104,22 @@ export function AddTeacherModal({
     if (!isSaving) {
       resetForm();
       onClose();
+    }
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 3 * 1024 * 1024) {
+        setError("Image size should be less than 3MB.");
+        return;
+      }
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPhoto(reader.result as string);
+        setError(null);
+      };
+      reader.readAsDataURL(file);
     }
   };
 
@@ -122,6 +145,7 @@ export function AddTeacherModal({
       const payload: CreateTeacherDto = {
         name: name.trim(),
         teacherId: teacherId.trim(),
+        photo: photo.trim() || undefined,
         phone: phone.trim(),
         designation: designation.trim(),
         department: department.trim() || undefined,
@@ -171,6 +195,106 @@ export function AddTeacherModal({
               {error}
             </div>
           )}
+
+          {/* 0. Teacher Photo Upload & Preview */}
+          <div className="p-4 rounded-2xl bg-slate-50/80 border border-slate-200/80 space-y-3">
+            <div className="flex items-center justify-between">
+              <label className="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
+                <Camera className="h-3.5 w-3.5 text-blue-600" />
+                Teacher Photo (Picture)
+              </label>
+              <div className="flex items-center gap-1 text-[11px]">
+                <button
+                  type="button"
+                  onClick={() => setPhotoInputType("upload")}
+                  className={`px-2 py-0.5 rounded-lg font-semibold transition-colors cursor-pointer ${
+                    photoInputType === "upload"
+                      ? "bg-blue-600 text-white shadow-2xs"
+                      : "text-slate-500 hover:text-slate-800"
+                  }`}
+                >
+                  File Upload
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPhotoInputType("url")}
+                  className={`px-2 py-0.5 rounded-lg font-semibold transition-colors cursor-pointer ${
+                    photoInputType === "url"
+                      ? "bg-blue-600 text-white shadow-2xs"
+                      : "text-slate-500 hover:text-slate-800"
+                  }`}
+                >
+                  Image URL
+                </button>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-4">
+              {/* Avatar Preview Box */}
+              <div className="relative h-16 w-16 sm:h-20 sm:w-20 rounded-2xl overflow-hidden bg-white border-2 border-dashed border-slate-300 flex items-center justify-center shrink-0 shadow-2xs group">
+                {photo ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={photo}
+                    alt="Teacher Preview"
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  <div className="text-center p-1">
+                    <User className="h-6 w-6 sm:h-7 sm:w-7 text-slate-300 mx-auto" />
+                    <span className="text-[9px] text-slate-400 font-semibold mt-0.5 block leading-tight">
+                      No Photo
+                    </span>
+                  </div>
+                )}
+              </div>
+
+              {/* Upload or URL Controls */}
+              <div className="flex-1 min-w-0 space-y-2">
+                {photoInputType === "upload" ? (
+                  <div>
+                    <label className="inline-flex items-center gap-2 h-9 px-3.5 rounded-xl bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 hover:border-blue-300 text-xs font-semibold shadow-2xs transition-all cursor-pointer">
+                      <Upload className="h-3.5 w-3.5 text-blue-600" />
+                      <span>Choose Image from Device</span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleFileChange}
+                        className="hidden"
+                      />
+                    </label>
+                    <p className="text-[11px] text-slate-400 mt-1">
+                      JPG, PNG, WEBP (Max: 3MB)
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-1">
+                    <Input
+                      type="url"
+                      placeholder="https://example.com/teacher-photo.jpg"
+                      value={photo}
+                      onChange={(e) => setPhoto(e.target.value)}
+                      className="h-9 text-xs rounded-xl border-slate-200 bg-white focus:ring-2 focus:ring-blue-100"
+                    />
+                    <p className="text-[10px] text-slate-400">
+                      Paste a direct image link from the web.
+                    </p>
+                  </div>
+                )}
+
+                {photo && (
+                  <button
+                    type="button"
+                    onClick={() => setPhoto("")}
+                    className="inline-flex items-center gap-1 text-[11px] font-bold text-rose-600 hover:text-rose-700 transition-colors cursor-pointer"
+                  >
+                    <Trash2 className="h-3 w-3" />
+                    <span>Remove Photo</span>
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
 
           {/* 1. Full Name */}
           <div className="space-y-1.5">

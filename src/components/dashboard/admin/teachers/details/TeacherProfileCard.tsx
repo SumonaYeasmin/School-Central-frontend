@@ -30,9 +30,20 @@ export function TeacherProfileCard({
     <div className="bg-white border border-slate-200/90 rounded-2xl p-4 sm:p-5 shadow-2xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
       {/* Teacher Identity: Name, Designation badge, and ID */}
       <div className="flex items-center gap-4">
-        <div className="h-14 w-14 sm:h-16 sm:w-16 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-700 text-white flex items-center justify-center text-xl sm:text-2xl font-bold shadow-md shadow-blue-500/20 shrink-0">
-          {getInitials(teacher.name)}
-        </div>
+        {teacher.photo ? (
+          <div className="h-14 w-14 sm:h-16 sm:w-16 rounded-2xl overflow-hidden shrink-0 border-2 border-blue-600/30 shadow-md shadow-blue-500/10">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={teacher.photo}
+              alt={teacher.name}
+              className="h-full w-full object-cover"
+            />
+          </div>
+        ) : (
+          <div className="h-14 w-14 sm:h-16 sm:w-16 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-700 text-white flex items-center justify-center text-xl sm:text-2xl font-bold shadow-md shadow-blue-500/20 shrink-0">
+            {getInitials(teacher.name)}
+          </div>
+        )}
 
         <div className="space-y-1">
           <div className="flex flex-wrap items-center gap-2">

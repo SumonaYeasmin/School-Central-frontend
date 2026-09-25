@@ -132,6 +132,7 @@ export default function HomePage() {
   const [quickExamId, setQuickExamId] = useState<string>("");
   const [quickStudentId, setQuickStudentId] = useState<string>("");
   const [quickYear, setQuickYear] = useState<string>("2026");
+  const [searchValidationErr, setSearchValidationErr] = useState<string | null>(null);
 
   useEffect(() => {
     setIsLoadingStats(true);
@@ -204,6 +205,11 @@ export default function HomePage() {
 
   const handleQuickSearch = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!quickStudentId.trim()) {
+      setSearchValidationErr("Please enter your Student ID or Roll number.");
+      return;
+    }
+    setSearchValidationErr(null);
     setIsResultModalOpen(true);
   };
 
@@ -246,7 +252,7 @@ export default function HomePage() {
           id: t.id || `tch-${idx}`,
           name: t.name,
           subject: t.department || t.designation || "Faculty",
-          image: `/images/teacher-${(idx % 4) + 1}.jpg`,
+          image: t.photo || `/images/teacher-${(idx % 4) + 1}.jpg`,
         }))
       : fallbackTeachers;
 
@@ -777,8 +783,15 @@ export default function HomePage() {
                         type="text"
                         placeholder="Enter roll or student ID"
                         value={quickStudentId}
-                        onChange={(e) => setQuickStudentId(e.target.value)}
-                        className="h-10 rounded-xl border-slate-200 text-xs sm:text-sm bg-white focus:ring-2 focus:ring-blue-100"
+                        onChange={(e) => {
+                          setQuickStudentId(e.target.value);
+                          if (searchValidationErr) setSearchValidationErr(null);
+                        }}
+                        className={`h-10 rounded-xl text-xs sm:text-sm bg-white focus:ring-2 ${
+                          searchValidationErr
+                            ? "border-rose-300 focus:ring-rose-100"
+                            : "border-slate-200 focus:ring-blue-100"
+                        }`}
                       />
                     </div>
 
@@ -802,6 +815,13 @@ export default function HomePage() {
                       </Select>
                     </div>
                   </div>
+
+                  {/* Validation Error Message */}
+                  {searchValidationErr && (
+                    <p className="text-xs font-semibold text-rose-600 flex items-center gap-1.5">
+                      <span>• {searchValidationErr}</span>
+                    </p>
+                  )}
 
                   {/* Search Result Button */}
                   <Button

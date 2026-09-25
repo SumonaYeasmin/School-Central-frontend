@@ -23,14 +23,11 @@ import {
   Search,
   Loader2,
   FileSpreadsheet,
-  School,
   AlertCircle,
   Printer,
-  X,
   User,
   CheckCircle2,
   GraduationCap,
-  Award,
 } from "lucide-react";
 import { getExams, ExamItem } from "@/src/services/examService";
 import { getStudentExamResult } from "@/src/services/resultService";
@@ -58,13 +55,13 @@ export function PublicResultModal({
 
   useEffect(() => {
     if (isOpen) {
-      setIsLoadingExams(true);
       setErrorMsg(null);
       setResultData(null);
 
       const queryToSearch = initialStudentQuery.trim();
       setStudentQuery(queryToSearch);
 
+      setIsLoadingExams(true);
       getExams()
         .then(async (data) => {
           if (Array.isArray(data) && data.length > 0) {
@@ -87,12 +84,12 @@ export function PublicResultModal({
                 if (res && res.student) {
                   setResultData(res);
                 } else {
-                  setErrorMsg("No results found for the given Student ID / Roll.");
+                  setErrorMsg(`No results found for Student ID / Roll "${queryToSearch}".`);
                 }
               } catch (err: any) {
                 const msg =
                   err?.response?.data?.message ||
-                  "Result not published yet or student ID not found in database.";
+                  `Result for Student ID / Roll "${queryToSearch}" is not published yet or not found in database.`;
                 setErrorMsg(msg);
               } finally {
                 setIsSearching(false);
@@ -106,10 +103,11 @@ export function PublicResultModal({
       setResultData(null);
       setErrorMsg(null);
       setStudentQuery("");
+      setIsSearching(false);
     }
   }, [isOpen, initialStudentQuery, initialExamId]);
 
-  const handleSearch = async (e?: React.FormEvent) => {
+  const handleManualSearch = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     if (!studentQuery.trim() || !selectedExamId) return;
 
@@ -122,12 +120,12 @@ export function PublicResultModal({
       if (data && data.student) {
         setResultData(data);
       } else {
-        setErrorMsg("No results found for the given Student ID / Roll.");
+        setErrorMsg(`No results found for Student ID / Roll "${studentQuery}".`);
       }
     } catch (err: any) {
       const msg =
         err?.response?.data?.message ||
-        "Result not published yet or student ID not found.";
+        `Result for Student ID / Roll "${studentQuery}" is not published yet or not found in database.`;
       setErrorMsg(msg);
     } finally {
       setIsSearching(false);
@@ -161,106 +159,74 @@ export function PublicResultModal({
         <DialogHeader className="pb-4 border-b border-slate-100 space-y-1.5">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-600 text-white flex items-center justify-center shadow-md shadow-blue-500/20 shrink-0">
+              <div className="h-11 w-11 sm:h-12 sm:w-12 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-600 text-white flex items-center justify-center shadow-md shadow-blue-500/20 shrink-0">
                 <FileSpreadsheet className="h-6 w-6" />
               </div>
               <div>
                 <DialogTitle className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
-                  Online Result & Marksheet Portal
+                  Student Examination Result
                 </DialogTitle>
                 <DialogDescription className="text-xs sm:text-sm text-slate-500 mt-0.5">
-                  Greenfield High School • Search and verify student examination results online.
+                  Greenfield High School • Official Academic Marksheet
                 </DialogDescription>
               </div>
             </div>
           </div>
         </DialogHeader>
 
-        {/* ================= Search Controls Container ================= */}
-        <div className="bg-slate-50/80 rounded-2xl p-4 sm:p-5 border border-slate-200/70 space-y-4">
-          <form onSubmit={handleSearch} className="grid grid-cols-1 sm:grid-cols-12 gap-3.5 items-end">
-            {/* Examination Select */}
-            <div className="sm:col-span-6 space-y-1.5">
-              <label className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
-                <GraduationCap className="h-3.5 w-3.5 text-blue-600" />
-                <span>Select Examination</span>
-              </label>
-              <Select
-                value={selectedExamId}
-                onValueChange={setSelectedExamId}
-                disabled={isLoadingExams || exams.length === 0}
-              >
-                <SelectTrigger className="w-full h-11 rounded-xl border-slate-200 bg-white text-xs sm:text-sm font-medium focus:ring-2 focus:ring-blue-100">
-                  <SelectValue
-                    placeholder={
-                      isLoadingExams ? "Loading exams..." : "Choose Examination"
-                    }
-                  />
-                </SelectTrigger>
-                <SelectContent>
-                  {exams.map((exam) => (
-                    <SelectItem key={exam.id} value={exam.id}>
-                      {exam.name} {exam.year ? `(${exam.year})` : ""}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+        {/* ================= 1. Loading State ================= */}
+        {isSearching && (
+          <div className="py-16 sm:py-20 flex flex-col items-center justify-center text-center space-y-4 animate-in fade-in">
+            <div className="h-14 w-14 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center shadow-sm">
+              <Loader2 className="h-7 w-7 animate-spin" />
             </div>
-
-            {/* Student ID / Roll Input */}
-            <div className="sm:col-span-4 space-y-1.5">
-              <label className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
-                <User className="h-3.5 w-3.5 text-blue-600" />
-                <span>Student ID / Roll</span>
-              </label>
-              <Input
-                type="text"
-                placeholder="e.g. S01, SC-2026-091"
-                value={studentQuery}
-                onChange={(e) => setStudentQuery(e.target.value)}
-                className="h-11 rounded-xl border-slate-200 bg-white text-xs sm:text-sm focus:ring-2 focus:ring-blue-100 font-medium"
-              />
-            </div>
-
-            {/* Search Submit Button */}
-            <div className="sm:col-span-2">
-              <Button
-                type="submit"
-                disabled={isSearching || !studentQuery.trim()}
-                className="w-full h-11 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold text-xs sm:text-sm shadow-md shadow-blue-500/20 cursor-pointer flex items-center justify-center gap-2 active:scale-95 transition-all"
-              >
-                {isSearching ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  <Search className="h-4 w-4" />
-                )}
-                <span>Search</span>
-              </Button>
-            </div>
-          </form>
-        </div>
-
-        {/* ================= Error Alert ================= */}
-        {errorMsg && (
-          <div className="p-4 rounded-2xl bg-rose-50 border border-rose-200 flex items-start gap-3 text-rose-800 text-xs sm:text-sm animate-in fade-in">
-            <AlertCircle className="h-5 w-5 shrink-0 text-rose-600 mt-0.5" />
             <div>
-              <p className="font-bold">Unable to find marksheet</p>
-              <p className="text-rose-700 mt-0.5">{errorMsg}</p>
+              <h3 className="text-base sm:text-lg font-extrabold text-slate-900">
+                Searching Database...
+              </h3>
+              <p className="text-xs sm:text-sm text-slate-500 mt-1 max-w-sm">
+                Fetching student mark breakdown and verified examination grades.
+              </p>
             </div>
           </div>
         )}
 
-        {/* ================= Detailed Result Marksheet Card ================= */}
-        {resultData && (
-          <div className="space-y-6 pt-2 animate-in fade-in zoom-in-95 duration-300">
-            {/* Marksheet Container with Official Seal Banner */}
-            <div className="bg-white rounded-3xl border border-slate-200/90 shadow-sm p-6 sm:p-8 space-y-6">
+        {/* ================= 2. Error State ================= */}
+        {!isSearching && errorMsg && (
+          <div className="py-8 sm:py-10 px-6 rounded-3xl bg-rose-50/70 border border-rose-200 text-center space-y-4 animate-in fade-in">
+            <div className="h-14 w-14 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center mx-auto shadow-2xs">
+              <AlertCircle className="h-7 w-7" />
+            </div>
+            <div className="max-w-md mx-auto">
+              <h3 className="text-base sm:text-lg font-black text-rose-900">
+                Result Not Found
+              </h3>
+              <p className="text-xs sm:text-sm text-rose-700 mt-1.5 leading-relaxed">
+                {errorMsg}
+              </p>
+            </div>
+            <div className="flex items-center justify-center gap-3 pt-2">
+              <Button
+                type="button"
+                onClick={onClose}
+                className="h-10 px-6 rounded-xl text-xs sm:text-sm font-bold bg-slate-900 hover:bg-slate-800 text-white cursor-pointer shadow-sm"
+              >
+                Close & Check ID
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {/* ================= 3. Direct Marksheet Display (When Result Found) ================= */}
+        {!isSearching && resultData && (
+          <div className="space-y-6 pt-1 animate-in fade-in zoom-in-95 duration-200">
+            {/* Marksheet Container */}
+            <div className="bg-white rounded-3xl border border-slate-200/90 shadow-xs p-5 sm:p-7 space-y-6">
               
               {/* Official Institution Marksheet Header */}
-              <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pb-6 border-b border-slate-200/80 text-center sm:text-left">
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pb-5 border-b border-slate-200/80 text-center sm:text-left">
                 <div className="flex items-center gap-4">
-                  <div className="relative h-14 w-14 rounded-full overflow-hidden border-2 border-blue-600/30 bg-white p-0.5 shrink-0 shadow-sm">
+                  <div className="relative h-14 w-14 rounded-full overflow-hidden border-2 border-blue-600/30 bg-white p-0.5 shrink-0 shadow-xs">
                     <Image
                       src="/images/school-logo.png"
                       alt="Greenfield High School Crest"
@@ -456,7 +422,65 @@ export function PublicResultModal({
             </div>
           </div>
         )}
+
+        {/* ================= 4. Fallback Search Form (Only if opened without input) ================= */}
+        {!isSearching && !resultData && !errorMsg && (
+          <div className="py-6 space-y-4">
+            <div className="bg-slate-50/80 rounded-2xl p-5 border border-slate-200/70 space-y-4">
+              <form onSubmit={handleManualSearch} className="grid grid-cols-1 sm:grid-cols-12 gap-3.5 items-end">
+                <div className="sm:col-span-6 space-y-1.5">
+                  <label className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                    <GraduationCap className="h-3.5 w-3.5 text-blue-600" />
+                    <span>Select Examination</span>
+                  </label>
+                  <Select
+                    value={selectedExamId}
+                    onValueChange={setSelectedExamId}
+                    disabled={isLoadingExams || exams.length === 0}
+                  >
+                    <SelectTrigger className="w-full h-11 rounded-xl border-slate-200 bg-white text-xs sm:text-sm font-medium">
+                      <SelectValue placeholder="Choose Examination" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {exams.map((exam) => (
+                        <SelectItem key={exam.id} value={exam.id}>
+                          {exam.name} {exam.year ? `(${exam.year})` : ""}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="sm:col-span-4 space-y-1.5">
+                  <label className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                    <User className="h-3.5 w-3.5 text-blue-600" />
+                    <span>Student ID / Roll</span>
+                  </label>
+                  <Input
+                    type="text"
+                    placeholder="e.g. S01 or 1"
+                    value={studentQuery}
+                    onChange={(e) => setStudentQuery(e.target.value)}
+                    className="h-11 rounded-xl border-slate-200 bg-white text-xs sm:text-sm font-medium"
+                  />
+                </div>
+
+                <div className="sm:col-span-2">
+                  <Button
+                    type="submit"
+                    disabled={isSearching || !studentQuery.trim()}
+                    className="w-full h-11 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold text-xs sm:text-sm shadow-md cursor-pointer"
+                  >
+                    <Search className="h-4 w-4" />
+                    <span>Search</span>
+                  </Button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
       </DialogContent>
     </Dialog>
   );
 }
+

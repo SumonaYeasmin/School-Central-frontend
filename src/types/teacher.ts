@@ -26,6 +26,7 @@ export interface Teacher {
   id: string;
   teacherId: string;
   name: string;
+  photo?: string | null;
   email?: string | null;
   phone: string;
   designation: string;
@@ -39,6 +40,7 @@ export interface Teacher {
 export interface CreateTeacherDto {
   teacherId: string;
   name: string;
+  photo?: string;
   phone: string;
   designation: string;
   email?: string;
@@ -49,6 +51,7 @@ export interface CreateTeacherDto {
 export interface UpdateTeacherDto {
   teacherId?: string;
   name?: string;
+  photo?: string;
   phone?: string;
   designation?: string;
   email?: string;
