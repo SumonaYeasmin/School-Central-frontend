@@ -4,7 +4,8 @@ export interface TeacherAssignment {
   classId: string;
   sectionId: string;
   subjectId: string;
-  isClassTeacher: boolean;
+  isClassTeacher?: boolean;
+  studentCount?: number;
   createdAt?: string;
   updatedAt?: string;
   class: {

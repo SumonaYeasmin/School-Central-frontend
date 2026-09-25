@@ -1,6 +1,7 @@
 import { api } from "@/src/lib/api";
 import {
   Teacher,
+  TeacherAssignment,
   CreateTeacherDto,
   UpdateTeacherDto,
   AssignTeacherDto,
@@ -73,9 +74,14 @@ export const getTeacherAssignmentStudents = async (
 };
 
 // 9. Get logged-in teacher assignments (with class, section & subject)
-export const getMyAssignments = async (email?: string): Promise<any[]> => {
+export const getMyAssignments = async (
+  email?: string
+): Promise<{ teacher?: Teacher; assignments: TeacherAssignment[] }> => {
   const params: Record<string, string> = {};
   if (email) params.email = email;
   const response = await api.get("/teachers/my-assignments", { params });
+  if (Array.isArray(response.data)) {
+    return { assignments: response.data };
+  }
   return response.data;
 };
