@@ -12,17 +12,8 @@ export function middleware(request: NextRequest) {
   const isTeacherRoute = pathname.startsWith("/teacher");
   const isParentRoute = pathname.startsWith("/dashboard");
 
-  // 1. If visiting /login while already logged in, redirect to their role dashboard
+  // 1. If visiting /login, allow user to always see and access the login form
   if (isAuthRoute) {
-    if (accessToken && userRole) {
-      if (userRole === "ADMIN") {
-        return NextResponse.redirect(new URL("/admin/dashboard", request.url));
-      } else if (userRole === "TEACHER") {
-        return NextResponse.redirect(new URL("/teacher/dashboard", request.url));
-      } else if (userRole === "PARENT") {
-        return NextResponse.redirect(new URL("/dashboard/overview", request.url));
-      }
-    }
     return NextResponse.next();
   }
 

@@ -160,9 +160,17 @@ export function MyEnteredMarksTable({
       {/* Table Content */}
       <CardContent className="p-0 flex-1">
         {isLoading ? (
-          <div className="flex flex-col items-center justify-center py-20 text-slate-400 gap-3">
-            <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
-            <p className="text-sm font-medium text-slate-600">Loading student marksheet...</p>
+          <div className="flex flex-col items-center justify-center py-24 px-4 text-center my-auto">
+            <div className="relative flex items-center justify-center mb-4">
+              <div className="h-12 w-12 rounded-full border-3 border-blue-100 border-t-blue-600 animate-spin" />
+              <Loader2 className="h-6 w-6 text-blue-600 animate-spin absolute" />
+            </div>
+            <p className="text-sm font-bold text-slate-800">
+              Loading student marksheet and grades...
+            </p>
+            <p className="text-xs text-slate-400 font-medium mt-1">
+              Please wait while we retrieve the latest examination marks
+            </p>
           </div>
         ) : students.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 px-4 text-center text-slate-400 gap-3">

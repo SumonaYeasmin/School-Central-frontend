@@ -61,9 +61,9 @@ export function MyResultsView() {
   const initializeData = useCallback(async () => {
     setIsFetchingFilters(true);
     try {
-      let emailToUse = mockUsers.TEACHER.email;
+      let emailToUse = "";
       if (typeof window !== "undefined") {
-        const storedUser = localStorage.getItem("user") || localStorage.getItem("currentUser");
+        const storedUser = localStorage.getItem("userInfo") || localStorage.getItem("user");
         if (storedUser) {
           try {
             const parsed = JSON.parse(storedUser);
@@ -72,6 +72,7 @@ export function MyResultsView() {
           } catch {}
         }
       }
+      if (!emailToUse) emailToUse = "teacher@gmail.com";
       setActiveTeacherEmail(emailToUse);
 
       const [examsData, assignmentsData] = await Promise.allSettled([
@@ -94,9 +95,23 @@ export function MyResultsView() {
       }
 
       let validAssignments: AssignmentItem[] = [];
-      if (assignmentsData.status === "fulfilled" && Array.isArray(assignmentsData.value) && assignmentsData.value.length > 0) {
-        validAssignments = assignmentsData.value;
-      } else {
+      if (assignmentsData.status === "fulfilled" && assignmentsData.value) {
+        const resVal: any = assignmentsData.value;
+        const list = Array.isArray(resVal)
+          ? resVal
+          : Array.isArray(resVal?.assignments)
+          ? resVal.assignments
+          : [];
+
+        if (list.length > 0) {
+          validAssignments = list as AssignmentItem[];
+          if (resVal.teacher?.name) {
+            setActiveTeacherName(resVal.teacher.name);
+          }
+        }
+      }
+
+      if (validAssignments.length === 0) {
         // Fallback for development if email not configured
         try {
           const allTeachers = await getTeachers();
@@ -478,7 +493,7 @@ export function MyResultsView() {
       {/* 4. My Entered Marks Table (Only Students of This Teacher's Assigned Class & Section) */}
       <MyEnteredMarksTable
         students={students}
-        isLoading={isLoadingStudents}
+        isLoading={isLoadingStudents || isFetchingFilters}
         onSaveMark={handleSaveStudentMark}
         subjectName={activeSubjectName}
         examName={activeExamName}
