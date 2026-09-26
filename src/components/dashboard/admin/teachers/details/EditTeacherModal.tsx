@@ -24,6 +24,7 @@ import {
   Upload,
   Link as LinkIcon,
   Trash2,
+  Lock,
 } from "lucide-react";
 import { Teacher, UpdateTeacherDto } from "@/src/types/teacher";
 
@@ -339,19 +340,24 @@ export function EditTeacherModal({
             />
           </div>
 
-          {/* 2. Teacher ID & Designation */}
+          {/* 2. Teacher ID (Locked / Read-Only) & Designation */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
             <div className="space-y-1.5">
-              <label className="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
-                <Hash className="h-3.5 w-3.5 text-blue-600" />
-                Teacher ID <span className="text-rose-500">*</span>
+              <label className="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center justify-between">
+                <span className="flex items-center gap-1.5">
+                  <Hash className="h-3.5 w-3.5 text-slate-500" />
+                  Teacher ID
+                </span>
+                <span className="text-[10px] font-semibold text-slate-500 normal-case bg-slate-100 border border-slate-200/80 px-2 py-0.5 rounded-md flex items-center gap-1">
+                  <Lock className="h-2.5 w-2.5 text-slate-400" />
+                  Fixed
+                </span>
               </label>
               <Input
                 type="text"
                 value={teacherId}
-                onChange={(e) => setTeacherId(e.target.value)}
-                className="h-10 text-sm rounded-xl border-slate-200 bg-slate-50/50 focus:bg-white focus:border-blue-500 transition-all font-mono font-bold text-blue-900"
-                required
+                disabled
+                className="h-10 text-sm rounded-xl border-slate-200 bg-slate-100/80 text-slate-600 font-mono font-bold cursor-not-allowed select-none shadow-none"
               />
             </div>
 

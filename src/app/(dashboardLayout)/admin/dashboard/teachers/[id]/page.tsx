@@ -74,8 +74,15 @@ export default function TeacherDetailsPage() {
 
   // Handle Edit Teacher
   const handleUpdateTeacher = async (id: string, data: UpdateTeacherDto) => {
-    await updateTeacher(id, data);
-    await fetchTeacherData();
+    const updated = await updateTeacher(id, data);
+    if (updated) {
+      setTeacher(updated);
+    }
+    if (updated?.id && teacherIdParam !== updated.id && teacherIdParam !== updated.teacherId) {
+      router.replace(`/admin/dashboard/teachers/${updated.id}`);
+    } else {
+      await fetchTeacherData();
+    }
   };
 
   // Handle Assign Subject
