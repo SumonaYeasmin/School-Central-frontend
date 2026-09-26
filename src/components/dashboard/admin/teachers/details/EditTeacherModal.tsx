@@ -54,6 +54,44 @@ const DESIGNATIONS = [
   "Junior Teacher",
 ];
 
+const compressImage = (file: File, maxWidth = 800, quality = 0.82): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = (event) => {
+      const img = new Image();
+      img.src = event.target?.result as string;
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        let width = img.width;
+        let height = img.height;
+
+        if (width > maxWidth || height > maxWidth) {
+          if (width > height) {
+            height = Math.round((height * maxWidth) / width);
+            width = maxWidth;
+          } else {
+            width = Math.round((width * maxWidth) / height);
+            height = maxWidth;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext("2d");
+        if (ctx) {
+          ctx.drawImage(img, 0, 0, width, height);
+          resolve(canvas.toDataURL("image/jpeg", quality));
+        } else {
+          resolve(event.target?.result as string);
+        }
+      };
+      img.onerror = (err) => reject(err);
+    };
+    reader.onerror = (err) => reject(err);
+  });
+};
+
 export function EditTeacherModal({
   isOpen,
   onClose,
@@ -98,19 +136,20 @@ export function EditTeacherModal({
     }
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      if (file.size > 3 * 1024 * 1024) {
-        setError("Image size should be less than 3MB.");
+      if (file.size > 10 * 1024 * 1024) {
+        setError("Image size should be less than 10MB.");
         return;
       }
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setPhoto(reader.result as string);
+      try {
+        const compressed = await compressImage(file);
+        setPhoto(compressed);
         setError(null);
-      };
-      reader.readAsDataURL(file);
+      } catch {
+        setError("Failed to process image.");
+      }
     }
   };
 
@@ -157,7 +196,7 @@ export function EditTeacherModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-[560px] p-0 overflow-hidden bg-white border border-slate-200 rounded-3xl shadow-2xl">
+      <DialogContent className=" p-0 overflow-hidden bg-white border border-slate-200 rounded-3xl shadow-2xl">
         {/* Header */}
         <div className="bg-gradient-to-r from-slate-900 via-blue-950 to-slate-900 text-white p-6 pb-5">
           <div className="flex items-center gap-3">

@@ -8,6 +8,7 @@ import {
   BookOpen,
   Eye,
   Plus,
+  Trash2,
   X,
 } from "lucide-react";
 import { Input } from "@/src/components/ui/input";
@@ -336,20 +337,32 @@ export function TeachersTable({
                       </div>
                     </td>
 
-                    {/* 6. Actions (Only Details button) */}
+                    {/* 6. Actions (Details & Delete buttons) */}
                     <td className="py-4 px-4 text-right">
-                      <div className="flex items-center justify-end">
+                      <div className="flex items-center justify-end gap-1.5">
                         <Button
                           asChild
                           size="sm"
                           variant="ghost"
-                          className="h-8 px-3.5 rounded-xl bg-blue-50 text-blue-600 hover:bg-blue-100 hover:text-blue-700 border border-blue-200/60 font-semibold text-xs flex items-center gap-1.5 cursor-pointer transition-colors"
+                          className="h-8 px-3 rounded-xl bg-blue-50 text-blue-600 hover:bg-blue-100 hover:text-blue-700 border border-blue-200/60 font-semibold text-xs flex items-center gap-1.5 cursor-pointer transition-colors"
                         >
                           <Link href={`/admin/dashboard/teachers/${teacher.id}`}>
                             <Eye className="h-3.5 w-3.5" />
                             <span>Details</span>
                           </Link>
                         </Button>
+
+                        {onDelete && (
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => onDelete(teacher)}
+                            className="h-8 w-8 p-0 rounded-xl bg-rose-50 text-rose-600 hover:bg-rose-100 hover:text-rose-700 border border-rose-200/60 flex items-center justify-center cursor-pointer transition-colors"
+                            title="Delete Teacher"
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </Button>
+                        )}
                       </div>
                     </td>
                   </tr>

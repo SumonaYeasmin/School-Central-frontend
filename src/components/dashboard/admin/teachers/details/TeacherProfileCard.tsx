@@ -2,12 +2,13 @@
 
 import { Teacher } from "@/src/types/teacher";
 import { Button } from "@/src/components/ui/button";
-import { Edit3, Plus } from "lucide-react";
+import { Edit3, Plus, Trash2 } from "lucide-react";
 
 interface TeacherProfileCardProps {
   teacher: Teacher;
   onEdit?: () => void;
   onAssign?: () => void;
+  onDelete?: () => void;
 }
 
 function getInitials(name: string) {
@@ -25,6 +26,7 @@ export function TeacherProfileCard({
   teacher,
   onEdit,
   onAssign,
+  onDelete,
 }: TeacherProfileCardProps) {
   return (
     <div className="bg-white border border-slate-200/90 rounded-2xl p-4 sm:p-5 shadow-2xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
@@ -63,8 +65,8 @@ export function TeacherProfileCard({
         </div>
       </div>
 
-      {/* Action Buttons: Assign Subject & Edit */}
-      <div className="flex items-center gap-2.5 w-full sm:w-auto self-stretch sm:self-auto">
+      {/* Action Buttons: Assign Subject, Edit & Delete */}
+      <div className="flex flex-wrap items-center gap-2.5 w-full sm:w-auto self-stretch sm:self-auto">
         {onAssign && (
           <Button
             onClick={onAssign}
@@ -83,6 +85,17 @@ export function TeacherProfileCard({
           >
             <Edit3 className="h-3.5 w-3.5 text-slate-500" />
             <span>Update</span>
+          </Button>
+        )}
+
+        {onDelete && (
+          <Button
+            onClick={onDelete}
+            variant="outline"
+            className="flex-1 sm:flex-initial h-9 px-4 rounded-xl border-rose-200 bg-rose-50/50 text-rose-600 hover:bg-rose-100/80 hover:text-rose-700 hover:border-rose-300 text-xs font-semibold flex items-center justify-center gap-1.5 cursor-pointer transition-colors"
+          >
+            <Trash2 className="h-3.5 w-3.5" />
+            <span>Delete</span>
           </Button>
         )}
       </div>

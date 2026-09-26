@@ -5,9 +5,11 @@ import { TeachersHeader } from "@/src/components/dashboard/admin/teachers/Teache
 import { TeachersStats } from "@/src/components/dashboard/admin/teachers/TeachersStats";
 import { TeachersTable } from "@/src/components/dashboard/admin/teachers/TeachersTable";
 import { AddTeacherModal } from "@/src/components/dashboard/admin/teachers/AddTeacherModal";
+import { DeleteTeacherDialog } from "@/src/components/dashboard/admin/teachers/DeleteTeacherDialog";
 import {
   getTeachers,
   createTeacher,
+  deleteTeacher,
 } from "@/src/services/teacherService";
 import { getClasses, getSubjects } from "@/src/services/academicService";
 import {
@@ -26,13 +28,14 @@ export default function TeachersPage() {
 
   // Modals state
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [deletingTeacher, setDeletingTeacher] = useState<Teacher | null>(null);
 
   // Fetch all teachers, classes, and subjects from database
   const fetchData = useCallback(async () => {
     try {
       setIsLoading(true);
       const [teachersData, classesData, subjectsData] = await Promise.all([
-        getTeachers(),
+        getTeachers().catch(() => []),
         getClasses().catch(() => []),
         getSubjects().catch(() => []),
       ]);
@@ -54,6 +57,21 @@ export default function TeachersPage() {
   const handleAddTeacher = async (teacherData: CreateTeacherDto) => {
     await createTeacher(teacherData);
     await fetchData();
+  };
+
+  // Handler: Delete Teacher (Optimistic UI - Instant removal)
+  const handleDeleteTeacher = async (id: string) => {
+    // 1. Instantly remove from UI without waiting
+    setTeachers((prev) => prev.filter((t) => t.id !== id && t.teacherId !== id));
+
+    try {
+      // 2. Perform backend delete
+      await deleteTeacher(id);
+    } catch (error) {
+      console.error("Failed to delete teacher:", error);
+      // Revert if error occurs
+      await fetchData();
+    }
   };
 
   // Dynamic KPI Stats
@@ -91,6 +109,7 @@ export default function TeachersPage() {
         <TeachersTable
           teachers={teachers}
           onAddTeacher={() => setIsAddModalOpen(true)}
+          onDelete={(teacher) => setDeletingTeacher(teacher)}
         />
       )}
 
@@ -99,6 +118,14 @@ export default function TeachersPage() {
         isOpen={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}
         onAdd={handleAddTeacher}
+      />
+
+      {/* 5. Delete Teacher Dialog */}
+      <DeleteTeacherDialog
+        isOpen={Boolean(deletingTeacher)}
+        teacher={deletingTeacher}
+        onClose={() => setDeletingTeacher(null)}
+        onDelete={handleDeleteTeacher}
       />
     </div>
   );

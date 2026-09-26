@@ -10,7 +10,7 @@ interface TeacherNotFoundProps {
 
 export function TeacherNotFound({ error }: TeacherNotFoundProps) {
   return (
-    <div className="max-w-md mx-auto my-16 bg-white border border-slate-200/90 rounded-3xl p-8 text-center space-y-4 shadow-xs">
+    <div className="container mx-auto my-16 bg-white border border-slate-200/90 rounded-3xl p-8 text-center space-y-4 shadow-xs">
       <div className="h-16 w-16 rounded-3xl bg-rose-50 text-rose-600 flex items-center justify-center mx-auto">
         <AlertCircle className="h-8 w-8" />
       </div>

@@ -4,7 +4,7 @@ import { Skeleton } from "@/src/components/ui/skeleton";
 
 export function TeacherDetailSkeleton() {
   return (
-    <div className="space-y-6 max-w-6xl mx-auto animate-pulse">
+    <div className="space-y-6  mx-auto animate-pulse">
       {/* Breadcrumb Skeleton */}
       <div className="flex items-center justify-between gap-4">
         <Skeleton className="h-4 w-48 rounded-lg bg-slate-200" />
