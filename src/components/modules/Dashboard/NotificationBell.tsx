@@ -43,16 +43,29 @@ export function NotificationBell({ user }: NotificationBellProps) {
   // 1. Initialize real-time WebSocket connection
   const socket = useSocket({ userId: user?.id, role: user?.role });
 
-  // 2. Initial fetch of notices from database
+  const storageKey = `read_notices_${user?.id || user?.email || user?.role || "guest"}`;
+
+  // 2. Initial fetch of notices from database with user role filtering
   useEffect(() => {
     let isMounted = true;
     getNotices()
       .then((data) => {
         if (isMounted && data) {
-          setNotices(data);
-          // Set initial unread count (e.g., first 3 or total)
-          const readIds = JSON.parse(localStorage.getItem("read_notice_ids") || "[]");
-          const unread = data.filter((n) => !readIds.includes(n.id)).length;
+          // Filter notices relevant to the user's role
+          const role = user?.role;
+          const userNotices = data.filter((n) => {
+            if (!n.isPublished) return false;
+            if (role === "TEACHER") return n.targetAudience === "ALL" || n.targetAudience === "TEACHERS";
+            if (role === "PARENT") return n.targetAudience === "ALL" || n.targetAudience === "PARENTS";
+            return true; // Admin sees all
+          });
+
+          setNotices(userNotices);
+
+          // Get read IDs specifically for this logged-in user
+          const userStorageKey = `read_notices_${user?.id || user?.email || user?.role || "guest"}`;
+          const readIds: string[] = JSON.parse(localStorage.getItem(userStorageKey) || "[]");
+          const unread = userNotices.filter((n) => !readIds.includes(n.id)).length;
           setUnreadCount(unread);
         }
       })
@@ -61,16 +74,26 @@ export function NotificationBell({ user }: NotificationBellProps) {
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [user?.id, user?.email, user?.role]);
 
   // 3. Listen for real-time WebSocket events
   useEffect(() => {
     if (!socket) return;
 
     const handleNewNotice = (newNotice: Notice) => {
-      console.log("⚡ [Realtime] New notice received:", newNotice.title);
-      setNotices((prev) => [newNotice, ...prev.filter((n) => n.id !== newNotice.id)]);
-      setUnreadCount((prev) => prev + 1);
+      // Check if this notice is intended for this user
+      const role = user?.role;
+      const isRelevant =
+        role === "ADMIN" ||
+        newNotice.targetAudience === "ALL" ||
+        (role === "TEACHER" && newNotice.targetAudience === "TEACHERS") ||
+        (role === "PARENT" && newNotice.targetAudience === "PARENTS");
+
+      if (isRelevant) {
+        console.log("⚡ [Realtime] New notice received for user:", newNotice.title);
+        setNotices((prev) => [newNotice, ...prev.filter((n) => n.id !== newNotice.id)]);
+        setUnreadCount((prev) => prev + 1);
+      }
     };
 
     socket.on("new_notice", handleNewNotice);
@@ -78,9 +101,22 @@ export function NotificationBell({ user }: NotificationBellProps) {
     return () => {
       socket.off("new_notice", handleNewNotice);
     };
-  }, [socket]);
+  }, [socket, user?.role]);
 
-  // 4. Close dropdown on outside click
+  // 4. Toggle dropdown with auto-clear of unread badge for this specific user
+  const handleToggleDropdown = () => {
+    if (!isOpen) {
+      setIsOpen(true);
+      // Auto-clear unread badge immediately when opened
+      setUnreadCount(0);
+      const allIds = notices.map((n) => n.id);
+      localStorage.setItem(storageKey, JSON.stringify(allIds));
+    } else {
+      setIsOpen(false);
+    }
+  };
+
+  // Close dropdown on outside click
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -96,23 +132,16 @@ export function NotificationBell({ user }: NotificationBellProps) {
     };
   }, [isOpen]);
 
-  // Mark single notice as read
+  // Mark single notice as read when clicked
   const handleNoticeClick = (notice: Notice) => {
     setSelectedNotice(notice);
     setIsOpen(false);
 
-    const readIds: string[] = JSON.parse(localStorage.getItem("read_notice_ids") || "[]");
+    const readIds: string[] = JSON.parse(localStorage.getItem(storageKey) || "[]");
     if (!readIds.includes(notice.id)) {
       const updated = [...readIds, notice.id];
-      localStorage.setItem("read_notice_ids", JSON.stringify(updated));
-      setUnreadCount((prev) => Math.max(0, prev - 1));
+      localStorage.setItem(storageKey, JSON.stringify(updated));
     }
-  };
-
-  // Mark all as read
-  const handleMarkAllAsRead = () => {
-    const allIds = notices.map((n) => n.id);
-    localStorage.setItem("read_notice_ids", JSON.stringify(allIds));
     setUnreadCount(0);
   };
 
@@ -120,7 +149,7 @@ export function NotificationBell({ user }: NotificationBellProps) {
     <div className="relative" ref={dropdownRef}>
       {/* Bell Trigger Button */}
       <button
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={handleToggleDropdown}
         className={`relative p-2.5 rounded-xl border transition-all cursor-pointer ${
           isOpen
             ? "bg-blue-50 text-blue-700 border-blue-200 shadow-xs"
@@ -153,20 +182,21 @@ export function NotificationBell({ user }: NotificationBellProps) {
                   Notifications
                 </h4>
                 <p className="text-[10px] text-blue-200/70">
-                  {unreadCount > 0 ? `${unreadCount} unread notices` : "All caught up"}
+                  {notices.length} latest notices
                 </p>
               </div>
             </div>
 
-            {unreadCount > 0 && (
-              <button
-                type="button"
-                onClick={handleMarkAllAsRead}
-                className="text-[11px] font-medium text-blue-300 hover:text-white transition-colors cursor-pointer"
-              >
-                Mark all read
-              </button>
-            )}
+            {/* Close Cross (X) Button */}
+            <button
+              type="button"
+              onClick={() => setIsOpen(false)}
+              className="h-7 w-7 rounded-lg bg-white/10 hover:bg-white/20 text-slate-300 hover:text-white flex items-center justify-center transition-colors cursor-pointer"
+              title="Close Notifications"
+              aria-label="Close"
+            >
+              <X className="h-4 w-4" />
+            </button>
           </div>
 
           {/* Notices Scroll Area */}
