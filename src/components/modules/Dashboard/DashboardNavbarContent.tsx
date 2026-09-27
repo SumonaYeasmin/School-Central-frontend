@@ -7,8 +7,9 @@ import { NavItem, getNavItemsByRole } from "@/src/lib/navitems.config";
 import { mockUsers } from "@/src/services/auth/getUserInfo";
 import { UserDropdown } from "./UserDropdown";
 import { DashboardMobileSidebar } from "./DashboardMobileSidebar";
+import { NotificationBell } from "./NotificationBell";
 import { Input } from "@/src/components/ui/input";
-import { Search, Bell } from "lucide-react";
+import { Search } from "lucide-react";
 
 interface DashboardNavbarContentProps {
   user: UserInfo;
@@ -70,13 +71,8 @@ export function DashboardNavbarContent({ user, navItems: initialNavItems }: Dash
 
       {/* Right: Notifications + User Profile Dropdown */}
       <div className="flex items-center gap-3">
-        <button 
-          className="relative p-2.5 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-xl transition-colors border border-slate-200/80 cursor-pointer"
-          title="Notifications"
-        >
-          <Bell className="h-5 w-5" />
-          <span className="absolute top-2 right-2 h-2.5 w-2.5 rounded-full bg-blue-600 ring-2 ring-white" />
-        </button>
+        {/* Real-time Interactive Notification Bell */}
+        <NotificationBell user={activeUser} />
 
         <div className="h-5 w-px bg-slate-200 mx-1 hidden sm:block" />
 

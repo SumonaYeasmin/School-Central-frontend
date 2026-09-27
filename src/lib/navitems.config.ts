@@ -150,6 +150,13 @@ export const navItemsConfig: NavItem[] = [
     category: "RESULTS",
   },
   {
+    title: "Notice Board",
+    href: "/teacher/dashboard/notices",
+    icon: "Megaphone",
+    roles: ["TEACHER"],
+    category: "MANAGEMENT",
+  },
+  {
     title: "Settings",
     href: "/teacher/dashboard/profile-settings",
     icon: "Settings",
@@ -185,6 +192,13 @@ export const navItemsConfig: NavItem[] = [
     title: "Attendance Report",
     href: "/dashboard/attendance",
     icon: "ClipboardList",
+    roles: ["PARENT"],
+    category: "MANAGEMENT",
+  },
+  {
+    title: "Notice Board",
+    href: "/dashboard/notices",
+    icon: "Megaphone",
     roles: ["PARENT"],
     category: "MANAGEMENT",
   },
