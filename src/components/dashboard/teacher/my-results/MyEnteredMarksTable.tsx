@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
+import { PaginationControl } from "@/src/components/ui/PaginationControl";
 import {
   ListOrdered,
   Pencil,
@@ -53,6 +54,16 @@ export function MyEnteredMarksTable({
   const [inputMarks, setInputMarks] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  // Pagination States
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+
+  const totalPages = Math.ceil(students.length / pageSize) || 1;
+  const paginatedStudents = useMemo(() => {
+    const start = (currentPage - 1) * pageSize;
+    return students.slice(start, start + pageSize);
+  }, [students, currentPage, pageSize]);
 
   // Grade badge styling
   const getGradeBadgeClass = (grade: string) => {
@@ -211,7 +222,7 @@ export function MyEnteredMarksTable({
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 text-slate-700">
-                {students.map((student) => (
+                {paginatedStudents.map((student) => (
                   <tr
                     key={student.id}
                     className="hover:bg-blue-50/30 transition-colors group"
@@ -277,6 +288,16 @@ export function MyEnteredMarksTable({
           </div>
         )}
       </CardContent>
+
+      {/* Pagination Controls */}
+      <PaginationControl
+        currentPage={currentPage}
+        totalPages={totalPages}
+        totalItems={students.length}
+        pageSize={pageSize}
+        onPageChange={setCurrentPage}
+        itemLabel="students"
+      />
 
       {/* Edit Marks Dialog / Modal */}
       <Dialog open={!!editingStudent} onOpenChange={(open) => !open && setEditingStudent(null)}>
