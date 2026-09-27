@@ -1,12 +1,25 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Bell, Megaphone, CheckCircle2, Clock, X, ExternalLink, FileText, Sparkles } from "lucide-react";
+import {
+  Bell,
+  Megaphone,
+  CheckCircle2,
+  Clock,
+  X,
+  ExternalLink,
+  FileText,
+  Sparkles,
+  Calendar,
+  BookOpen,
+} from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { UserInfo } from "@/src/types/user.interface";
 import { Notice, NoticeCategory } from "@/src/types/notice";
 import { getNotices } from "@/src/services/noticeService";
 import { useSocket } from "@/src/hooks/useSocket";
+import { api } from "@/src/lib/api";
 import {
   Dialog,
   DialogContent,
@@ -18,6 +31,17 @@ import { Button } from "@/src/components/ui/button";
 
 interface NotificationBellProps {
   user: UserInfo;
+}
+
+export interface PersonalNotification {
+  id: string;
+  userId: string;
+  title: string;
+  message: string;
+  type: string;
+  link?: string | null;
+  isRead: boolean;
+  createdAt: string;
 }
 
 const CATEGORY_STYLES: Record<
@@ -33,7 +57,9 @@ const CATEGORY_STYLES: Record<
 };
 
 export function NotificationBell({ user }: NotificationBellProps) {
+  const router = useRouter();
   const [notices, setNotices] = useState<Notice[]>([]);
+  const [personalNotifs, setPersonalNotifs] = useState<PersonalNotification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [isOpen, setIsOpen] = useState(false);
   const [selectedNotice, setSelectedNotice] = useState<Notice | null>(null);
@@ -45,43 +71,59 @@ export function NotificationBell({ user }: NotificationBellProps) {
 
   const storageKey = `read_notices_${user?.id || user?.email || user?.role || "guest"}`;
 
-  // 2. Initial fetch of notices from database with user role filtering
+  // 2. Initial fetch of notices and personal notifications from database
   useEffect(() => {
     let isMounted = true;
+
+    // Fetch broadcast notices
     getNotices()
       .then((data) => {
         if (isMounted && data) {
-          // Filter notices relevant to the user's role
           const role = user?.role;
           const userNotices = data.filter((n) => {
             if (!n.isPublished) return false;
             if (role === "TEACHER") return n.targetAudience === "ALL" || n.targetAudience === "TEACHERS";
             if (role === "PARENT") return n.targetAudience === "ALL" || n.targetAudience === "PARENTS";
-            return true; // Admin sees all
+            return true;
           });
 
           setNotices(userNotices);
 
-          // Get read IDs specifically for this logged-in user
           const userStorageKey = `read_notices_${user?.id || user?.email || user?.role || "guest"}`;
           const readIds: string[] = JSON.parse(localStorage.getItem(userStorageKey) || "[]");
-          const unread = userNotices.filter((n) => !readIds.includes(n.id)).length;
-          setUnreadCount(unread);
+          const unreadNotices = userNotices.filter((n) => !readIds.includes(n.id)).length;
+          setUnreadCount((prev) => prev + unreadNotices);
         }
       })
       .catch((err) => console.error("Failed to load initial notices:", err));
+
+    // Fetch personal targeted notifications (e.g. routine reschedule alerts)
+    if (user?.id) {
+      api
+        .get("/notifications/my-notifications", { params: { userId: user.id } })
+        .then((res) => {
+          if (isMounted && Array.isArray(res.data)) {
+            setPersonalNotifs(res.data);
+            const unreadPersonal = res.data.filter((n: PersonalNotification) => !n.isRead).length;
+            setUnreadCount((prev) => prev + unreadPersonal);
+          }
+        })
+        .catch(() => {
+          // If not authenticated or endpoint returns empty, fail gracefully
+        });
+    }
 
     return () => {
       isMounted = false;
     };
   }, [user?.id, user?.email, user?.role]);
 
-  // 3. Listen for real-time WebSocket events
+  // 3. Listen for real-time WebSocket events (broadcast notices & personal notifications)
   useEffect(() => {
     if (!socket) return;
 
+    // A. Broadcast Notice Event
     const handleNewNotice = (newNotice: Notice) => {
-      // Check if this notice is intended for this user
       const role = user?.role;
       const isRelevant =
         role === "ADMIN" ||
@@ -90,27 +132,39 @@ export function NotificationBell({ user }: NotificationBellProps) {
         (role === "PARENT" && newNotice.targetAudience === "PARENTS");
 
       if (isRelevant) {
-        console.log("⚡ [Realtime] New notice received for user:", newNotice.title);
+        console.log("⚡ [Realtime] New notice received:", newNotice.title);
         setNotices((prev) => [newNotice, ...prev.filter((n) => n.id !== newNotice.id)]);
         setUnreadCount((prev) => prev + 1);
       }
     };
 
+    // B. Personal Notification Event (1-to-1 alert)
+    const handlePersonalNotification = (newNotif: PersonalNotification) => {
+      console.log("⚡ [Realtime] Personal targeted notification received:", newNotif.title);
+      setPersonalNotifs((prev) => [newNotif, ...prev.filter((n) => n.id !== newNotif.id)]);
+      setUnreadCount((prev) => prev + 1);
+    };
+
     socket.on("new_notice", handleNewNotice);
+    socket.on("personal_notification", handlePersonalNotification);
 
     return () => {
       socket.off("new_notice", handleNewNotice);
+      socket.off("personal_notification", handlePersonalNotification);
     };
   }, [socket, user?.role]);
 
-  // 4. Toggle dropdown with auto-clear of unread badge for this specific user
+  // 4. Toggle dropdown with auto-clear of unread count
   const handleToggleDropdown = () => {
     if (!isOpen) {
       setIsOpen(true);
-      // Auto-clear unread badge immediately when opened
       setUnreadCount(0);
       const allIds = notices.map((n) => n.id);
       localStorage.setItem(storageKey, JSON.stringify(allIds));
+
+      if (user?.id) {
+        api.patch("/notifications/mark-all-read", null, { params: { userId: user.id } }).catch(() => {});
+      }
     } else {
       setIsOpen(false);
     }
@@ -132,7 +186,7 @@ export function NotificationBell({ user }: NotificationBellProps) {
     };
   }, [isOpen]);
 
-  // Mark single notice as read when clicked
+  // Handle click on a broadcast notice
   const handleNoticeClick = (notice: Notice) => {
     setSelectedNotice(notice);
     setIsOpen(false);
@@ -144,6 +198,19 @@ export function NotificationBell({ user }: NotificationBellProps) {
     }
     setUnreadCount(0);
   };
+
+  // Handle click on a personal targeted notification (routes to target link)
+  const handlePersonalClick = (notif: PersonalNotification) => {
+    setIsOpen(false);
+    if (user?.id) {
+      api.patch(`/notifications/${notif.id}/read`, null, { params: { userId: user.id } }).catch(() => {});
+    }
+
+    if (notif.link) {
+      router.push(notif.link);
+    }
+  };
+
 
   return (
     <div className="relative" ref={dropdownRef}>
@@ -201,54 +268,97 @@ export function NotificationBell({ user }: NotificationBellProps) {
 
           {/* Notices Scroll Area */}
           <div className="max-h-84 overflow-y-auto divide-y divide-slate-100">
-            {notices.length === 0 ? (
+            {notices.length === 0 && personalNotifs.length === 0 ? (
               <div className="p-8 text-center space-y-2">
                 <div className="h-10 w-10 rounded-xl bg-slate-100 text-slate-400 flex items-center justify-center mx-auto">
                   <Megaphone className="h-5 w-5" />
                 </div>
                 <p className="text-xs font-semibold text-slate-700">No notifications yet</p>
                 <p className="text-[11px] text-slate-400">
-                  New announcements will appear here in real-time.
+                  New announcements and alerts will appear here in real-time.
                 </p>
               </div>
             ) : (
-              notices.slice(0, 10).map((notice) => {
-                const style = CATEGORY_STYLES[notice.category] || CATEGORY_STYLES.GENERAL;
-                const formattedDate = new Date(notice.publishedAt).toLocaleDateString("en-US", {
-                  month: "short",
-                  day: "numeric",
-                });
+              <>
+                {/* 1. Personal Targeted Alerts (e.g. Routine updates, Assignments) */}
+                {personalNotifs.map((notif) => {
+                  const isRoutine = notif.type === "ROUTINE_UPDATE";
+                  return (
+                    <div
+                      key={`personal-${notif.id}`}
+                      onClick={() => handlePersonalClick(notif)}
+                      className={`p-3.5 hover:bg-slate-50 transition-colors cursor-pointer text-left group ${
+                        !notif.isRead ? "bg-violet-50/40" : ""
+                      }`}
+                    >
+                      <div className="flex items-center justify-between gap-2 mb-1">
+                        <span
+                          className={`text-[10px] font-bold px-2 py-0.5 rounded-md border flex items-center gap-1 ${
+                            isRoutine
+                              ? "bg-violet-50 text-violet-700 border-violet-200"
+                              : "bg-indigo-50 text-indigo-700 border-indigo-200"
+                          }`}
+                        >
+                          {isRoutine ? <Calendar className="h-2.5 w-2.5" /> : <BookOpen className="h-2.5 w-2.5" />}
+                          {isRoutine ? "Routine Alert" : "Assignment"}
+                        </span>
+                        <span className="text-[10px] text-slate-400 flex items-center gap-1 font-mono">
+                          <Clock className="h-2.5 w-2.5" />
+                          {new Date(notif.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                        </span>
+                      </div>
 
-                return (
-                  <div
-                    key={notice.id}
-                    onClick={() => handleNoticeClick(notice)}
-                    className="p-3.5 hover:bg-slate-50 transition-colors cursor-pointer text-left group"
-                  >
-                    <div className="flex items-center justify-between gap-2 mb-1">
-                      <span
-                        className={`text-[10px] font-bold px-2 py-0.5 rounded-md border ${style.bg} ${style.text} ${style.border}`}
-                      >
-                        {style.label}
-                      </span>
-                      <span className="text-[10px] text-slate-400 flex items-center gap-1 font-mono">
-                        <Clock className="h-2.5 w-2.5" />
-                        {formattedDate}
-                      </span>
+                      <h5 className="text-xs font-bold text-slate-900 group-hover:text-violet-700 transition-colors line-clamp-1">
+                        {notif.title}
+                      </h5>
+
+                      <p className="text-[11px] text-slate-500 line-clamp-2 mt-0.5 leading-relaxed">
+                        {notif.message}
+                      </p>
                     </div>
+                  );
+                })}
 
-                    <h5 className="text-xs font-bold text-slate-900 group-hover:text-blue-600 transition-colors line-clamp-1">
-                      {notice.title}
-                    </h5>
+                {/* 2. Broadcast School Notices */}
+                {notices.slice(0, 8).map((notice) => {
+                  const style = CATEGORY_STYLES[notice.category] || CATEGORY_STYLES.GENERAL;
+                  const formattedDate = new Date(notice.publishedAt).toLocaleDateString("en-US", {
+                    month: "short",
+                    day: "numeric",
+                  });
 
-                    <p className="text-[11px] text-slate-500 line-clamp-2 mt-0.5 leading-relaxed">
-                      {notice.content}
-                    </p>
-                  </div>
-                );
-              })
+                  return (
+                    <div
+                      key={notice.id}
+                      onClick={() => handleNoticeClick(notice)}
+                      className="p-3.5 hover:bg-slate-50 transition-colors cursor-pointer text-left group"
+                    >
+                      <div className="flex items-center justify-between gap-2 mb-1">
+                        <span
+                          className={`text-[10px] font-bold px-2 py-0.5 rounded-md border ${style.bg} ${style.text} ${style.border}`}
+                        >
+                          {style.label}
+                        </span>
+                        <span className="text-[10px] text-slate-400 flex items-center gap-1 font-mono">
+                          <Clock className="h-2.5 w-2.5" />
+                          {formattedDate}
+                        </span>
+                      </div>
+
+                      <h5 className="text-xs font-bold text-slate-900 group-hover:text-blue-600 transition-colors line-clamp-1">
+                        {notice.title}
+                      </h5>
+
+                      <p className="text-[11px] text-slate-500 line-clamp-2 mt-0.5 leading-relaxed">
+                        {notice.content}
+                      </p>
+                    </div>
+                  );
+                })}
+              </>
             )}
           </div>
+
 
           {/* Footer */}
           <div className="p-2.5 bg-slate-50 border-t border-slate-100 text-center">
