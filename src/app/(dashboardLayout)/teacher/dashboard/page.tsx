@@ -1,23 +1,18 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Link from "next/link";
 import {
   School,
-  FileSpreadsheet,
-  BarChart3,
   Users,
   Sparkles,
-  ArrowRight,
-  Clock,
   BookOpen,
-  Calendar,
   CheckCircle2,
 } from "lucide-react";
-import { Button } from "@/src/components/ui/button";
-import { Badge } from "@/src/components/ui/badge";
+
 import { getMyAssignments } from "@/src/services/teacherService";
 import { TeacherAssignment, Teacher } from "@/src/types/teacher";
+import { TeacherPerformanceChart } from "@/src/components/dashboard/teacher/overview/TeacherPerformanceChart";
+import { TeacherWeeklyWorkloadChart } from "@/src/components/dashboard/teacher/overview/TeacherWeeklyWorkloadChart";
 
 export default function TeacherDashboardPage() {
   const [teacher, setTeacher] = useState<Teacher | null>(null);
@@ -78,26 +73,9 @@ export default function TeacherDashboardPage() {
               Manage your teaching curriculum, view assigned classes and sections, and enter examination scores seamlessly.
             </p>
           </div>
-
-          <div className="flex items-center gap-3">
-            <Link
-              href="/teacher/dashboard/routines"
-              className="h-11 px-5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs transition-all flex items-center gap-2 border border-white/20"
-            >
-              <Calendar className="h-4 w-4" />
-              <span>Weekly Routine</span>
-            </Link>
-            <Link
-              href="/teacher/dashboard/classes"
-              className="h-11 px-5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs transition-all flex items-center gap-2 shadow-lg shadow-blue-600/30 active:scale-[0.98]"
-            >
-              <School className="h-4 w-4" />
-              <span>My Classes</span>
-              <ArrowRight className="h-3.5 w-3.5" />
-            </Link>
-          </div>
         </div>
       </div>
+
 
       {/* Quick Metrics */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
@@ -160,72 +138,15 @@ export default function TeacherDashboardPage() {
         </div>
       </div>
 
-      {/* Quick Action Navigation Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Link
-          href="/teacher/dashboard/routines"
-          className="bg-white p-5 rounded-3xl border border-slate-200/90 shadow-2xs hover:shadow-lg transition-all group hover:-translate-y-1 block"
-        >
-          <div className="h-11 w-11 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center mb-3.5 group-hover:scale-110 group-hover:bg-blue-600 group-hover:text-white transition-all">
-            <Calendar className="h-5 w-5" />
-          </div>
-          <h3 className="text-base font-bold text-slate-900 mb-1 flex items-center justify-between">
-            <span>Weekly Routine</span>
-            <ArrowRight className="h-3.5 w-3.5 text-slate-400 group-hover:text-blue-600 group-hover:translate-x-1 transition-all" />
-          </h3>
-          <p className="text-xs text-slate-500 leading-relaxed">
-            View daily schedule, period timings, classrooms, and weekly sequence.
-          </p>
-        </Link>
-
-        <Link
-          href="/teacher/dashboard/classes"
-          className="bg-white p-5 rounded-3xl border border-slate-200/90 shadow-2xs hover:shadow-lg transition-all group hover:-translate-y-1 block"
-        >
-          <div className="h-11 w-11 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center mb-3.5 group-hover:scale-110 group-hover:bg-indigo-600 group-hover:text-white transition-all">
-            <School className="h-5 w-5" />
-          </div>
-          <h3 className="text-base font-bold text-slate-900 mb-1 flex items-center justify-between">
-            <span>My Classes</span>
-            <ArrowRight className="h-3.5 w-3.5 text-slate-400 group-hover:text-indigo-600 group-hover:translate-x-1 transition-all" />
-          </h3>
-          <p className="text-xs text-slate-500 leading-relaxed">
-            View all assigned classroom sections and view student rosters.
-          </p>
-        </Link>
-
-        <Link
-          href="/teacher/dashboard/results/enter-marks"
-          className="bg-white p-5 rounded-3xl border border-slate-200/90 shadow-2xs hover:shadow-lg transition-all group hover:-translate-y-1 block"
-        >
-          <div className="h-11 w-11 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center mb-3.5 group-hover:scale-110 group-hover:bg-emerald-600 group-hover:text-white transition-all">
-            <FileSpreadsheet className="h-5 w-5" />
-          </div>
-          <h3 className="text-base font-bold text-slate-900 mb-1 flex items-center justify-between">
-            <span>Enter Marks</span>
-            <ArrowRight className="h-3.5 w-3.5 text-slate-400 group-hover:text-emerald-600 group-hover:translate-x-1 transition-all" />
-          </h3>
-          <p className="text-xs text-slate-500 leading-relaxed">
-            Record term examination scores and assess students across subjects.
-          </p>
-        </Link>
-
-        <Link
-          href="/teacher/dashboard/results/my-student-results"
-          className="bg-white p-5 rounded-3xl border border-slate-200/90 shadow-2xs hover:shadow-lg transition-all group hover:-translate-y-1 block"
-        >
-          <div className="h-11 w-11 rounded-2xl bg-violet-50 text-violet-600 flex items-center justify-center mb-3.5 group-hover:scale-110 group-hover:bg-violet-600 group-hover:text-white transition-all">
-            <BarChart3 className="h-5 w-5" />
-          </div>
-          <h3 className="text-base font-bold text-slate-900 mb-1 flex items-center justify-between">
-            <span>Student Results</span>
-            <ArrowRight className="h-3.5 w-3.5 text-slate-400 group-hover:text-violet-600 group-hover:translate-x-1 transition-all" />
-          </h3>
-          <p className="text-xs text-slate-500 leading-relaxed">
-            Review grade distribution and performance analytics for your students.
-          </p>
-        </Link>
+      {/* Visual Analytics & Performance Charts */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <TeacherPerformanceChart
+          assignments={assignments}
+          isLoading={isLoading}
+        />
+        <TeacherWeeklyWorkloadChart isLoading={isLoading} />
       </div>
     </div>
   );
 }
+
