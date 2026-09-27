@@ -71,10 +71,12 @@ export function DashboardNavbarContent({ user, navItems: initialNavItems }: Dash
 
       {/* Right: Notifications + User Profile Dropdown */}
       <div className="flex items-center gap-3">
-        {/* Real-time Interactive Notification Bell */}
-        <NotificationBell user={activeUser} />
+        {/* Real-time Interactive Notification Bell (for Teachers & Parents) */}
+        {portalRole !== "ADMIN" && <NotificationBell user={activeUser} />}
 
-        <div className="h-5 w-px bg-slate-200 mx-1 hidden sm:block" />
+        {portalRole !== "ADMIN" && (
+          <div className="h-5 w-px bg-slate-200 mx-1 hidden sm:block" />
+        )}
 
         <UserDropdown user={activeUser} />
       </div>

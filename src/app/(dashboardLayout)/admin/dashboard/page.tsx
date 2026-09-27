@@ -3,15 +3,19 @@
 import { useEffect, useState } from "react";
 import { AdminOverviewHeader } from "@/src/components/dashboard/admin/overview/AdminOverviewHeader";
 import { AdminOverviewStats } from "@/src/components/dashboard/admin/overview/AdminOverviewStats";
-import { TodayClassSchedule } from "@/src/components/dashboard/admin/overview/TodayClassSchedule";
 import { RecentAdmissions } from "@/src/components/dashboard/admin/overview/RecentAdmissions";
+import { RecentNoticesWidget } from "@/src/components/dashboard/admin/overview/RecentNoticesWidget";
+import { StudentEnrollmentChart } from "@/src/components/dashboard/admin/overview/charts/StudentEnrollmentChart";
+import { WeeklyAttendanceChart } from "@/src/components/dashboard/admin/overview/charts/WeeklyAttendanceChart";
+import { DepartmentDistributionChart } from "@/src/components/dashboard/admin/overview/charts/DepartmentDistributionChart";
 import {
   getStudents,
   getClasses,
   getSubjects,
-  getRoutines,
 } from "@/src/services/academicService";
 import { getTeachers } from "@/src/services/teacherService";
+import { getNotices } from "@/src/services/noticeService";
+import { Notice } from "@/src/types/notice";
 
 export default function AdminDashboardPage() {
   const [isLoading, setIsLoading] = useState(true);
@@ -19,7 +23,7 @@ export default function AdminDashboardPage() {
   const [teachers, setTeachers] = useState<any[]>([]);
   const [classes, setClasses] = useState<any[]>([]);
   const [subjects, setSubjects] = useState<any[]>([]);
-  const [routines, setRoutines] = useState<any[]>([]);
+  const [notices, setNotices] = useState<Notice[]>([]);
 
   useEffect(() => {
     async function fetchDashboardData() {
@@ -30,13 +34,13 @@ export default function AdminDashboardPage() {
           teachersRes,
           classesRes,
           subjectsRes,
-          routinesRes,
+          noticesRes,
         ] = await Promise.allSettled([
           getStudents(),
           getTeachers(),
           getClasses(),
           getSubjects(),
-          getRoutines(),
+          getNotices(),
         ]);
 
         if (studentsRes.status === "fulfilled" && Array.isArray(studentsRes.value)) {
@@ -51,10 +55,8 @@ export default function AdminDashboardPage() {
         if (subjectsRes.status === "fulfilled" && Array.isArray(subjectsRes.value)) {
           setSubjects(subjectsRes.value);
         }
-        if (routinesRes.status === "fulfilled") {
-          const val = routinesRes.value;
-          const routineList = Array.isArray(val) ? val : val?.routines || [];
-          setRoutines(routineList);
+        if (noticesRes.status === "fulfilled" && Array.isArray(noticesRes.value)) {
+          setNotices(noticesRes.value);
         }
       } catch (error) {
         console.error("Failed to load admin dashboard overview data:", error);
@@ -80,8 +82,8 @@ export default function AdminDashboardPage() {
   ).size;
 
   return (
-    <div className="space-y-6 container mx-auto">
-      {/* 1. Header with action buttons */}
+    <div className="space-y-6 sm:space-y-7 container mx-auto pb-10">
+      {/* 1. Header with quick actions */}
       <AdminOverviewHeader />
 
       {/* 2. Top Summary Metric Cards */}
@@ -94,10 +96,35 @@ export default function AdminDashboardPage() {
         activeDepartments={activeDepartments}
       />
 
-      {/* 3. Class Schedule and Recent Admissions Grid */}
+      {/* 3. Recharts Analytics Grid (Row 1: Enrollment Bar Chart + Attendance Area Trend) */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <StudentEnrollmentChart
+          students={students}
+          classes={classes}
+          isLoading={isLoading}
+        />
+        <WeeklyAttendanceChart isLoading={isLoading} />
+      </div>
+
+      {/* 4. Row 2: Department Share Donut + Recent Notices Widget + Recent Admissions */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <TodayClassSchedule routines={routines} isLoading={isLoading} />
-        <RecentAdmissions students={students} isLoading={isLoading} />
+        {/* Col 1: Faculty Department Distribution Donut */}
+        <DepartmentDistributionChart
+          teachers={teachers}
+          isLoading={isLoading}
+        />
+
+        {/* Col 2: Latest School Notices & Announcements */}
+        <RecentNoticesWidget
+          notices={notices}
+          isLoading={isLoading}
+        />
+
+        {/* Col 3: Recent Admissions */}
+        <RecentAdmissions
+          students={students}
+          isLoading={isLoading}
+        />
       </div>
     </div>
   );
