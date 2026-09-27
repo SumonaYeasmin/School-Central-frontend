@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
+import { PaginationControl } from "@/src/components/ui/PaginationControl";
 import { Button } from "@/src/components/ui/button";
 import { Badge } from "@/src/components/ui/badge";
 import { Card, CardContent } from "@/src/components/ui/card";
@@ -66,6 +67,16 @@ export default function AdminNoticesPage() {
   const [notices, setNotices] = useState<Notice[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+
+  // Pagination States
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(6);
+
+  const totalPages = Math.ceil(notices.length / pageSize) || 1;
+  const paginatedNotices = useMemo(() => {
+    const start = (currentPage - 1) * pageSize;
+    return notices.slice(start, start + pageSize);
+  }, [notices, currentPage, pageSize]);
 
   // Fetch notices from backend
   const fetchNotices = useCallback(async () => {
@@ -145,8 +156,9 @@ export default function AdminNoticesPage() {
           </Button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {notices.map((notice) => {
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {paginatedNotices.map((notice) => {
             const cat = CATEGORY_CONFIG[notice.category] || CATEGORY_CONFIG.GENERAL;
             const formattedDate = new Date(notice.publishedAt).toLocaleDateString("en-US", {
               month: "short",
@@ -228,6 +240,17 @@ export default function AdminNoticesPage() {
             );
           })}
         </div>
+
+        {/* Pagination Controls */}
+        <PaginationControl
+          currentPage={currentPage}
+          totalPages={totalPages}
+          totalItems={notices.length}
+          pageSize={pageSize}
+          onPageChange={setCurrentPage}
+          itemLabel="notices"
+        />
+      </div>
       )}
 
       {/* 3. Create Notice Modal (shadcn Dialog) */}

@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo, useEffect } from "react";
+import { PaginationControl } from "@/src/components/ui/PaginationControl";
 import {
   Search,
   UsersRound,
@@ -82,6 +83,20 @@ export function ParentsDirectory({
 
     return nameMatch || emailMatch || phoneMatch || addressMatch || studentMatch;
   });
+
+  // Pagination States
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery]);
+
+  const totalPages = Math.ceil(filteredParents.length / pageSize) || 1;
+  const paginatedParents = useMemo(() => {
+    const start = (currentPage - 1) * pageSize;
+    return filteredParents.slice(start, start + pageSize);
+  }, [filteredParents, currentPage, pageSize]);
 
   return (
     <div className="space-y-6">
@@ -182,7 +197,7 @@ export function ParentsDirectory({
         ) : viewMode === "grid" ? (
           /* CARD GRID VIEW */
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-            {filteredParents.map((parent, index) => {
+            {paginatedParents.map((parent, index) => {
               const avatar = AVATAR_COLORS[index % AVATAR_COLORS.length];
               return (
                 <ParentCard
@@ -210,7 +225,7 @@ export function ParentsDirectory({
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 text-sm">
-                {filteredParents.map((parent, index) => {
+                {paginatedParents.map((parent, index) => {
                   const avatar = AVATAR_COLORS[index % AVATAR_COLORS.length];
                   const studentsCount = parent.students?.length || 0;
 
@@ -310,6 +325,17 @@ export function ParentsDirectory({
             </table>
           </div>
         )}
+
+        {/* Pagination Controls */}
+        <PaginationControl
+          currentPage={currentPage}
+          totalPages={totalPages}
+          totalItems={filteredParents.length}
+          pageSize={pageSize}
+          onPageChange={setCurrentPage}
+          itemLabel="parents"
+          className="mt-6"
+        />
       </div>
     </div>
   );

@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Search, GraduationCap, X, SlidersHorizontal, Layers } from "lucide-react";
 import { Input } from "@/src/components/ui/input";
 import { StudentTableActions } from "./StudentTableActions";
 import { Student } from "@/src/types/student";
+import { PaginationControl } from "@/src/components/ui/PaginationControl";
 
 interface StudentsTableProps {
   students?: Student[];
@@ -184,6 +185,21 @@ export function StudentsTable({
 
   const activeClassName =
     classOptions.find((c) => c.id === selectedClassId)?.name || "";
+
+  // 4. Pagination States
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+
+  // Reset to page 1 whenever filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [selectedClassId, selectedSectionId, searchQuery]);
+
+  const totalPages = Math.ceil(filteredStudents.length / pageSize) || 1;
+  const paginatedStudents = useMemo(() => {
+    const start = (currentPage - 1) * pageSize;
+    return filteredStudents.slice(start, start + pageSize);
+  }, [filteredStudents, currentPage, pageSize]);
 
   return (
     <div className="bg-white border border-slate-200/90 rounded-3xl p-6 shadow-xs space-y-6">
@@ -365,8 +381,9 @@ export function StudentsTable({
           )}
         </div>
       ) : (
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
+        <div className="space-y-4">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
             <thead>
               <tr className="border-b border-slate-100 text-xs font-bold text-slate-400 uppercase tracking-wider">
                 <th className="py-3.5 px-4">Student</th>
@@ -377,7 +394,7 @@ export function StudentsTable({
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 text-sm">
-              {filteredStudents.map((student, index) => {
+              {paginatedStudents.map((student, index) => {
                 const avatar = AVATAR_COLORS[index % AVATAR_COLORS.length];
                 const className = student.class?.name || "N/A";
                 const sectionName = student.section?.name
@@ -444,6 +461,17 @@ export function StudentsTable({
               })}
             </tbody>
           </table>
+        </div>
+
+        {/* Pagination Controls */}
+        <PaginationControl
+          currentPage={currentPage}
+          totalPages={totalPages}
+          totalItems={filteredStudents.length}
+          pageSize={pageSize}
+          onPageChange={setCurrentPage}
+          itemLabel="students"
+        />
         </div>
       )}
     </div>

@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
+import { PaginationControl } from "@/src/components/ui/PaginationControl";
 import { Badge } from "@/src/components/ui/badge";
 import { School, BookOpen } from "lucide-react";
 import { ClassTableActions } from "./ClassTableActions";
@@ -39,6 +40,16 @@ export function ClassesTable({ classes = [], onRefresh }: ClassesTableProps) {
     return a.name.localeCompare(b.name, undefined, { numeric: true });
   });
 
+  // Pagination States
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+
+  const totalPages = Math.ceil(sortedClasses.length / pageSize) || 1;
+  const paginatedClasses = useMemo(() => {
+    const start = (currentPage - 1) * pageSize;
+    return sortedClasses.slice(start, start + pageSize);
+  }, [sortedClasses, currentPage, pageSize]);
+
   const handleSaveEdit = async (updatedData: {
     id: string;
     name: string;
@@ -70,7 +81,7 @@ export function ClassesTable({ classes = [], onRefresh }: ClassesTableProps) {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 text-sm">
-              {sortedClasses.map((classItem) => {
+              {paginatedClasses.map((classItem) => {
                 const gradeNumber =
                   classItem.name.replace(/[^0-9]/g, "") || classItem.name.charAt(0);
                 const classSubjects: any[] = classItem.classSubjects || [];
@@ -134,6 +145,17 @@ export function ClassesTable({ classes = [], onRefresh }: ClassesTableProps) {
           </table>
         </div>
       </div>
+
+      {/* Pagination Controls */}
+      <PaginationControl
+        currentPage={currentPage}
+        totalPages={totalPages}
+        totalItems={sortedClasses.length}
+        pageSize={pageSize}
+        onPageChange={setCurrentPage}
+        itemLabel="classes"
+        className="mt-4"
+      />
 
       {/* Edit Class Modal */}
       <EditClassModal

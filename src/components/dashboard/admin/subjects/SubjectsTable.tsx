@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
+import { PaginationControl } from "@/src/components/ui/PaginationControl";
 import {
   BookOpen,
   Search,
@@ -321,6 +322,20 @@ export function SubjectsTable({
     selectedGroup !== "ALL" ||
     searchQuery.trim().length > 0;
 
+  // Pagination States
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [selectedClassKey, selectedGroup, searchQuery]);
+
+  const totalPages = Math.ceil(filteredSubjects.length / pageSize) || 1;
+  const paginatedSubjects = useMemo(() => {
+    const start = (currentPage - 1) * pageSize;
+    return filteredSubjects.slice(start, start + pageSize);
+  }, [filteredSubjects, currentPage, pageSize]);
+
   // Handlers for Save Edit & Delete
   const handleSaveEdit = async (updatedData: {
     id: string;
@@ -532,8 +547,9 @@ export function SubjectsTable({
           )}
         </div>
       ) : (
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
+        <div className="space-y-4">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
             <thead>
               <tr className="border-b border-slate-100 text-xs font-bold text-slate-400 uppercase tracking-wider">
                 <th className="py-3.5 px-4">Subject</th>
@@ -544,7 +560,7 @@ export function SubjectsTable({
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 text-sm">
-              {filteredSubjects.map((subj, index) => {
+              {paginatedSubjects.map((subj, index) => {
                 const accent = ACCENT_COLORS[index % ACCENT_COLORS.length];
                 const code = subj.code || "N/A";
                 const classesSummary = formatClassesSummary(subj);
@@ -614,6 +630,17 @@ export function SubjectsTable({
               })}
             </tbody>
           </table>
+        </div>
+
+        {/* Pagination Controls */}
+        <PaginationControl
+          currentPage={currentPage}
+          totalPages={totalPages}
+          totalItems={filteredSubjects.length}
+          pageSize={pageSize}
+          onPageChange={setCurrentPage}
+          itemLabel="subjects"
+        />
         </div>
       )}
 

@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
+import { PaginationControl } from "@/src/components/ui/PaginationControl";
 import {
   Search,
   Users,
@@ -110,6 +111,20 @@ export function TeachersTable({
 
   const hasActiveFilters =
     selectedDepartment !== "ALL" || searchQuery.trim().length > 0;
+
+  // Pagination States
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [selectedDepartment, searchQuery]);
+
+  const totalPages = Math.ceil(filteredTeachers.length / pageSize) || 1;
+  const paginatedTeachers = useMemo(() => {
+    const start = (currentPage - 1) * pageSize;
+    return filteredTeachers.slice(start, start + pageSize);
+  }, [filteredTeachers, currentPage, pageSize]);
 
   const handleResetFilters = () => {
     setSelectedDepartment("ALL");
@@ -231,8 +246,9 @@ export function TeachersTable({
           )}
         </div>
       ) : (
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
+        <div className="space-y-4">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
             <thead>
               <tr className="border-b border-slate-100 text-xs font-bold text-slate-400 uppercase tracking-wider">
                 <th className="py-3.5 px-4">Teacher</th>
@@ -244,7 +260,7 @@ export function TeachersTable({
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 text-sm">
-              {filteredTeachers.map((teacher, index) => {
+              {paginatedTeachers.map((teacher, index) => {
                 const avatar = AVATAR_COLORS[index % AVATAR_COLORS.length];
                 const assignments = teacher.assignments || [];
 
@@ -370,6 +386,17 @@ export function TeachersTable({
               })}
             </tbody>
           </table>
+        </div>
+
+        {/* Pagination Controls */}
+        <PaginationControl
+          currentPage={currentPage}
+          totalPages={totalPages}
+          totalItems={filteredTeachers.length}
+          pageSize={pageSize}
+          onPageChange={setCurrentPage}
+          itemLabel="teachers"
+        />
         </div>
       )}
     </div>
