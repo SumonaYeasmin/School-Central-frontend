@@ -1,10 +1,12 @@
 "use client";
 
+import { useState, useMemo, useEffect } from "react";
 import { Info, RotateCcw, Save, Loader2, Users } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/src/components/ui/card";
 import { Input } from "@/src/components/ui/input";
 import { Button } from "@/src/components/ui/button";
 import { Badge } from "@/src/components/ui/badge";
+import { PaginationControl } from "@/src/components/ui/PaginationControl";
 
 export interface StudentRowItem {
   id: string;
@@ -33,6 +35,21 @@ export function StudentMarksTable({
   isSaving = false,
   isLoading = false,
 }: StudentMarksTableProps) {
+  // Pagination States
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+
+  // If students change, reset to page 1
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [students.length]);
+
+  const totalPages = Math.ceil(students.length / pageSize) || 1;
+  const paginatedStudents = useMemo(() => {
+    const start = (currentPage - 1) * pageSize;
+    return students.slice(start, start + pageSize);
+  }, [students, currentPage, pageSize]);
+
   const getGradeBadge = (grade: string) => {
     switch (grade) {
       case "A+":
@@ -124,7 +141,7 @@ export function StudentMarksTable({
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 text-slate-700">
-                {students.map((student) => (
+                {paginatedStudents.map((student) => (
                   <tr
                     key={student.id}
                     className="hover:bg-blue-50/40 transition-colors group"
@@ -179,10 +196,25 @@ export function StudentMarksTable({
           </div>
         )}
 
+        {/* Pagination Controls */}
+        {students.length > pageSize && (
+          <div className="p-4 border-t border-slate-100 bg-white">
+            <PaginationControl
+              currentPage={currentPage}
+              totalPages={totalPages}
+              totalItems={students.length}
+              pageSize={pageSize}
+              onPageChange={setCurrentPage}
+              itemLabel="students"
+            />
+          </div>
+        )}
+
         {/* Footer & Action Controls */}
         <div className="p-4 sm:p-5 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4 mt-auto bg-slate-50/40 rounded-b-2xl">
           <span className="text-xs text-slate-500 font-medium">
-            Showing all <strong className="text-slate-800 font-semibold">{students.length}</strong> students
+            Showing <strong className="text-slate-800 font-bold">{students.length > 0 ? (currentPage - 1) * pageSize + 1 : 0}–{Math.min(currentPage * pageSize, students.length)}</strong> of{" "}
+            <strong className="text-slate-800 font-bold">{students.length}</strong> students (all pages saved)
           </span>
 
           {/* Action Buttons */}

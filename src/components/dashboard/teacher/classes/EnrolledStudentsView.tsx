@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
+import { PaginationControl } from "@/src/components/ui/PaginationControl";
 import Link from "next/link";
 import {
   ArrowLeft,
@@ -70,6 +71,20 @@ export function EnrolledStudentsView({ assignmentId }: EnrolledStudentsViewProps
       st.studentId.toLowerCase().includes(q)
     );
   });
+
+  // Pagination States
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [genderFilter, searchQuery]);
+
+  const totalPages = Math.ceil(filteredStudents.length / pageSize) || 1;
+  const paginatedStudents = useMemo(() => {
+    const start = (currentPage - 1) * pageSize;
+    return filteredStudents.slice(start, start + pageSize);
+  }, [filteredStudents, currentPage, pageSize]);
 
   return (
     <div className="container mx-auto  px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6 font-sans animate-in fade-in duration-300">
@@ -250,7 +265,7 @@ export function EnrolledStudentsView({ assignmentId }: EnrolledStudentsViewProps
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 text-slate-700 font-medium">
-                {filteredStudents.map((st) => {
+                {paginatedStudents.map((st) => {
                   const parentEntry =
                     st.parents?.find((p: any) => p.isPrimary) || st.parents?.[0];
                   const parentName =
@@ -332,6 +347,17 @@ export function EnrolledStudentsView({ assignmentId }: EnrolledStudentsViewProps
             </table>
           </div>
         )}
+
+        {/* Pagination Controls */}
+        <PaginationControl
+          currentPage={currentPage}
+          totalPages={totalPages}
+          totalItems={filteredStudents.length}
+          pageSize={pageSize}
+          onPageChange={setCurrentPage}
+          itemLabel="students"
+          className="mt-4"
+        />
       </div>
     </div>
   );

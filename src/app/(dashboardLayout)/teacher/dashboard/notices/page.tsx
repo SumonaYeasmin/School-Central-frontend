@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useMemo } from "react";
+import { PaginationControl } from "@/src/components/ui/PaginationControl";
 import { Badge } from "@/src/components/ui/badge";
 import { Card, CardContent } from "@/src/components/ui/card";
 import { Input } from "@/src/components/ui/input";
@@ -77,6 +78,20 @@ export default function TeacherNoticesPage() {
       return matchesCategory && matchesSearch;
     });
   }, [notices, selectedCategory, searchQuery]);
+
+  // Pagination States
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(6);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [selectedCategory, searchQuery]);
+
+  const totalPages = Math.ceil(filteredNotices.length / pageSize) || 1;
+  const paginatedNotices = useMemo(() => {
+    const start = (currentPage - 1) * pageSize;
+    return filteredNotices.slice(start, start + pageSize);
+  }, [filteredNotices, currentPage, pageSize]);
 
   return (
     <div className="space-y-6 container mx-auto">
@@ -155,8 +170,9 @@ export default function TeacherNoticesPage() {
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filteredNotices.map((notice) => {
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {paginatedNotices.map((notice) => {
             const cat = CATEGORY_CONFIG[notice.category] || CATEGORY_CONFIG.GENERAL;
             const formattedDate = new Date(notice.publishedAt).toLocaleDateString("en-US", {
               month: "short",
@@ -218,6 +234,17 @@ export default function TeacherNoticesPage() {
             );
           })}
         </div>
+
+        {/* Pagination Controls */}
+        <PaginationControl
+          currentPage={currentPage}
+          totalPages={totalPages}
+          totalItems={filteredNotices.length}
+          pageSize={pageSize}
+          onPageChange={setCurrentPage}
+          itemLabel="notices"
+        />
+      </div>
       )}
 
       {/* Notice Detail View Dialog */}
