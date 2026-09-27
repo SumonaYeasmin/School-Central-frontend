@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
+import { PaginationControl } from "@/src/components/ui/PaginationControl";
 import {
   School,
   BookOpen,
@@ -80,6 +81,20 @@ export function MyClassesView() {
       (item.subject.code && item.subject.code.toLowerCase().includes(q))
     );
   });
+
+  // Pagination States
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(6);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [selectedClassFilter, searchQuery]);
+
+  const totalPages = Math.ceil(filteredAssignments.length / pageSize) || 1;
+  const paginatedAssignments = useMemo(() => {
+    const start = (currentPage - 1) * pageSize;
+    return filteredAssignments.slice(start, start + pageSize);
+  }, [filteredAssignments, currentPage, pageSize]);
 
   return (
     <div className="container mx-auto  px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6 sm:space-y-8 font-sans animate-in fade-in duration-300">
@@ -196,13 +211,25 @@ export function MyClassesView() {
           )}
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
-          {filteredAssignments.map((assignment) => (
-            <ClassCard
-              key={assignment.id}
-              assignment={assignment}
-            />
-          ))}
+        <div className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
+            {paginatedAssignments.map((assignment) => (
+              <ClassCard
+                key={assignment.id}
+                assignment={assignment}
+              />
+            ))}
+          </div>
+
+          {/* Pagination Controls */}
+          <PaginationControl
+            currentPage={currentPage}
+            totalPages={totalPages}
+            totalItems={filteredAssignments.length}
+            pageSize={pageSize}
+            onPageChange={setCurrentPage}
+            itemLabel="classes"
+          />
         </div>
       )}
     </div>
