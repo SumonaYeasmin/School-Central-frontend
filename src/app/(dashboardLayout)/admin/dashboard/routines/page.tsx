@@ -294,6 +294,25 @@ export default function ClassRoutinesPage() {
     }
   };
 
+  // 8.2 Set Section Routine to Draft Mode Handler
+  const handleSetDraftRoutine = () => {
+    setPublishedMap((prev) => {
+      const next = { ...prev, [selectedSectionId]: false };
+      try {
+        localStorage.setItem("admin_published_routines", JSON.stringify(next));
+      } catch {}
+      return next;
+    });
+    setNotification({
+      type: "success",
+      message: "Routine Switched to Draft Mode",
+      description: `${selectedRoutine?.fullName || selectedRoutine?.grade} timetable is now in Draft mode. Edits will not trigger teacher notifications.`,
+    });
+    setTimeout(() => {
+      setNotification(null);
+    }, 4000);
+  };
+
   // 9. Add Routine Slot Handler
   const handleAddPeriod = (
     sectionId: string,
@@ -407,6 +426,7 @@ export default function ClassRoutinesPage() {
         isPublished={Boolean(publishedMap[selectedSectionId])}
         isPublishing={isPublishing}
         onPublishRoutine={handlePublishRoutine}
+        onSetDraft={handleSetDraftRoutine}
         onEditPeriod={handleOpenEdit}
         onOpenFullEdit={() => setIsFullEditModalOpen(true)}
         onOpenAddRoutine={() => handleOpenAddModal()}

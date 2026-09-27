@@ -2,7 +2,7 @@
 
 import { Badge } from "@/src/components/ui/badge";
 import { Button } from "@/src/components/ui/button";
-import { Coffee, Edit3, Calendar, Plus, CheckCircle2, Sparkles } from "lucide-react";
+import { Coffee, Edit3, Calendar, Plus, CheckCircle2, Sparkles, FileText } from "lucide-react";
 import {
   SectionRoutine,
   TIME_SLOTS,
@@ -16,6 +16,7 @@ interface WeeklyTimetableProps {
   isPublished?: boolean;
   isPublishing?: boolean;
   onPublishRoutine?: () => void;
+  onSetDraft?: () => void;
   onEditPeriod?: (
     day: string,
     timeSlot: string,
@@ -29,6 +30,7 @@ interface WeeklyTimetableProps {
     periodKey: "p1" | "p2" | "p3" | "p4" | "p5"
   ) => void;
 }
+
 
 // Vibrant, modern theme styling
 const THEME_STYLES: Record<string, string> = {
@@ -45,6 +47,7 @@ export function WeeklyTimetable({
   isPublished = false,
   isPublishing = false,
   onPublishRoutine,
+  onSetDraft,
   onEditPeriod,
   onOpenFullEdit,
   onOpenAddRoutine,
@@ -68,7 +71,7 @@ export function WeeklyTimetable({
 
   return (
     <div className="bg-white border border-slate-200/90 rounded-3xl p-5 sm:p-6 shadow-xs space-y-5">
-      {/* 1. Timetable Header with Add, Update, and Publish Routine Buttons */}
+      {/* 1. Timetable Header with Status (Draft / Published), Add, and Update Routine Buttons */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-slate-100 pb-4">
         <div>
           <span className="text-[11px] font-bold tracking-widest text-slate-400 uppercase flex items-center gap-1.5">
@@ -95,24 +98,37 @@ export function WeeklyTimetable({
           </div>
         </div>
 
-        {/* Action Buttons: Add, Update, and Publish Routine */}
-        <div className="flex flex-wrap items-center gap-2">
-          {/* Publish Routine Button */}
-          {onPublishRoutine && (
-            <Button
+        {/* Action Buttons: Draft vs Published Status Buttons + Add & Update Routine */}
+        <div className="flex flex-wrap items-center gap-2.5">
+          {/* Draft & Published Switcher Buttons */}
+          <div className="flex items-center p-1 bg-slate-100 rounded-xl border border-slate-200/80">
+            <button
+              type="button"
+              onClick={onSetDraft}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+                !isPublished
+                  ? "bg-amber-500 text-white shadow-xs"
+                  : "text-slate-600 hover:text-slate-900 hover:bg-white/60"
+              }`}
+            >
+              <FileText className="h-3.5 w-3.5" />
+              <span>Draft</span>
+            </button>
+
+            <button
               type="button"
               onClick={onPublishRoutine}
-              disabled={isPublishing || isPublished}
-              className={`font-bold px-3.5 py-1.5 rounded-xl text-xs flex items-center gap-1.5 transition-all cursor-pointer ${
+              disabled={isPublishing}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
                 isPublished
-                  ? "bg-slate-100 text-slate-400 border border-slate-200/80 cursor-default"
-                  : "bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm shadow-emerald-600/30 active:scale-95"
+                  ? "bg-emerald-600 text-white shadow-xs"
+                  : "text-slate-600 hover:text-slate-900 hover:bg-white/60"
               }`}
             >
               <CheckCircle2 className="h-3.5 w-3.5" />
-              <span>{isPublishing ? "Publishing..." : isPublished ? "Published" : "Publish Routine"}</span>
-            </Button>
-          )}
+              <span>{isPublishing ? "Publishing..." : isPublished ? "Published" : "Publish"}</span>
+            </button>
+          </div>
 
           <Button
             type="button"
@@ -126,7 +142,7 @@ export function WeeklyTimetable({
           <Button
             type="button"
             onClick={onOpenFullEdit}
-            className="bg-amber-500 hover:bg-amber-600 text-white font-bold px-3.5 py-1.5 rounded-xl text-xs flex items-center gap-1.5 shadow-xs transition-all cursor-pointer"
+            className="bg-slate-800 hover:bg-slate-900 text-white font-bold px-3.5 py-1.5 rounded-xl text-xs flex items-center gap-1.5 shadow-xs transition-all cursor-pointer"
           >
             <Edit3 className="h-3.5 w-3.5" />
             <span>Update Routine</span>

@@ -16,6 +16,7 @@ import {
   RefreshCw,
   AlertCircle,
   Building2,
+  CheckCircle2,
 } from "lucide-react";
 import { getMyChildren, MyChildrenResponse, ParentChildInfo } from "@/src/services/parentService";
 import { getWeeklyTimetable } from "@/src/services/routineService";
@@ -272,9 +273,15 @@ export function ParentRoutineView() {
       {/* Header Banner */}
       <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-950 via-slate-900 to-indigo-900 p-6 sm:p-8 text-white shadow-xl border border-indigo-800/40 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
         <div className="space-y-2">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-indigo-500/20 border border-indigo-400/30 text-indigo-300 text-xs font-semibold backdrop-blur-xs">
-            <Calendar className="h-3.5 w-3.5 text-indigo-400" />
-            <span>Real-Time Database Timetable</span>
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-indigo-500/20 border border-indigo-400/30 text-indigo-300 text-xs font-semibold backdrop-blur-xs">
+              <Calendar className="h-3.5 w-3.5 text-indigo-400" />
+              <span>Real-Time Database Timetable</span>
+            </div>
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-400/30 text-emerald-300 text-xs font-bold backdrop-blur-xs">
+              <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" />
+              <span>Active Term Routine · Official Published</span>
+            </div>
           </div>
           <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white">
             Class Routine & Schedule
@@ -365,9 +372,16 @@ export function ParentRoutineView() {
               <Calendar className="h-3.5 w-3.5 text-indigo-500" />
               <span>OFFICIAL WEEKLY SCHEDULE</span>
             </span>
-            <h3 className="text-base sm:text-lg font-black text-slate-900 mt-0.5">
-              {selectedChild ? `${selectedChild.class} (${selectedChild.section}) Class Timetable` : "Weekly Timetable"}
-            </h3>
+            <div className="flex flex-wrap items-center gap-3 mt-0.5">
+              <h3 className="text-base sm:text-lg font-black text-slate-900">
+                {selectedChild ? `${selectedChild.class} (${selectedChild.section}) Class Timetable` : "Weekly Timetable"}
+              </h3>
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 shadow-2xs">
+                <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+                <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
+                <span>Active Term Routine · Official Published</span>
+              </span>
+            </div>
           </div>
 
           <div className="flex items-center gap-2 text-xs text-slate-500 font-medium">

@@ -13,6 +13,7 @@ import {
   CalendarDays,
   Coffee,
   Flame,
+  CheckCircle2,
 } from "lucide-react";
 import { Button } from "@/src/components/ui/button";
 import { Badge } from "@/src/components/ui/badge";
@@ -382,6 +383,13 @@ export function TeacherWeeklyRoutineView() {
               <h2 className="text-xl font-black text-slate-900">
                 {routineData?.teacher?.name ? `${routineData.teacher.name} · Personal Weekly Schedule` : "Teacher Routine Matrix"}
               </h2>
+
+              {/* Relaxing Green Badge: Official Published Routine */}
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 shadow-2xs">
+                <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+                <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
+                <span>Active Term Routine · Official Published</span>
+              </span>
             </div>
           </div>
 
