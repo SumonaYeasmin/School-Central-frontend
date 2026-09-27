@@ -103,7 +103,16 @@ export const deleteRoutine = async (id: string): Promise<{ success: boolean; mes
   return response.data;
 };
 
-// 6. Get logged-in teacher's personal weekly routine
+// 6. Publish routines from DRAFT to PUBLISHED
+export const publishRoutines = async (classId?: string, sectionId?: string): Promise<any> => {
+  const params: Record<string, string> = {};
+  if (classId) params.classId = classId;
+  if (sectionId) params.sectionId = sectionId;
+  const response = await api.patch("/routines/publish", null, { params });
+  return response.data;
+};
+
+// 7. Get logged-in teacher's personal weekly routine
 export interface TeacherScheduleSlot {
   id: string;
   startTime: string;

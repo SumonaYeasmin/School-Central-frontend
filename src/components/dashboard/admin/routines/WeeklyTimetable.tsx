@@ -2,7 +2,7 @@
 
 import { Badge } from "@/src/components/ui/badge";
 import { Button } from "@/src/components/ui/button";
-import { Coffee, Edit3, Calendar, Plus } from "lucide-react";
+import { Coffee, Edit3, Calendar, Plus, CheckCircle2, Sparkles } from "lucide-react";
 import {
   SectionRoutine,
   TIME_SLOTS,
@@ -13,6 +13,9 @@ import {
 
 interface WeeklyTimetableProps {
   routine?: SectionRoutine;
+  isPublished?: boolean;
+  isPublishing?: boolean;
+  onPublishRoutine?: () => void;
   onEditPeriod?: (
     day: string,
     timeSlot: string,
@@ -39,6 +42,9 @@ const THEME_STYLES: Record<string, string> = {
 
 export function WeeklyTimetable({
   routine,
+  isPublished = false,
+  isPublishing = false,
+  onPublishRoutine,
   onEditPeriod,
   onOpenFullEdit,
   onOpenAddRoutine,
@@ -62,7 +68,7 @@ export function WeeklyTimetable({
 
   return (
     <div className="bg-white border border-slate-200/90 rounded-3xl p-5 sm:p-6 shadow-xs space-y-5">
-      {/* 1. Timetable Header with Add and Update Routine Buttons */}
+      {/* 1. Timetable Header with Add, Update, and Publish Routine Buttons */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-slate-100 pb-4">
         <div>
           <span className="text-[11px] font-bold tracking-widest text-slate-400 uppercase flex items-center gap-1.5">
@@ -73,11 +79,41 @@ export function WeeklyTimetable({
             <h2 className="text-xl font-black text-slate-900">
               {routine.fullName || `${routine.grade} · ${routine.section}`}
             </h2>
+
+            {/* Status Badge: Draft Mode vs Published */}
+            {isPublished ? (
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+                Published & Active
+              </span>
+            ) : (
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-800 border border-amber-200">
+                <span className="h-2 w-2 rounded-full bg-amber-500" />
+                Draft Mode (Unpublished)
+              </span>
+            )}
           </div>
         </div>
 
-        {/* Action Buttons: Add Routine & Update Routine */}
-        <div className="flex items-center gap-2">
+        {/* Action Buttons: Add, Update, and Publish Routine */}
+        <div className="flex flex-wrap items-center gap-2">
+          {/* Publish Routine Button */}
+          {onPublishRoutine && (
+            <Button
+              type="button"
+              onClick={onPublishRoutine}
+              disabled={isPublishing || isPublished}
+              className={`font-bold px-3.5 py-1.5 rounded-xl text-xs flex items-center gap-1.5 transition-all cursor-pointer ${
+                isPublished
+                  ? "bg-slate-100 text-slate-400 border border-slate-200/80 cursor-default"
+                  : "bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm shadow-emerald-600/30 active:scale-95"
+              }`}
+            >
+              <CheckCircle2 className="h-3.5 w-3.5" />
+              <span>{isPublishing ? "Publishing..." : isPublished ? "Published" : "Publish Routine"}</span>
+            </Button>
+          )}
+
           <Button
             type="button"
             onClick={onOpenAddRoutine}
@@ -97,6 +133,7 @@ export function WeeklyTimetable({
           </Button>
         </div>
       </div>
+
 
       {/* 2. Horizontal Time / Vertical Weekday Schedule Matrix */}
       <div className="overflow-x-auto">

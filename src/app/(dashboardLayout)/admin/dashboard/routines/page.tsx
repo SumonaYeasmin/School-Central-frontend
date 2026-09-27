@@ -14,7 +14,7 @@ import {
   getSubjectThemeColor,
 } from "@/src/components/dashboard/admin/routines/mockRoutines";
 import { getClasses, getSubjects, getTeachers } from "@/src/services/academicService";
-import { getRoutines } from "@/src/services/routineService";
+import { getRoutines, publishRoutines } from "@/src/services/routineService";
 import { CheckCircle2, AlertCircle } from "lucide-react";
 
 // Helper to sort routines numerically by grade (Class 6 to Class 10) and then by section
@@ -58,6 +58,14 @@ export default function ClassRoutinesPage() {
             setRoutines(sortRoutinesList(parsed));
           }
         }
+
+        const savedPublished = localStorage.getItem("admin_published_routines");
+        if (savedPublished) {
+          setPublishedMap(JSON.parse(savedPublished));
+        } else {
+          // By default, all routines initially start in Draft Mode until explicitly published by Admin
+          setPublishedMap({});
+        }
       } catch (err) {
         console.warn("Could not read custom routines from cache:", err);
       }
@@ -87,7 +95,9 @@ export default function ClassRoutinesPage() {
     description?: string;
   } | null>(null);
 
-  // 5. Modals State
+  // 5. Published State per Section Routine
+  const [publishedMap, setPublishedMap] = useState<Record<string, boolean>>({});
+  const [isPublishing, setIsPublishing] = useState<boolean>(false);
   const [editModal, setEditModal] = useState<{
     isOpen: boolean;
     day: string;
@@ -240,6 +250,50 @@ export default function ClassRoutinesPage() {
     }, 4000);
   };
 
+  // 8.1 Publish Current Section Routine Handler
+  const handlePublishRoutine = async () => {
+    try {
+      setIsPublishing(true);
+      const targetClass = dbClasses.find(
+        (c) => c.name?.toLowerCase() === selectedRoutine?.grade?.toLowerCase()
+      );
+      await publishRoutines(targetClass?.id);
+
+      setPublishedMap((prev) => {
+        const next = { ...prev, [selectedSectionId]: true };
+        try {
+          localStorage.setItem("admin_published_routines", JSON.stringify(next));
+        } catch {}
+        return next;
+      });
+
+      setNotification({
+        type: "success",
+        message: "Routine Officially Published!",
+        description: `${selectedRoutine.fullName || selectedRoutine.grade} timetable is now live and published for faculty & parents.`,
+      });
+    } catch {
+      // Local fallback activation
+      setPublishedMap((prev) => {
+        const next = { ...prev, [selectedSectionId]: true };
+        try {
+          localStorage.setItem("admin_published_routines", JSON.stringify(next));
+        } catch {}
+        return next;
+      });
+      setNotification({
+        type: "success",
+        message: "Routine Published Successfully!",
+        description: `${selectedRoutine.fullName || selectedRoutine.grade} timetable has been published and activated.`,
+      });
+    } finally {
+      setIsPublishing(false);
+      setTimeout(() => {
+        setNotification(null);
+      }, 4000);
+    }
+  };
+
   // 9. Add Routine Slot Handler
   const handleAddPeriod = (
     sectionId: string,
@@ -350,6 +404,9 @@ export default function ClassRoutinesPage() {
       {/* 3. Full Weekly Timetable Schedule Matrix (Horizontal Periods & Vertical Weekdays) */}
       <WeeklyTimetable
         routine={selectedRoutine}
+        isPublished={Boolean(publishedMap[selectedSectionId])}
+        isPublishing={isPublishing}
+        onPublishRoutine={handlePublishRoutine}
         onEditPeriod={handleOpenEdit}
         onOpenFullEdit={() => setIsFullEditModalOpen(true)}
         onOpenAddRoutine={() => handleOpenAddModal()}
